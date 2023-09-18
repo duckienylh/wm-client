@@ -1,0 +1,350 @@
+# This file was generated. Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}
+
+type Category {
+    createdAt: Date
+    id: Int!
+    name: String!
+    updatedAt: Date
+}
+
+type Customer {
+    address: String
+    companyName: String
+    createdAt: Date
+    email: String
+    id: Int!
+    name: String
+    phoneNumber: String!
+    updatedAt: Date
+}
+
+type Mutation {
+    createCategory(input: CreateCategoryInput!): Category!
+    createCustomer(input: CreateCustomerInput!): Customer!
+    createOrder(input: CreateOrderInput!): Order!
+    createProduct(input: CreateProductInput!): Product!
+    createUser(input: CreateUserInput!): User!
+    deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
+    deleteProduct(input: DeleteProductInput!): SuccessResponse!
+    deleteUser(input: DeleteUserInput!): SuccessResponse!
+    updateCategory(input: UpdateCategoryInput!): SuccessResponse!
+    updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
+    updateOrder(input: UpdateOrderInput!): SuccessResponse!
+    updateProduct(input: UpdateProductInput!): SuccessResponse!
+    updateUser(input: UpdateUserInput!): SuccessResponse!
+}
+
+type Notification {
+    Order: Order
+    content: String!
+    createdAt: Date!
+    event: NotificationEvent!
+    id: Int!
+    updatedAt: Date!
+}
+
+type NotificationResponse {
+    message: String!
+    notification: Notification
+}
+
+type Order {
+    VAT: Float
+    createdAt: Date
+    customer: Customer!
+    deliverAddress: String
+    discount: Float
+    freightPrice: Float
+    id: Int!
+    invoiceNo: String!
+    sale: User!
+    status: StatusOrder!
+    totalAmount: Float
+    updatedAt: Date
+}
+
+type PageInfo {
+    endCursor: Cursor
+    hasNextPage: Boolean!
+}
+
+type Product {
+    category: Category!
+    code: String!
+    createdAt: Date
+    description: String
+    height: Float
+    id: Int!
+    image: String
+    name: String!
+    price: Float!
+    quantity: Int
+    updatedAt: Date
+    weight: Float
+    width: Float
+}
+
+type ProductConnection {
+    edges: [ProductEdge]
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type ProductEdge {
+    cursor: String!
+    node: Product
+}
+
+type Query {
+    listAllCategory: [Category]!
+    listAllProduct(input: ListAllProductInput!): ProductConnection!
+    login(input: UserLoginInput!): UserLoginResponse!
+    me: User!
+    users(input: UsersInput!): UserConnection!
+}
+
+type Subscription {
+    subscribeNotifications(input: SubscribeNotificationsInput!): NotificationResponse!
+}
+
+type User {
+    address: String
+    avatarURL: String
+    createdAt: Date
+    email: String
+    firstName: String!
+    fullName: String!
+    id: Int!
+    isActive: Boolean
+    lastName: String!
+    phoneNumber: String!
+    role: Role
+    updatedAt: Date
+    userName: String!
+}
+
+type UserConnection {
+    edges: [UserEdge]
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type UserEdge {
+    cursor: String!
+    node: User
+}
+
+type UserLoginResponse {
+    token: String!
+    user: User!
+}
+
+enum NotificationEvent {
+    Common
+    NewMessage
+    NewOrder
+    updateOrder
+}
+
+enum Role {
+    Accountant
+    Admin
+    AssistantDriver
+    Director
+    Driver
+    Manager
+    Sales
+    TransporterManager
+}
+
+enum StatusOrder {
+    Delivering
+    creatNew
+    done
+    paid
+    paymentConfirmation
+    successDelivery
+}
+
+enum SuccessResponse {
+    success
+}
+
+scalar Cursor
+
+scalar Date
+
+scalar JSON
+
+scalar Upload
+
+input CreateCategoryInput {
+    name: String!
+}
+
+input CreateCustomerInput {
+    address: String
+    companyName: String
+    email: String
+    name: String
+    phoneNumber: String!
+}
+
+input CreateOrderInput {
+    VAT: Float
+    customerId: Int!
+    deliverAddress: String
+    discount: Float
+    freightPrice: Float
+    product: [productInput!]!
+    saleId: Int!
+}
+
+input CreateProductInput {
+    categoryId: Int!
+    code: String!
+    description: String
+    height: Float
+    image: Upload
+    name: String!
+    price: Float!
+    quantity: Int
+    weight: Float
+    width: Float
+}
+
+input CreateUserInput {
+    address: String
+    avatar: Upload
+    email: String
+    firstName: String!
+    lastName: String!
+    password: String!
+    phoneNumber: String!
+    role: Role!
+    userName: String!
+}
+
+input DeleteCustomerInput {
+    ids: [Int!]!
+}
+
+input DeleteProductInput {
+    ids: [Int!]!
+}
+
+input DeleteUserInput {
+    ids: [Int!]!
+}
+
+input ListAllProductInput {
+    args: PaginationInput
+    categoryId: Int
+    checkInventory: Boolean
+    stringQuery: String
+}
+
+input PaginationInput {
+    after: Cursor
+    before: Cursor
+    first: Int
+    last: Int
+}
+
+input SubscribeNotificationsInput {
+    "excludingEvent: Khi user không muốn nhận thông từ 1 sự kiện nào đó"
+    excludingEvent: [NotificationEvent!]
+    "#### User Id: ID của user sẽ nhận đc các thông báo"
+    userId: Int!
+}
+
+input UpdateCategoryInput {
+    id: Int!
+    name: String
+}
+
+input UpdateCustomerInput {
+    address: String
+    companyName: String
+    email: String
+    id: Int!
+    name: String
+    phoneNumber: String
+}
+
+input UpdateOrderInput {
+    VAT: Float
+    customerId: Int
+    deliverAddress: String
+    discount: Float
+    freightPrice: Float
+    id: Int!
+    invoiceNo: String
+    product: [UpdateProductOrderInput!]
+    saleId: Int
+    status: StatusOrder
+}
+
+input UpdateProductInput {
+    categoryId: Int
+    code: String
+    description: String
+    height: Float
+    id: Int!
+    image: Upload
+    name: String
+    price: Float
+    quantity: Int
+    weight: Float
+    width: Float
+}
+
+input UpdateProductOrderInput {
+    description: String
+    orderItem: Int!
+    priceProduct: Float
+    productId: Int
+    quantity: Int
+    weightProduct: Float
+}
+
+input UpdateUserInput {
+    address: String
+    avatarURL: Upload
+    email: String
+    firstName: String
+    id: Int!
+    isActive: Boolean
+    lastName: String
+    newPassword: String
+    oldPassword: String
+    phoneNumber: String
+    role: Role
+    userName: String
+}
+
+input UserLoginInput {
+    account: String!
+    password: String!
+}
+
+input UsersInput {
+    args: PaginationInput
+    isActive: Boolean
+    role: Role
+    searchQuery: String
+}
+
+input productInput {
+    description: String
+    priceProduct: Float!
+    productId: Int!
+    quantity: Int!
+    weightProduct: Float
+}
