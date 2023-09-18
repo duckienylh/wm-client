@@ -12,7 +12,7 @@ const RootStyle = styled('div')(() => ({
 
 export default function HomePage() {
   return (
-    <Page title="Website Quản lý Nội Bộ công ty CP Thép Công Nghiệp HN">
+    <Page title="Website Quản lý xuất nhập kho gỗ NDK">
       <RootStyle>
         <HomeHero />
       </RootStyle>

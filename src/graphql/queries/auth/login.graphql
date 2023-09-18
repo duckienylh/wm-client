@@ -8,6 +8,7 @@ query Login($input: UserLoginInput!) {
             phoneNumber
             firstName
             lastName
+            fullName
             address
             avatarURL
             isActive

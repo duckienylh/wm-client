@@ -6,18 +6,12 @@ import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
 // _mock_
-import { _userAbout } from '../../_mock';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
-import {
-  AccountChangePassword,
-  AccountGeneral,
-  AccountNotifications,
-  AccountSocialLinks,
-} from '../../sections/@dashboard/user/account';
+import { AccountChangePassword, AccountGeneral } from '../../sections/@dashboard/user/account';
 
 // ----------------------------------------------------------------------
 
@@ -31,16 +25,6 @@ export default function UserAccount() {
       value: 'Thông tin chung',
       icon: <Iconify icon={'ic:round-account-box'} width={20} height={20} />,
       component: <AccountGeneral />,
-    },
-    {
-      value: 'Thông báo',
-      icon: <Iconify icon={'eva:bell-fill'} width={20} height={20} />,
-      component: <AccountNotifications />,
-    },
-    {
-      value: 'Trang liên kết',
-      icon: <Iconify icon={'eva:share-fill'} width={20} height={20} />,
-      component: <AccountSocialLinks myProfile={_userAbout} />,
     },
     {
       value: 'Đổi mật khẩu',

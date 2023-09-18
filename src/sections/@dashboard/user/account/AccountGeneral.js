@@ -8,12 +8,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Box, Card, Grid, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // hooks
+import { loader } from 'graphql.macro';
+import { useMutation } from '@apollo/client';
 import useAuth from '../../../../hooks/useAuth';
 // utils
 import { fData } from '../../../../utils/formatNumber';
 // _mock
 // components
 import { FormProvider, RHFTextField, RHFUploadAvatar } from '../../../../components/hook-form';
+
+// ----------------------------------------------------------------------
+const UPDATE_USER = loader('../../../../graphql/mutations/user/updateUser.graphql');
+const PROFILE = loader('../../../../graphql/queries/user/profile.graphql');
 
 // ----------------------------------------------------------------------
 
@@ -23,21 +29,18 @@ export default function AccountGeneral() {
   const { user } = useAuth();
 
   const UpdateUserSchema = Yup.object().shape({
-    displayName: Yup.string().required('Name is required'),
+    lastName: Yup.string().required('Tên người dùng không được để trống'),
+    firstName: Yup.string().required('Họ người dùng không được để trống'),
   });
 
   const defaultValues = {
-    displayName: user?.displayName || '',
+    lastName: user?.lastName || '',
+    firstName: user?.firstName || '',
     email: user?.email || '',
-    photoURL: user?.photoURL || '',
+    avatarURL: user?.avatarURL || null,
     phoneNumber: user?.phoneNumber || '',
-    country: user?.country || '',
     address: user?.address || '',
     state: user?.state || '',
-    city: user?.city || '',
-    zipCode: user?.zipCode || '',
-    about: user?.about || '',
-    isPublic: user?.isPublic || false,
   };
 
   const methods = useForm({
@@ -49,14 +52,46 @@ export default function AccountGeneral() {
     setValue,
     handleSubmit,
     formState: { isSubmitting },
+    watch,
   } = methods;
+
+  const values = watch();
+
+  const [updateUser] = useMutation(UPDATE_USER, {
+    refetchQueries: () => [
+      {
+        query: PROFILE,
+      },
+    ],
+    onCompleted: () => {
+      enqueueSnackbar('Cập nhật thành công', {
+        variant: 'success',
+      });
+    },
+    onError: (error) => {
+      enqueueSnackbar(`Cập nhật không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
 
   const onSubmit = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      enqueueSnackbar('Cập nhật thành công!');
+      await updateUser({
+        variables: {
+          input: {
+            id: parseInt(user.id, 10),
+            firstName: values.firstName?.trim() !== user.firstName ? values.firstName : null,
+            lastName: values.lastName?.trim() !== user.lastName ? values.lastName : null,
+            avatarURL: values.avatarURL,
+            address: values.address?.trim() !== user.address ? values.address : null,
+          },
+        },
+      });
     } catch (error) {
-      console.error(error);
+      enqueueSnackbar(`Cập nhật không thành công. ${error.message}`, {
+        variant: 'error',
+      });
     }
   };
 
@@ -82,7 +117,7 @@ export default function AccountGeneral() {
         <Grid item xs={12} md={4}>
           <Card sx={{ py: 10, px: 3, textAlign: 'center' }}>
             <RHFUploadAvatar
-              name="photoURL"
+              name="avatarURL"
               accept="image/*"
               maxSize={3145728}
               onDrop={handleDrop}
@@ -115,18 +150,16 @@ export default function AccountGeneral() {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="displayName" label="Tên người dùng" />
-              <RHFTextField name="email" label="Địa chỉ Email" />
+              <RHFTextField name="lastName" label="Họ người dùng" />
+              <RHFTextField name="firstName" label="Tên người dùng" />
 
-              <RHFTextField name="phoneNumber" label="Số điện thoại" />
+              <RHFTextField name="email" label="Địa chỉ Email" disabled />
+
+              <RHFTextField name="phoneNumber" label="Số điện thoại" disabled />
               <RHFTextField name="address" label="Địa chỉ" />
-
-              <RHFTextField name="city" label="Thành phố" />
             </Box>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
-              <RHFTextField name="about" multiline rows={4} label="Giới thiệu bản thân" />
-
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 Lưu Thay Đổi
               </LoadingButton>
