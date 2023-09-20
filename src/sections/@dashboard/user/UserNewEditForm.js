@@ -10,14 +10,21 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, FormControlLabel, Grid, Stack, Switch, Typography } from '@mui/material';
 // utils
+import { loader } from 'graphql.macro';
+import { useMutation } from '@apollo/client';
 import { fData } from '../../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 // components
 import Label from '../../../components/Label';
-import { FormProvider, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
+import { FormProvider, RHFSelect, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
+import { RolesSelect } from '../../../constant';
+import useAuth from '../../../hooks/useAuth';
 
+// ----------------------------------------------------------------------
+const CREATE = loader('../../../graphql/mutations/user/createUser.graphql');
+const UPDATE = loader('../../../graphql/mutations/user/updateUser.graphql');
 // ----------------------------------------------------------------------
 
 UserNewEditForm.propTypes = {
@@ -30,31 +37,43 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const { user } = useAuth();
+
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email(),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    userName: Yup.string().min(2, 'Tên đăng nhập quá ngắn!').required('Bạn hãy điền tên đăng nhập'),
+    password: Yup.string().min(6, 'Mật khẩu quá ngắn!').required('Bạn hãy nhập mật khẩu'),
+    firstName: Yup.string().required('Bạn hãy nhập tên'),
+    lastName: Yup.string().required('Bạn hãy nhập họ'),
+    email: Yup.string().email('Hãy nhập tên đăng nhập là 1 email'),
+    phoneNumber: Yup.string()
+      .required('Hãy nhập số điện thoại')
+      .matches(/([+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/, 'Không đúng định dạng số điện thoại')
+      .max(12, 'Số điện thoại chỉ có tối đa 10 số'),
+    role: Yup.string().required('Bạn hãy chọn chức vụ'),
+  });
+
+  const UpdateUserSchema = Yup.object().shape({
+    userName: Yup.string().min(2, 'Tên đăng nhập quá ngắn!').required('Bạn hãy điền tên đăng nhập'),
+    email: Yup.string().email('Hãy nhập tên đăng nhập là 1 email'),
+    phoneNumber: Yup.string()
+      .required('Hãy nhập số điện thoại')
+      .matches(/([+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/, 'Không đúng định dạng số điện thoại')
+      .max(12, 'Số điện thoại chỉ có tối đa 10 số'),
+    firstName: Yup.string().required('Bạn hãy nhập họ'),
+    lastName: Yup.string().required('Bạn hãy nhập tên'),
+    role: Yup.string().required('Bạn hãy nhập chức vụ'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.displayName || '',
+      userName: currentUser?.userName || '',
+      password: currentUser?.password || '',
+      firstName: currentUser?.firstName || '',
+      lastName: currentUser?.lastName || '',
       email: currentUser?.email || '',
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      avatarUrl: currentUser?.photoURL || '',
-      isVerified: currentUser?.isVerified || true,
+      avatarUrl: currentUser?.avatarURL || '',
       status: currentUser?.status,
       role: currentUser?.role || '',
     }),
@@ -63,7 +82,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: !isEdit ? yupResolver(NewUserSchema) : yupResolver(UpdateUserSchema),
     defaultValues,
   });
 
@@ -88,12 +107,112 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentUser]);
 
+  const [createFn] = useMutation(CREATE, {
+    onCompleted: async (res) => {
+      if (res) {
+        return res;
+      }
+      return null;
+    },
+  });
+
+  const [updateFn] = useMutation(UPDATE, {
+    onCompleted: async (res) => {
+      if (res) {
+        return res;
+      }
+      return null;
+    },
+  });
+
+  const create = async (avatar, email, userName, phoneNumber, role, password, firstName, lastName, address) => {
+    const response = await createFn({
+      variables: {
+        input: {
+          avatar,
+          email,
+          userName,
+          phoneNumber,
+          role,
+          password,
+          firstName,
+          lastName,
+          address,
+        },
+      },
+
+      onError(error) {
+        enqueueSnackbar(`Tạo người dùng không thành công. Nguyên nhân: ${error.message}`, {
+          variant: 'warning',
+        });
+      },
+    });
+    if (!response.errors) {
+      enqueueSnackbar('Tạo người dùng thành công', {
+        variant: 'success',
+      });
+      navigate(PATH_DASHBOARD.user.list);
+    }
+  };
+
+  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email) => {
+    const response = await updateFn({
+      variables: {
+        input: {
+          id,
+          userName,
+          role,
+          // TODO: chua lam update avatar
+          avatar: null,
+          firstName,
+          lastName,
+          phoneNumber,
+          address,
+          email,
+        },
+      },
+      onError(error) {
+        enqueueSnackbar(`Cập nhật người dùng không thành công. Nguyên nhân: ${error.message}`, {
+          variant: 'warning',
+        });
+      },
+    });
+
+    if (!response.errors) {
+      enqueueSnackbar('Cập nhật người dùng thành công', {
+        variant: 'success',
+      });
+      navigate(PATH_DASHBOARD.user.list);
+    }
+  };
+  console.log(values.userId);
   const onSubmit = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (isEdit) {
+        await update(
+          Number(user?.id),
+          values.userName,
+          values.firstName,
+          values.lastName,
+          values.phoneNumber,
+          values.address,
+          values.role,
+          values.email
+        );
+      } else {
+        await create(
+          values.avatarUrl,
+          values.email,
+          values.userName,
+          values.phoneNumber,
+          values.role,
+          values.password,
+          values.firstName,
+          values.lastName,
+          values.address
+        );
+      }
       reset();
-      enqueueSnackbar(!isEdit ? 'Tạo thành công!' : 'Cập nhật thành công!');
-      navigate(PATH_DASHBOARD.user.list);
     } catch (error) {
       console.error(error);
     }
@@ -184,22 +303,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
               />
             )}
-
-            <RHFSwitch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Xác thực Email
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Tắt để tự động gửi Email xác minh cho người dùng
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
           </Card>
         </Grid>
 
@@ -213,13 +316,34 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="name" label="Tên Người Dùng" />
+              {!isEdit && (
+                <>
+                  <RHFTextField name="userName" label="Tên tài khoản" />
+                  <RHFTextField name="password" label="Mật khẩu" type="password" />
+                </>
+              )}
+              <RHFTextField name="firstName" label="Tên Người Dùng" />
+              <RHFTextField name="lastName" label="Họ Người Dùng" />
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="phoneNumber" label="Số điện thoại" />
 
-              <RHFTextField name="city" label="Thành Phố" />
               <RHFTextField name="address" label="Địa Chỉ" />
-              <RHFTextField name="role" label="Chức vụ" />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <RHFSelect
+                  name="role"
+                  label="Chức vụ"
+                  onChange={(event) => {
+                    setValue('role', event.target.value);
+                  }}
+                >
+                  <option value="" />
+                  {RolesSelect.map((option) => (
+                    <option key={option.name} value={option.name}>
+                      {option.label}
+                    </option>
+                  ))}
+                </RHFSelect>
+              </Stack>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

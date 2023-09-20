@@ -1,5 +1,4 @@
-import { paramCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import {
@@ -20,13 +19,15 @@ import {
   Tooltip,
 } from '@mui/material';
 // routes
+import { loader } from 'graphql.macro';
+import { useMutation, useQuery } from '@apollo/client';
+import { useSnackbar } from 'notistack';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
 import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
 // _mock_
-import { users } from '../../_apis_/account';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -37,18 +38,24 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 import { UserTableRow, UserTableToolbar } from '../../sections/@dashboard/user/list';
 // constant
 import { RoleArr } from '../../constant';
+import { formatRoleInput } from '../../utils/formatRole';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
 
 const TABLE_HEAD = [
+  { id: 'STT', label: 'STT', align: 'left' },
   { id: 'name', label: 'Tên người dùng', align: 'left' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'left' },
   { id: 'role', label: 'Chức vụ', align: 'left' },
   { id: 'status', label: 'Trạng thái', align: 'left' },
   { id: '' },
 ];
 
+// ----------------------------------------------------------------------
+const LIST_USERS = loader('../../graphql/queries/user/users.graphql');
+const DELETE_USER = loader('../../graphql/mutations/user/deleteUser.graphql');
 // ----------------------------------------------------------------------
 
 export default function UserList() {
@@ -75,13 +82,46 @@ export default function UserList() {
 
   const navigate = useNavigate();
 
-  const [tableData, setTableData] = useState(users);
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
   const [filterRole, setFilterRole] = useState('Tất cả');
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('Tất cả');
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { data: allUsers, refetch } = useQuery(LIST_USERS, {
+    variables: {
+      input: {
+        role: filterRole !== 'Tất cả' ? formatRoleInput(filterRole) : null,
+        isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
+        args: {
+          first: rowsPerPage,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  const deleteUser = useMutation(DELETE_USER, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa người dùng thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa người dùng không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (allUsers?.users) setTableData(allUsers?.users.edges);
+  }, [allUsers]);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -92,28 +132,38 @@ export default function UserList() {
     setFilterRole(event.target.value);
   };
 
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+  const handleDeleteRow = async (id) => {
+    await deleteUser({
+      variables: {
+        input: {
+          ids: id,
+        },
+      },
+    });
     setSelected([]);
-    setTableData(deleteRow);
+    await refetch();
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  const handleDeleteRows = async (selected) => {
+    await deleteUser({
+      variables: {
+        input: {
+          ids: selected,
+        },
+      },
+    });
     setSelected([]);
-    setTableData(deleteRows);
+    await refetch();
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.user.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.user.edit(id));
   };
 
   const dataFiltered = applySortFilter({
     tableData,
     comparator: getComparator(order, orderBy),
     filterName,
-    filterRole,
-    filterStatus,
   });
 
   const denseHeight = dense ? 52 : 72;
@@ -203,20 +253,21 @@ export default function UserList() {
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData.map((row) => row.node.id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {dataFiltered.map((row, idx) => (
                     <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={selected.includes(row.id)}
-                      onSelectRow={() => onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.id)}
+                      key={row.node.id}
+                      row={row.node}
+                      idx={idx + 1}
+                      selected={selected.includes(row.node.id)}
+                      onSelectRow={() => onSelectRow(row.node.id)}
+                      onDeleteRow={() => handleDeleteRow(row.node.id)}
+                      onEditRow={() => handleEditRow(row.node.id)}
                     />
                   ))}
 
@@ -254,7 +305,7 @@ export default function UserList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
+function applySortFilter({ tableData, comparator, filterName }) {
   const stabilizedThis = tableData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -266,15 +317,7 @@ function applySortFilter({ tableData, comparator, filterName, filterStatus, filt
   tableData = stabilizedThis.map((el) => el[0]);
 
   if (filterName) {
-    tableData = tableData.filter((item) => item.displayName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
-  }
-
-  if (filterStatus !== 'Tất cả') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
-  }
-
-  if (filterRole !== 'Tất cả') {
-    tableData = tableData.filter((item) => item.role === filterRole);
+    tableData = tableData.filter((item) => item.node.fullName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
   }
 
   return tableData;

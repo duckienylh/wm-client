@@ -24,6 +24,17 @@ type Customer {
     updatedAt: Date
 }
 
+type CustomerConnection {
+    edges: [CustomerEdge]
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type CustomerEdge {
+    cursor: String!
+    node: Customer
+}
+
 type Mutation {
     createCategory(input: CreateCategoryInput!): Category!
     createCustomer(input: CreateCustomerInput!): Customer!
@@ -102,7 +113,10 @@ type ProductEdge {
 }
 
 type Query {
+    getCustomerById(CustomerId: Int!): Customer!
+    getUserById(userId: Int!): User!
     listAllCategory: [Category]!
+    listAllCustomer(input: ListAllCustomerInput!): CustomerConnection!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
@@ -241,6 +255,11 @@ input DeleteProductInput {
 
 input DeleteUserInput {
     ids: [Int!]!
+}
+
+input ListAllCustomerInput {
+    args: PaginationInput
+    searchQuery: String
 }
 
 input ListAllProductInput {

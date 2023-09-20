@@ -1,4 +1,4 @@
-import { Role, RoleNumberList } from './role';
+import { Role } from './role';
 
 export const AdminAccount = {
   id: 'admin-01',
@@ -206,26 +206,3 @@ export const driverUserList = [
 ];
 
 export const onlyDriverUserList = [Driver1ManagerAccount, Driver2ManagerAccount, Driver4ManagerAccount];
-
-export const roleNumberToRole = (roleNumber) => {
-  switch (roleNumber) {
-    case RoleNumberList.director:
-      return Role.director;
-    case RoleNumberList.admin:
-      return Role.admin;
-    case RoleNumberList.manager:
-      return Role.manager;
-    case RoleNumberList.accountant:
-      return Role.accountant;
-    case RoleNumberList.sales:
-      return Role.sales;
-    case RoleNumberList.transporterManager:
-      return Role.transporterManager;
-    case RoleNumberList.driver:
-      return Role.driver;
-    case RoleNumberList.assistantDriver:
-      return Role.assistantDriver;
-    default:
-      return '';
-  }
-};
