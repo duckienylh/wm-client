@@ -15,12 +15,10 @@ import { useMutation } from '@apollo/client';
 import { fData } from '../../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
-// _mock
 // components
 import Label from '../../../components/Label';
 import { FormProvider, RHFSelect, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
 import { RolesSelect } from '../../../constant';
-import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 const CREATE = loader('../../../graphql/mutations/user/createUser.graphql');
@@ -36,8 +34,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
 
   const { enqueueSnackbar } = useSnackbar();
-
-  const { user } = useAuth();
 
   const NewUserSchema = Yup.object().shape({
     userName: Yup.string().min(2, 'Tên đăng nhập quá ngắn!').required('Bạn hãy điền tên đăng nhập'),
@@ -74,7 +70,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.address || '',
       avatarUrl: currentUser?.avatarURL || '',
-      status: currentUser?.status,
+      status: currentUser?.isActive,
       role: currentUser?.role || '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -129,7 +125,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     const response = await createFn({
       variables: {
         input: {
-          avatar,
+          avatarURL: avatar,
           email,
           userName,
           phoneNumber,
@@ -155,7 +151,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     }
   };
 
-  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email) => {
+  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email, status) => {
     const response = await updateFn({
       variables: {
         input: {
@@ -163,12 +159,13 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           userName,
           role,
           // TODO: chua lam update avatar
-          avatar: null,
+          avatarURL: null,
           firstName,
           lastName,
           phoneNumber,
           address,
           email,
+          isActive: status,
         },
       },
       onError(error) {
@@ -185,19 +182,20 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       navigate(PATH_DASHBOARD.user.list);
     }
   };
-  console.log(values.userId);
+
   const onSubmit = async () => {
     try {
       if (isEdit) {
         await update(
-          Number(user?.id),
+          Number(currentUser?.id),
           values.userName,
           values.firstName,
           values.lastName,
           values.phoneNumber,
           values.address,
           values.role,
-          values.email
+          values.email,
+          values.status
         );
       } else {
         await create(
@@ -238,13 +236,13 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <Card sx={{ py: 10, px: 3 }}>
+          <Card sx={{ py: 5, px: 3, pt: 10 }}>
             {isEdit && (
               <Label
-                color={values.status !== 'Đang hoạt động' ? 'error' : 'success'}
+                color={!values.status ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {values.status}
+                {values.status ? 'Đang hoạt động' : 'Ngừng hoạt động'}
               </Label>
             )}
 
@@ -282,10 +280,8 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                     render={({ field }) => (
                       <Switch
                         {...field}
-                        checked={field.value !== 'Đang hoạt động'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'Ngừng hoạt động' : 'Đang hoạt động')
-                        }
+                        checked={!field.value}
+                        onChange={(event) => field.onChange(!event.target.checked)}
                       />
                     )}
                   />
@@ -300,7 +296,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
                     </Typography>
                   </>
                 }
-                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
               />
             )}
           </Card>

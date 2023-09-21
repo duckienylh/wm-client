@@ -1,0 +1,12 @@
+query GetCustomerById($customerId: Int!) {
+    getCustomerById(CustomerId: $customerId) {
+        id
+        email
+        name
+        phoneNumber
+        companyName
+        address
+        createdAt
+        updatedAt
+    }
+}

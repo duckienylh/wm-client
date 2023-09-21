@@ -26,7 +26,7 @@ import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 // _mock_
 // components
 import Page from '../../components/Page';
@@ -86,17 +86,24 @@ export default function UserList() {
 
   const [filterName, setFilterName] = useState('');
 
+  const [totalCount, setTotalCount] = useState(0);
+
   const [filterRole, setFilterRole] = useState('Tất cả');
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('Tất cả');
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { data: allUsers, refetch } = useQuery(LIST_USERS, {
+  const {
+    data: allUsers,
+    refetch,
+    fetchMore,
+  } = useQuery(LIST_USERS, {
     variables: {
       input: {
         role: filterRole !== 'Tất cả' ? formatRoleInput(filterRole) : null,
         isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
+        searchQuery: filterName,
         args: {
           first: rowsPerPage,
           after: 0,
@@ -105,7 +112,7 @@ export default function UserList() {
     },
   });
 
-  const deleteUser = useMutation(DELETE_USER, {
+  const [deleteUser] = useMutation(DELETE_USER, {
     onCompleted: () => {
       enqueueSnackbar('Xóa người dùng thành công', {
         variant: 'success',
@@ -119,9 +126,42 @@ export default function UserList() {
     },
   });
 
+  const updateQuery = (previousResult, { fetchMoreResult }) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      users: {
+        ...previousResult.users,
+        edges: [...fetchMoreResult.users.edges],
+        pageInfo: fetchMoreResult.users.pageInfo,
+        totalCount: fetchMoreResult.users.totalCount,
+      },
+    };
+  };
+
   useEffect(() => {
-    if (allUsers?.users) setTableData(allUsers?.users.edges);
+    if (allUsers?.users) {
+      setTableData(allUsers?.users.edges);
+      setTotalCount(allUsers?.users.totalCount);
+    }
   }, [allUsers]);
+
+  useEffect(() => {
+    fetchMore({
+      variables: {
+        input: {
+          role: filterRole !== 'Tất cả' ? formatRoleInput(filterRole) : null,
+          isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
+          searchQuery: filterName,
+          args: {
+            first: rowsPerPage,
+            after: page * rowsPerPage,
+          },
+        },
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
+    }).then((res) => res);
+  }, [refetch, rowsPerPage, page, fetchMore, filterRole, filterStatus, filterName]);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -130,6 +170,7 @@ export default function UserList() {
 
   const handleFilterRole = (event) => {
     setFilterRole(event.target.value);
+    setPage(0);
   };
 
   const handleDeleteRow = async (id) => {
@@ -160,18 +201,9 @@ export default function UserList() {
     navigate(PATH_DASHBOARD.user.edit(id));
   };
 
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-  });
-
   const denseHeight = dense ? 52 : 72;
 
-  const isNotFound =
-    (!dataFiltered.length && !!filterName) ||
-    (!dataFiltered.length && !!filterRole) ||
-    (!dataFiltered.length && !!filterStatus);
+  const isNotFound = !tableData.length;
 
   return (
     <Page title="Người dùng: Danh sách người dùng">
@@ -201,7 +233,10 @@ export default function UserList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onChangeFilterStatus}
+            onChange={(event, value) => {
+              setPage(0);
+              onChangeFilterStatus(event, value);
+            }}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {STATUS_OPTIONS.map((tab) => (
@@ -259,7 +294,7 @@ export default function UserList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.map((row, idx) => (
+                  {tableData.map((row, idx) => (
                     <UserTableRow
                       key={row.node.id}
                       row={row.node}
@@ -271,7 +306,10 @@ export default function UserList() {
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, tableData.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -283,7 +321,7 @@ export default function UserList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -303,22 +341,6 @@ export default function UserList() {
   );
 }
 
-// ----------------------------------------------------------------------
-
-function applySortFilter({ tableData, comparator, filterName }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  tableData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    tableData = tableData.filter((item) => item.node.fullName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
-  }
-
-  return tableData;
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

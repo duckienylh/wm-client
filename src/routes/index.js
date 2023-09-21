@@ -108,7 +108,7 @@ export default function Router() {
             },
             { path: 'danh-sach', element: <CustomerList /> },
             { path: 'tao-moi', element: <CustomerCreate /> },
-            { path: ':id/cap-nhat', element: <UserCreate /> },
+            { path: ':id/cap-nhat', element: <CustomerCreate /> },
           ],
         },
 

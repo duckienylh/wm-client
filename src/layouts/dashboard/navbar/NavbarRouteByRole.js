@@ -33,9 +33,6 @@ export const adminNavConfig = [
     items: [
       { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
       { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
-      // TODO: Check admin có cần tính lương không?
-      // https://github.com/justq-app/sm-client/issues/8
-      // { title: 'Lương theo doanh thu', path: PATH_DASHBOARD.general.salaryBySale, icon: ICONS.salary },
     ],
   },
   // MANAGEMENT
@@ -51,7 +48,6 @@ export const adminNavConfig = [
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.user.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.user.new },
-          // { title: 'Cập nhật', path: PATH_DASHBOARD.user.demoEdit },
         ],
       },
       // Khách hàng
@@ -62,7 +58,6 @@ export const adminNavConfig = [
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.customer.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.customer.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.customer.demoEdit },
         ],
       },
       // product
@@ -182,7 +177,6 @@ export const directorNavConfig = [
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.customer.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.customer.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.customer.demoEdit },
         ],
       },
       // product
@@ -294,74 +288,6 @@ export const salesNavConfig = [
     items: [
       { title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice },
       { title: 'Chi tiết', path: PATH_DASHBOARD.saleAndMarketing.demoView, icon: ICONS.detail },
-    ],
-  },
-  // APP
-  // ----------------------------------------------------------------------
-  {
-    subheader: 'Chức năng',
-    items: [
-      {
-        title: 'Forum',
-        path: PATH_DASHBOARD.blog.root,
-        icon: ICONS.blog,
-        children: [
-          { title: 'Tin tức', path: PATH_DASHBOARD.blog.posts },
-          { title: 'Chi tiết', path: PATH_DASHBOARD.blog.demoView },
-          { title: 'Tạo mới', path: PATH_DASHBOARD.blog.new },
-        ],
-      },
-      { title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-    ],
-  },
-];
-
-export const transporterManagerNavConfig = [
-  // Chung
-  // ----------------------------------------------------------------------
-  {
-    subheader: 'Chung',
-    items: [
-      { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-      { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
-      { title: 'Bảng Lương', path: PATH_DASHBOARD.general.salaryBySale, icon: ICONS.salary },
-    ],
-  },
-  // Vận tải
-  // ----------------------------------------------------------------------
-  {
-    subheader: 'Vận tải',
-    items: [
-      {
-        title: 'Lệnh xuất hàng',
-        path: PATH_DASHBOARD.deliveryOrder.root,
-        icon: ICONS.cart,
-        children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.deliveryOrder.list },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.deliveryOrder.demoEdit },
-        ],
-      },
-      {
-        title: 'Xe, Phương tiện',
-        path: PATH_DASHBOARD.transportation.root,
-        icon: ICONS.cart,
-        children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.transportation.list },
-          { title: 'Tạo mới', path: PATH_DASHBOARD.transportation.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.transportation.demoEdit },
-        ],
-      },
-      {
-        title: 'Lái xe, phụ xe',
-        path: PATH_DASHBOARD.driver.root,
-        icon: ICONS.customer,
-        children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.driver.list },
-          { title: 'Tạo mới', path: PATH_DASHBOARD.driver.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.driver.demoEdit },
-        ],
-      },
-      { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
     ],
   },
   // APP
