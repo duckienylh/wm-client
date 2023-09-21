@@ -1,0 +1,21 @@
+query ListAllCustomer($input: ListAllCustomerInput!) {
+    listAllCustomer(input: $input) {
+        totalCount
+        pageInfo {
+            endCursor
+            hasNextPage
+        }
+        edges {
+            node {
+                id
+                email
+                name
+                phoneNumber
+                companyName
+                address
+                createdAt
+                updatedAt
+            }
+        }
+    }
+}

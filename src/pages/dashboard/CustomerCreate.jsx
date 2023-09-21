@@ -1,13 +1,16 @@
-import { capitalCase, paramCase } from 'change-case';
 import { useLocation, useParams } from 'react-router-dom';
 import { Container } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useSettings from '../../hooks/useSettings';
-import { _customerList } from '../../_mock';
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import CustomerNewEditForm from '../../sections/@dashboard/customer/CustomerNewEditForm';
 
+// ----------------------------------------------------------------------
+const CUSTOMER = loader('../../graphql/queries/customer/getCustomerById.graphql');
 // ----------------------------------------------------------------------
 
 export default function CustomerCreate() {
@@ -15,11 +18,23 @@ export default function CustomerCreate() {
 
   const { pathname } = useLocation();
 
-  const { name = '' } = useParams();
+  const { id } = useParams();
 
   const isEdit = pathname.includes('cap-nhat');
 
-  const currentCustomer = name !== '' ? _customerList.find((user) => paramCase(user.name) === name) : null;
+  const [currentCustomer, setCurrentCustomer] = useState({});
+
+  const { data } = useQuery(CUSTOMER, {
+    variables: {
+      customerId: isEdit ? parseInt(id.toString(), 10) : 0,
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setCurrentCustomer(data?.getCustomerById);
+    }
+  }, [data]);
 
   return (
     <Page title="Khách hàng mới">
@@ -29,11 +44,11 @@ export default function CustomerCreate() {
           links={[
             { name: 'Trang chủ', href: PATH_DASHBOARD.root },
             { name: 'Khách hàng', href: PATH_DASHBOARD.customer.list },
-            { name: !isEdit ? 'Khách hàng mới' : capitalCase(name) },
+            { name: !isEdit ? 'Khách hàng mới' : 'Cập nhật khách hàng' },
           ]}
         />
 
-        <CustomerNewEditForm isEdit={isEdit} currentCustomer={currentCustomer} />
+        <CustomerNewEditForm isEdit={isEdit} currentCustomer={isEdit ? currentCustomer : null} />
       </Container>
     </Page>
   );
