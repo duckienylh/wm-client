@@ -1,4 +1,3 @@
-import { paramCase } from 'change-case';
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
@@ -17,13 +16,14 @@ import {
   Tooltip,
 } from '@mui/material';
 // redux
-import { useDispatch, useSelector } from '../../redux/store';
-import { getProducts } from '../../redux/slices/product';
+import { loader } from 'graphql.macro';
+import { useMutation, useQuery } from '@apollo/client';
 // routes
+import { useSnackbar } from 'notistack';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -40,12 +40,19 @@ import {
 import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/e-commerce/product-list';
 
 // ----------------------------------------------------------------------
+const LIST_PRODUCT = loader('../../graphql/queries/product/listAllProduct.graphql');
+const DELETE_PRODUCT = loader('../../graphql/mutations/product/deleteProduct.graphql');
+// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: 'stt', label: 'STT', align: 'right' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
-  { id: 'createdAt', label: 'Ngày tạo', align: 'left' },
-  { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
+  { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
+  { id: 'height', label: 'Chiều dài', align: 'right' },
+  { id: 'width', label: 'Chiều rộng', align: 'right' },
+  { id: 'weight', label: 'Tồn kho', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
+  // { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
 ];
 
@@ -77,68 +84,124 @@ export default function EcommerceProductList() {
 
   const navigate = useNavigate();
 
-  const dispatch = useDispatch();
-
-  const { products, isLoading } = useSelector((state) => state.product);
-
   const [tableData, setTableData] = useState([]);
+
+  const [totalCount, setTotalCount] = useState(0);
 
   const [filterName, setFilterName] = useState('');
 
-  useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const {
+    data: allProduct,
+    refetch,
+    fetchMore,
+  } = useQuery(LIST_PRODUCT, {
+    variables: {
+      input: {
+        stringQuery: filterName,
+        checkInventory: null,
+        categoryId: null,
+        args: {
+          first: rowsPerPage,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  const [deleteProduct] = useMutation(DELETE_PRODUCT, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa sản phẩm thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa sản phẩm không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
+    if (allProduct) {
+      setTableData(allProduct?.listAllProduct.edges);
+      setTotalCount(allProduct?.listAllProduct.totalCount);
     }
-  }, [products]);
+  }, [allProduct]);
+
+  const updateQuery = (previousResult, { fetchMoreResult }) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      listAllProduct: {
+        ...previousResult.listAllProduct,
+        edges: [...fetchMoreResult.listAllProduct.edges],
+        pageInfo: fetchMoreResult.listAllProduct.pageInfo,
+        totalCount: fetchMoreResult.listAllProduct.totalCount,
+      },
+    };
+  };
+
+  useEffect(() => {
+    fetchMore({
+      variables: {
+        input: {
+          stringQuery: filterName,
+          args: {
+            first: rowsPerPage,
+            after: page * rowsPerPage,
+          },
+        },
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
+    }).then((res) => res);
+  }, [refetch, rowsPerPage, page, fetchMore, filterName]);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
   };
 
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+  const handleDeleteRow = async (id) => {
+    await deleteProduct({
+      variables: {
+        input: {
+          ids: id,
+        },
+      },
+    });
     setSelected([]);
-    setTableData(deleteRow);
+    await refetch();
   };
 
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+  const handleDeleteRows = async (selected) => {
+    await deleteProduct({
+      variables: {
+        input: {
+          ids: selected,
+        },
+      },
+    });
     setSelected([]);
-    setTableData(deleteRows);
+    await refetch();
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.product.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.product.edit(id));
   };
-
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-  });
 
   const denseHeight = dense ? 60 : 80;
 
-  const isNotFound = (!dataFiltered.length && !!filterName) || (!isLoading && !dataFiltered.length);
+  const isNotFound = !tableData.length;
 
   return (
     <Page title="Danh sách sản phẩm">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Danh sách sản phẩm"
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            {
-              name: 'Thương mại',
-              href: PATH_DASHBOARD.product.root,
-            },
-            { name: 'Danh sách sản phẩm' },
-          ]}
+          links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Danh sách sản phẩm' }]}
           action={
             <Button
               variant="contained"
@@ -164,7 +227,7 @@ export default function EcommerceProductList() {
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData.map((row) => row.node.id)
                     )
                   }
                   actions={
@@ -188,30 +251,32 @@ export default function EcommerceProductList() {
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      tableData.map((row) => row.node.id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {(isLoading ? [...Array(rowsPerPage)] : dataFiltered)
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, index) =>
-                      row ? (
-                        <ProductTableRow
-                          key={row.id}
-                          row={row}
-                          selected={selected.includes(row.id)}
-                          onSelectRow={() => onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.id)}
-                        />
-                      ) : (
-                        !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
-                      )
-                    )}
+                  {tableData.map((row, index) =>
+                    row ? (
+                      <ProductTableRow
+                        key={row.node.id}
+                        idx={index + 1}
+                        row={row.node}
+                        selected={selected.includes(row.node.id)}
+                        onSelectRow={() => onSelectRow(row.node.id)}
+                        onDeleteRow={() => handleDeleteRow(row.node.id)}
+                        onEditRow={() => handleEditRow(row.node.id)}
+                      />
+                    ) : (
+                      !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />
+                    )
+                  )}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, tableData.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -223,7 +288,7 @@ export default function EcommerceProductList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -247,21 +312,6 @@ export default function EcommerceProductList() {
 }
 
 // ----------------------------------------------------------------------
-
-function applySortFilter({ tableData, comparator, filterName }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  tableData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    tableData = tableData.filter((item) => item.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
-  }
-
-  return tableData;
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // @mui
-import { Tooltip, IconButton, Stack, InputAdornment, TextField } from '@mui/material';
+import { InputAdornment, Stack, TextField } from '@mui/material';
 // components
 import Iconify from '../../../../components/Iconify';
 
@@ -13,7 +13,7 @@ ProductTableToolbar.propTypes = {
 
 export default function ProductTableToolbar({ filterName, onFilterName }) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 2.5, px: 3 }}>
+    <Stack direction="row" alignItems="center" sx={{ py: 2.5, px: 3 }}>
       <TextField
         value={filterName}
         onChange={(event) => onFilterName(event.target.value)}
@@ -26,12 +26,6 @@ export default function ProductTableToolbar({ filterName, onFilterName }) {
           ),
         }}
       />
-
-      <Tooltip title="Lọc danh sách">
-        <IconButton>
-          <Iconify icon={'ic:round-filter-list'} />
-        </IconButton>
-      </Tooltip>
     </Stack>
   );
 }

@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
-import { paramCase } from 'change-case';
+import { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 // @mui
 import { Container } from '@mui/material';
 // redux
-import { useDispatch, useSelector } from '../../redux/store';
-import { getProducts } from '../../redux/slices/product';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -16,20 +15,25 @@ import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import ProductNewEditForm from '../../sections/@dashboard/e-commerce/ProductNewEditForm';
 
 // ----------------------------------------------------------------------
+const PRODUCT_DETAIL = loader('../../graphql/queries/product/getProductById.graphql');
+// ----------------------------------------------------------------------
 
 export default function EcommerceProductCreate() {
   const { themeStretch } = useSettings();
-  const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { id } = useParams();
-  const { products } = useSelector((state) => state.product);
   const isEdit = pathname.includes('chinh-sua');
-  const currentProduct = products.find((product) => paramCase(product.id) === id);
-  const nameProduct = currentProduct ? currentProduct.name : null;
+  const [currentProduct, setCurrentProduct] = useState({});
+
+  const { data } = useQuery(PRODUCT_DETAIL, {
+    variables: {
+      productId: Number(id),
+    },
+  });
 
   useEffect(() => {
-    dispatch(getProducts());
-  }, [dispatch]);
+    if (data) setCurrentProduct(data?.getProductById);
+  }, [data]);
 
   return (
     <Page title="Thêm sản phẩm mới">
@@ -42,7 +46,7 @@ export default function EcommerceProductCreate() {
               name: 'Danh sách sản phẩm',
               href: PATH_DASHBOARD.product.root,
             },
-            { name: !isEdit ? 'Sản phẩm mới' : nameProduct },
+            { name: 'Cập nhật sản phẩm' },
           ]}
         />
 

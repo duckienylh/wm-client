@@ -1,21 +1,18 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import { Checkbox, MenuItem, TableCell, TableRow, Typography } from '@mui/material';
 // utils
-import { fddMMYYYYWithSlash } from '../../../../utils/formatTime';
 import { fVietNamCurrency } from '../../../../utils/formatNumber';
 // components
-import Label from '../../../../components/Label';
 import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-//
 
 // ----------------------------------------------------------------------
 
 ProductTableRow.propTypes = {
+  idx: PropTypes.number,
   row: PropTypes.object,
   selected: PropTypes.bool,
   onEditRow: PropTypes.func,
@@ -23,10 +20,8 @@ ProductTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-export default function ProductTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const theme = useTheme();
-
-  const { name, cover, createdAt, inventoryType, price } = row;
+export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { name, code, height, image, weight, width, price } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -44,24 +39,29 @@ export default function ProductTableRow({ row, selected, onEditRow, onSelectRow,
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
 
+      <TableCell align="right">{idx}</TableCell>
+
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Image disabledEffect alt={name} src={cover} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
+        <Image disabledEffect alt={name} src={image} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
         <Typography variant="subtitle2" noWrap>
           {name}
         </Typography>
       </TableCell>
 
-      <TableCell>{fddMMYYYYWithSlash(createdAt)}</TableCell>
+      {/* <TableCell align="center"> */}
+      {/*  <Label */}
+      {/*    variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'} */}
+      {/*    color={(inventoryType === 'Hết hàng' && 'error') || 'success'} */}
+      {/*    sx={{ textTransform: 'capitalize' }} */}
+      {/*  > */}
+      {/*    {inventoryType} */}
+      {/*  </Label> */}
+      {/* </TableCell> */}
 
-      <TableCell align="center">
-        <Label
-          variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(inventoryType === 'Hết hàng' && 'error') || 'success'}
-          sx={{ textTransform: 'capitalize' }}
-        >
-          {inventoryType}
-        </Label>
-      </TableCell>
+      <TableCell align="left">{code}</TableCell>
+      <TableCell align="right">{height}</TableCell>
+      <TableCell align="right">{width}</TableCell>
+      <TableCell align="right">{weight}</TableCell>
 
       <TableCell align="right">{`${fVietNamCurrency(price)} VNĐ`}</TableCell>
 

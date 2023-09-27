@@ -1,0 +1,25 @@
+query ListAllProduct($input: ListAllProductInput!) {
+    listAllProduct(input: $input) {
+        totalCount
+        edges {
+            node {
+                id
+                name
+                category {
+                    id
+                    name
+                }
+                code
+                price
+                quantity
+                height
+                width
+                weight
+                image
+                description
+                createdAt
+                updatedAt
+            }
+        }
+    }
+}
