@@ -40,7 +40,7 @@ export default function AppWelcome({ displayName }) {
         </Typography>
 
         <Typography variant="body2" sx={{ pb: { xs: 3, xl: 5 }, maxWidth: 480, mx: 'auto' }}>
-          Chào mừng đến hệ thống quản lý nội bộ công ty CP Thép công nghiệp HN
+          Chào mừng đến hệ thống quản lý nội bộ kho xuất nhập gỗ NDK
         </Typography>
       </CardContent>
 

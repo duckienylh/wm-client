@@ -143,12 +143,6 @@ function AuthProvider({ children }) {
     const { token, user } = response.data.login;
     const currentUser = {
       ...user,
-      id: `${user?.id}`,
-      role: user?.role,
-      fullName: user?.fullName,
-      photoURL: user?.avatarURL,
-      status: user?.isActive === true ? 'Đang hoạt động' : 'Ngừng hoạt động',
-      phone: user?.phoneNumber,
     };
     setSession(token);
     dispatch({

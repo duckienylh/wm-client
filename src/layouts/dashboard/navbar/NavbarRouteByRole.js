@@ -70,8 +70,6 @@ export const adminNavConfig = [
           { title: 'Danh sách dạng lưới', path: PATH_DASHBOARD.product.shop },
           { title: 'Chi tiết', path: PATH_DASHBOARD.product.demoView },
           { title: 'Tạo SP mới', path: PATH_DASHBOARD.product.new },
-          { title: 'Sửa SP', path: PATH_DASHBOARD.product.demoEdit },
-          // { title: 'checkout', path: PATH_DASHBOARD.product.checkout },
         ],
       },
     ],
