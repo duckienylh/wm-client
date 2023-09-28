@@ -2,12 +2,10 @@
 
 import * as Yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Alert, IconButton, InputAdornment, Link, Stack } from '@mui/material';
+import { Alert, IconButton, InputAdornment, Stack } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { PATH_AUTH } from '../../../routes/paths';
 import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import Iconify from '../../../components/Iconify';
@@ -86,11 +84,8 @@ export default function LoginForm() {
         />
       </Stack>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
+      <Stack sx={{ my: 2 }}>
         <RHFCheckbox name="remember" label="Ghi nhớ tài khoản" />
-        <Link component={RouterLink} variant="subtitle2" to={PATH_AUTH.resetPassword}>
-          Quên mật khẩu?
-        </Link>
       </Stack>
 
       <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>

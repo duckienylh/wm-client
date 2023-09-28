@@ -74,7 +74,7 @@ export default function MainHeader() {
           <Logo sx={{ width: 80, height: 36 }} />
 
           <Label color="primary" sx={{ ml: 1, textTransform: 'uppercase' }}>
-            Công ty CP Thép Công Nghiệp HN
+            Quản lý xuất nhập kho gỗ NDK
           </Label>
           <Box sx={{ flexGrow: 1 }} />
 

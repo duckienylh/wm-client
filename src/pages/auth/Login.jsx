@@ -1,9 +1,7 @@
 // noinspection JSValidateTypes,DuplicatedCode
 
-import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { Box, Card, Container, Link, Stack, Typography } from '@mui/material';
-import { PATH_AUTH } from '../../routes/paths';
+import { Box, Card, Container, Stack, Typography } from '@mui/material';
 
 import useResponsive from '../../hooks/useResponsive';
 import Page from '../../components/Page';
@@ -57,8 +55,6 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const smUp = useResponsive('up', 'sm');
-
   const mdUp = useResponsive('up', 'md');
 
   return (
@@ -66,19 +62,19 @@ export default function Login() {
       <RootStyle>
         <HeaderStyle>
           <Logo />
-          {smUp && (
-            <Typography variant="body2" sx={{ mt: { md: -2 } }}>
-              Bạn chưa có tài khoản? {''}
-              <Link variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
-                Đăng ký ngay
-              </Link>
-            </Typography>
-          )}
         </HeaderStyle>
 
         {mdUp && (
+          // <SectionStyle>
+          //   <Image visibleByDefault disabledEffect alt="login" src="/static/illustrations/security.png" />
+          // </SectionStyle>
           <SectionStyle>
-            <Image visibleByDefault disabledEffect alt="login" src="/static/illustrations/security.png" />
+            <Image
+              visibleByDefault
+              disabledEffect
+              alt="register"
+              src="/static/illustrations/illustration_register.png"
+            />
           </SectionStyle>
         )}
 
@@ -93,15 +89,6 @@ export default function Login() {
             </Stack>
 
             <LoginForm />
-
-            {!smUp && (
-              <Typography variant="body2" align="center" sx={{ mt: 3 }}>
-                Bạn chưa có tài khoản?{' '}
-                <Link variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
-                  Đăng ký ngay
-                </Link>
-              </Typography>
-            )}
           </ContentStyle>
         </Container>
       </RootStyle>

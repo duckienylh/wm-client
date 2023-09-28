@@ -30,7 +30,7 @@ export default function MainFooter() {
             © Bản quyền
             <br />
             Thuộc về &nbsp;
-            <Link href="/">Công ty CP Thép Công Nghiệp HN</Link>
+            <Link href="/">Quản lý xuất nhập kho gỗ NDK</Link>
           </Typography>
 
           <Stack direction="row" justifyContent={{ xs: 'center' }} sx={{ mt: 2, mb: { xs: 5, md: 0 } }}>

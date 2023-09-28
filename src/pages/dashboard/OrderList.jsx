@@ -1,7 +1,6 @@
 // noinspection JSValidateTypes,DuplicatedCode
 
-import sumBy from 'lodash/sumBy';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import {
@@ -22,11 +21,12 @@ import {
   Tabs,
   Tooltip,
 } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
-import { _orders } from '../../_mock';
+import useTable, { emptyRows } from '../../hooks/useTable';
 import Page from '../../components/Page';
 import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
@@ -34,30 +34,17 @@ import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
 import InvoiceAnalytic from '../../sections/@dashboard/order/InvoiceAnalytic';
-import { OrderTableToolbar, OrderTableRow } from '../../sections/@dashboard/order/list';
+import { OrderTableRow, OrderTableToolbar } from '../../sections/@dashboard/order/list';
 import { AllLabel, OrderStatus, Role } from '../../constant';
 import useAuth from '../../hooks/useAuth';
+import { reformatStatus } from '../../utils/getOrderFormat';
 
 // ----------------------------------------------------------------------
-const filterOrder = (user, orders) => {
-  if (
-    user.role === Role.admin ||
-    user.role === Role.manager ||
-    user.role === Role.director ||
-    user.role === Role.accountant
-  ) {
-    return orders;
-  }
-  if (user.role === Role.sales) {
-    return orders.filter((ord) => ord.sale.id === user.id);
-  }
-  if (user.role === Role.driver) {
-    return orders.filter((ord) => ord.driver && ord.driver?.id === user.id);
-  }
-  return [];
-};
+const LIST_ORDERS = loader('../../graphql/queries/order/listAllOrder.graphql');
+// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: 'stt', label: 'STT', align: 'right' },
   { id: 'invoiceNumber', label: 'Khách hàng', align: 'left' },
   { id: 'createDate', label: 'Tạo ngày', align: 'left' },
   { id: 'dueDate', label: 'Ngày giao hàng', align: 'left' },
@@ -94,9 +81,9 @@ export default function OrderList() {
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
-  } = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 10 });
+  } = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
 
-  const [tableData, setTableData] = useState(filterOrder(user, _orders));
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
@@ -105,6 +92,119 @@ export default function OrderList() {
   const [filterEndDate, setFilterEndDate] = useState(null);
 
   const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('Tất cả');
+
+  const [countOrder, setCountOrder] = useState({
+    allOrderCounter: 0,
+    creatNewOrderCounter: 0,
+    deliveryOrderCounter: 0,
+    successDeliveryOrderCounter: 0,
+    paymentConfirmationOrderCounter: 0,
+    paidOrderCounter: 0,
+    doneOrderCounter: 0,
+  });
+
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
+  const [totalCompleted, setTotalCompleted] = useState(0);
+
+  const [totalPaid, setTotalPaid] = useState(0);
+
+  const [totalDeliver, setTotalDeliver] = useState(0);
+
+  const { data: allOrder, fetchMore: fetchMoreOrder } = useQuery(LIST_ORDERS, {
+    variables: {
+      input: {
+        queryString: filterName,
+        createAt:
+          filterStartDate && filterEndDate
+            ? {
+                startAt: filterStartDate,
+                endAt: filterEndDate,
+              }
+            : null,
+        saleId: user.role === Role.sales ? Number(user.id) : null,
+        status: filterStatus === 'Tất cả' ? null : reformatStatus(filterStatus),
+        args: {
+          first: rowsPerPage,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  const updateQuery = (previousResult, { fetchMoreResult }) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      listAllOrder: {
+        ...previousResult.listAllOrder,
+        orders: {
+          ...previousResult.listAllOrder.orders,
+          edges: [...fetchMoreResult.listAllOrder.orders.edges],
+          pageInfo: fetchMoreResult.listAllOrder.orders.pageInfo,
+          totalCount: fetchMoreResult.listAllOrder.orders.totalCount,
+        },
+        totalCompleted: fetchMoreResult.listAllOrder.totalCompleted,
+        totalDeliver: fetchMoreResult.listAllOrder.totalDeliver,
+        totalPaid: fetchMoreResult.listAllOrder.totalPaid,
+        totalRevenue: fetchMoreResult.listAllOrder.totalRevenue,
+        allOrderCounter: fetchMoreResult.listAllOrder.allOrderCounter,
+        creatNewOrderCounter: fetchMoreResult.listAllOrder.creatNewOrderCounter,
+        deliveryOrderCounter: fetchMoreResult.listAllOrder.deliveryOrderCounter,
+        successDeliveryOrderCounter: fetchMoreResult.listAllOrder.successDeliveryOrderCounter,
+        paymentConfirmationOrderCounter: fetchMoreResult.listAllOrder.paymentConfirmationOrderCounter,
+        paidOrderCounter: fetchMoreResult.listAllOrder.paidOrderCounter,
+        doneOrderCounter: fetchMoreResult.listAllOrder.doneOrderCounter,
+      },
+    };
+  };
+
+  useEffect(() => {
+    if (allOrder) {
+      setTableData(allOrder?.listAllOrder.orders.edges.map((edge) => edge.node));
+      setCountOrder({
+        allOrderCounter: parseInt(allOrder?.listAllOrder.allOrderCounter, 10),
+        creatNewOrderCounter: parseInt(allOrder?.listAllOrder.creatNewOrderCounter, 10),
+        deliveryOrderCounter: parseInt(allOrder?.listAllOrder.deliveryOrderCounter, 10),
+        successDeliveryOrderCounter: parseInt(allOrder?.listAllOrder.successDeliveryOrderCounter, 10),
+        paymentConfirmationOrderCounter: parseInt(allOrder?.listAllOrder.paymentConfirmationOrderCounter, 10),
+        paidOrderCounter: parseInt(allOrder?.listAllOrder.paidOrderCounter, 10),
+        doneOrderCounter: parseInt(allOrder?.listAllOrder.doneOrderCounter, 10),
+      });
+
+      setTotalRevenue(allOrder.listAllOrder.totalRevenue);
+      setTotalCompleted(allOrder.listAllOrder.totalCompleted);
+      setTotalPaid(allOrder.listAllOrder.totalPaid);
+      setTotalDeliver(allOrder.listAllOrder.totalDeliver);
+    }
+  }, [allOrder]);
+
+  useEffect(() => {
+    fetchMoreOrder({
+      variables: {
+        input: {
+          queryString: filterName,
+          createAt:
+            filterStartDate && filterEndDate
+              ? {
+                  startAt: filterStartDate,
+                  endAt: filterEndDate,
+                }
+              : null,
+          saleId: user.role === Role.sales ? Number(user.id) : null,
+          status: filterStatus === 'Tất cả' ? null : reformatStatus(filterStatus),
+          args: {
+            first: rowsPerPage,
+            after: page * rowsPerPage,
+          },
+        },
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
+    }).then((res) => res);
+  }, [fetchMoreOrder, filterEndDate, filterName, filterStartDate, filterStatus, page, rowsPerPage, user]);
+
+  console.log('allOrder', tableData);
+  console.log('reformatStatus(filterStatus)', filterStatus);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -131,72 +231,54 @@ export default function OrderList() {
     navigate(PATH_DASHBOARD.saleAndMarketing.view(id));
   };
 
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    filterStatus,
-    filterStartDate,
-    filterEndDate,
-  });
-
   const denseHeight = dense ? 56 : 76;
 
-  const isNotFound =
-    (!dataFiltered.length && !!filterName) ||
-    (!dataFiltered.length && !!filterStatus) ||
-    (!dataFiltered.length && !!filterEndDate) ||
-    (!dataFiltered.length && !!filterStartDate);
+  const isNotFound = !tableData.length;
 
-  const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
-
-  const getTotalPriceByStatus = (status) =>
-    sumBy(
-      tableData.filter((item) => item.status === status),
-      'totalPrice'
-    );
-
-  const getPercentByStatus = (status) => (getLengthByStatus(status) / tableData.length) * 100;
+  const getPercentByStatus = (statusCount) => (statusCount / tableData.length) * 100;
 
   const TABS = [
-    { value: AllLabel, label: AllLabel, color: 'info', count: tableData.length },
-    { value: OrderStatus.new, label: 'Mới', color: 'success', count: getLengthByStatus(OrderStatus.new) },
     {
-      value: OrderStatus.quotationAndDeal,
-      label: 'Đang báo giá',
+      value: AllLabel,
+      label: AllLabel,
       color: 'info',
-      count: getLengthByStatus(OrderStatus.quotationAndDeal),
+      count: countOrder.allOrderCounter,
     },
     {
-      value: OrderStatus.newDeliverExport,
-      label: 'Đã chốt đơn',
+      value: OrderStatus.new,
+      label: 'Mới',
       color: 'success',
-      count: getLengthByStatus(OrderStatus.newDeliverExport),
+      count: countOrder.creatNewOrderCounter,
     },
     {
       value: OrderStatus.inProgress,
       label: 'Đang giao hàng',
       color: 'warning',
-      count: getLengthByStatus(OrderStatus.inProgress),
+      count: countOrder.deliveryOrderCounter,
     },
     {
       value: OrderStatus.deliverSuccess,
       label: 'Giao hàng thành công',
       color: 'default',
-      count: getLengthByStatus(OrderStatus.deliverSuccess),
+      count: countOrder.successDeliveryOrderCounter,
     },
-    { value: OrderStatus.paid, label: 'Đã thanh toán', color: 'success', count: getLengthByStatus(OrderStatus.paid) },
+    {
+      value: OrderStatus.paid,
+      label: 'Đã thanh toán',
+      color: 'success',
+      count: countOrder.paidOrderCounter,
+    },
     {
       value: OrderStatus.confirmByAccProcessing,
       label: 'Kế toán đang xác nhận',
       color: 'warning',
-      count: getLengthByStatus(OrderStatus.confirmByAccProcessing),
+      count: countOrder.paymentConfirmationOrderCounter,
     },
     {
       value: OrderStatus.completed,
       label: 'Hoàn thành',
       color: 'success',
-      count: getLengthByStatus(OrderStatus.completed),
+      count: countOrder.doneOrderCounter,
     },
   ];
 
@@ -231,33 +313,33 @@ export default function OrderList() {
             >
               <InvoiceAnalytic
                 title="Tổng"
-                total={tableData.length}
+                total={countOrder.allOrderCounter}
                 percent={100}
-                price={sumBy(tableData, 'totalPrice')}
+                price={totalRevenue}
                 icon="ic:round-receipt"
                 color={theme.palette.info.main}
               />
               <InvoiceAnalytic
                 title="Đã hoàn thành"
-                total={getLengthByStatus(OrderStatus.completed)}
-                percent={getPercentByStatus(OrderStatus.completed)}
-                price={getTotalPriceByStatus(OrderStatus.completed)}
+                total={countOrder.doneOrderCounter}
+                percent={getPercentByStatus(countOrder.doneOrderCounter)}
+                price={totalCompleted}
                 icon="ion:checkmark-done-circle-sharp"
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
                 title="Đã thanh toán"
-                total={getLengthByStatus(OrderStatus.paid)}
-                percent={getPercentByStatus(OrderStatus.paid)}
-                price={getTotalPriceByStatus(OrderStatus.paid)}
+                total={countOrder.paidOrderCounter}
+                percent={getPercentByStatus(countOrder.paidOrderCounter)}
+                price={totalPaid}
                 icon="flat-color-icons:paid"
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
                 title="Đang giao hàng"
-                total={getLengthByStatus(OrderStatus.inProgress)}
-                percent={getPercentByStatus(OrderStatus.inProgress)}
-                price={getTotalPriceByStatus(OrderStatus.inProgress)}
+                total={countOrder.deliveryOrderCounter}
+                percent={getPercentByStatus(countOrder.deliveryOrderCounter)}
+                price={totalDeliver}
                 icon="carbon:in-progress-warning"
                 color={theme.palette.warning.main}
               />
@@ -272,7 +354,7 @@ export default function OrderList() {
             scrollButtons="auto"
             value={filterStatus}
             onChange={onFilterStatus}
-            sx={{ px: 0, bgcolor: 'background.neutral' }}
+            sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {TABS.map((tab, idx) => (
               <Tab
@@ -357,9 +439,10 @@ export default function OrderList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {tableData.map((row, idx) => (
                     <OrderTableRow
                       key={row.id}
+                      idx={idx + 1}
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
@@ -381,7 +464,7 @@ export default function OrderList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={tableData.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -402,39 +485,4 @@ export default function OrderList() {
       </Container>
     </Page>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterStartDate, filterEndDate }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  tableData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    tableData = tableData.filter(
-      (item) =>
-        item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-        item.customer.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
-  }
-
-  if (filterStatus !== AllLabel) {
-    tableData = tableData.filter((item) => item.status === filterStatus);
-  }
-
-  if (filterStartDate && filterEndDate) {
-    tableData = tableData.filter(
-      (item) =>
-        item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
-    );
-  }
-
-  return tableData;
 }

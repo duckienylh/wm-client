@@ -1,0 +1,50 @@
+query ListAllOrder($input: ListAllOrderInput!) {
+    listAllOrder(input: $input) {
+        allOrderCounter
+        creatNewOrderCounter
+        deliveryOrderCounter
+        doneOrderCounter
+        orders {
+            edges {
+                node {
+                    id
+                    sale {
+                        id
+                        email
+                        userName
+                        phoneNumber
+                        firstName
+                        lastName
+                        address
+                        avatarURL
+                        isActive
+                        role
+                    }
+                    customer {
+                        id
+                        email
+                        name
+                        phoneNumber
+                        companyName
+                        address
+                        createdAt
+                        updatedAt
+                    }
+                    invoiceNo
+                    VAT
+                    totalMoney
+                    status
+                    createdAt
+                    updatedAt
+                }
+            }
+        }
+        paidOrderCounter
+        paymentConfirmationOrderCounter
+        successDeliveryOrderCounter
+        totalCompleted
+        totalDeliver
+        totalPaid
+        totalRevenue
+    }
+}

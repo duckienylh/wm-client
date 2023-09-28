@@ -3,20 +3,20 @@ import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Checkbox, Link, MenuItem, Stack, TableCell, TableRow, Typography } from '@mui/material';
 import { fddMMYYYYWithSlash } from '../../../../utils/formatTime';
-import createAvatar from '../../../../utils/createAvatar';
 import { fVietNamCurrency } from '../../../../utils/formatNumber';
 import Label from '../../../../components/Label';
-import Avatar from '../../../../components/Avatar';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-import { orderPropTypes, OrderStatus } from '../../../../constant';
+import { OrderStatus } from '../../../../constant';
 import CustomerInfoPopup from './CustomerInfoPopup';
 import useToggle from '../../../../hooks/useToggle';
+import { formatStatus } from '../../../../utils/getOrderFormat';
 
 // ----------------------------------------------------------------------
 
 OrderTableRow.propTypes = {
-  row: orderPropTypes().isRequired,
+  idx: PropTypes.number,
+  row: PropTypes.object,
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
@@ -24,12 +24,12 @@ OrderTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-export default function OrderTableRow({ row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
+export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
 
-  const { invoiceNumber, createDate, status, customer, totalPrice, deliverOrder } = row;
+  const { invoiceNo, createdAt, status, customer, totalMoney } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -48,17 +48,9 @@ export default function OrderTableRow({ row, selected, onSelectRow, onViewRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-          <Avatar
-            onClick={() => {
-              onOpenCustomerPopup();
-            }}
-            alt={customer.name}
-            color={createAvatar(customer.name).color}
-            sx={{ mr: 2 }}
-            src={customer?.avatarUrl}
-          />
+        <TableCell align="right">{idx}</TableCell>
 
+        <TableCell sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
           <Stack>
             <Typography
               variant="subtitle2"
@@ -72,38 +64,37 @@ export default function OrderTableRow({ row, selected, onSelectRow, onViewRow, o
             </Typography>
 
             <Link noWrap variant="body2" onClick={onViewRow} sx={{ color: 'text.disabled', cursor: 'pointer' }}>
-              {invoiceNumber}
+              {invoiceNo}
             </Link>
           </Stack>
         </TableCell>
 
-        <TableCell align="left">{fddMMYYYYWithSlash(createDate)}</TableCell>
+        <TableCell align="left">{fddMMYYYYWithSlash(createdAt)}</TableCell>
 
         <TableCell align="left">
-          {deliverOrder?.deliveryDate ? fddMMYYYYWithSlash(deliverOrder?.deliveryDate) : 'Chưa có'}
+          {/* {deliverOrder?.deliveryDate ? fddMMYYYYWithSlash(deliverOrder?.deliveryDate) : 'Chưa có'} */}
+          {'Chưa có'}
         </TableCell>
 
-        <TableCell align="left">{`${fVietNamCurrency(totalPrice)} VNĐ`}</TableCell>
+        <TableCell align="left">{`${fVietNamCurrency(totalMoney)} VNĐ`}</TableCell>
 
         <TableCell align="left">
           <Label
             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
             color={
-              (status === OrderStatus.new && 'info') ||
-              (status === OrderStatus.quotationAndDeal && 'info') ||
-              (status === OrderStatus.newDeliverExport && 'success') ||
-              (status === OrderStatus.inProgress && 'info') ||
-              (status === OrderStatus.deliverSuccess && 'info') ||
-              (status === OrderStatus.unpaid && 'warning') ||
-              (status === OrderStatus.paid && 'info') ||
-              (status === OrderStatus.confirmByAccProcessing && 'warning') ||
-              (status === OrderStatus.completed && 'success') ||
-              (status === OrderStatus.overdue && 'error') ||
+              (formatStatus(status) === OrderStatus.new && 'info') ||
+              (formatStatus(status) === OrderStatus.quotationAndDeal && 'info') ||
+              (formatStatus(status) === OrderStatus.newDeliverExport && 'success') ||
+              (formatStatus(status) === OrderStatus.inProgress && 'info') ||
+              (formatStatus(status) === OrderStatus.deliverSuccess && 'info') ||
+              (formatStatus(status) === OrderStatus.paid && 'info') ||
+              (formatStatus(status) === OrderStatus.confirmByAccProcessing && 'warning') ||
+              (formatStatus(status) === OrderStatus.completed && 'success') ||
               'default'
             }
             sx={{ textTransform: 'capitalize' }}
           >
-            {status}
+            {formatStatus(status)}
           </Label>
         </TableCell>
 

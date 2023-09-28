@@ -92,12 +92,6 @@ function AuthProvider({ children }) {
           const user = fetchedData.me ?? fetchedData.data.me;
           const currentUser = {
             ...user,
-            id: `${user?.id}`,
-            role: user?.role,
-            fullName: user?.fullName,
-            photoURL: user?.avatarURL,
-            status: user?.isActive === true ? 'Đang hoạt động' : 'Ngừng hoạt động',
-            phone: user?.phoneNumber,
           };
           dispatch({
             type: 'INITIALIZE',
@@ -139,19 +133,26 @@ function AuthProvider({ children }) {
         },
       },
       fetchPolicy: 'cache-and-network',
+    }).catch((e) => {
+      throw e;
     });
-    const { token, user } = response.data.login;
-    const currentUser = {
-      ...user,
-    };
-    setSession(token);
-    dispatch({
-      type: 'LOGIN',
-      payload: {
-        isAuthenticated: true,
-        user: currentUser,
-      },
-    });
+    if (!response.error && response.data.login) {
+      const { token, user } = response.data.login;
+      const currentUser = {
+        ...user,
+      };
+      setSession(token);
+      dispatch({
+        type: 'LOGIN',
+        payload: {
+          isAuthenticated: true,
+          user: currentUser,
+        },
+      });
+    }
+    if (response.error) {
+      throw response.error;
+    }
   };
 
   const logout = async () => {
