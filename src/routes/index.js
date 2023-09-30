@@ -64,7 +64,7 @@ export default function Router() {
               index: true,
             },
             { path: 'danh-sach', element: <EcommerceProductList /> },
-            { path: 'shop', element: <SteelProductShop /> },
+            { path: 'shop', element: <WoodProductShop /> },
             { path: ':id', element: <EcommerceProductDetails /> },
             { path: 'tao-moi', element: <EcommerceProductCreate /> },
             { path: ':id/chinh-sua', element: <EcommerceProductCreate /> },
@@ -209,7 +209,7 @@ const ResetPassword = Loadable(lazy(() => import('../pages/auth/ResetPassword'))
 const GeneralApp = Loadable(lazy(() => import('../pages/dashboard/GeneralApp')));
 
 // PRODUCT
-const SteelProductShop = Loadable(lazy(() => import('../pages/dashboard/SteelProductShop')));
+const WoodProductShop = Loadable(lazy(() => import('../pages/dashboard/WoodProductShop')));
 const EcommerceProductDetails = Loadable(lazy(() => import('../pages/dashboard/ProductDetails')));
 const EcommerceProductList = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductList')));
 const EcommerceProductCreate = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductCreate')));

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import orderBy from 'lodash/orderBy';
 import { useForm } from 'react-hook-form';
 import { Container, Stack, Typography } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from '../../redux/store';
 import { filterProducts, getProducts } from '../../redux/slices/product';
 import { PATH_DASHBOARD } from '../../routes/paths';
@@ -10,16 +12,19 @@ import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { FormProvider } from '../../components/hook-form';
 import { ShopFilterSidebar, ShopProductList, ShopTagFiltered } from '../../sections/@dashboard/e-commerce/shop';
-import CartWidget from '../../sections/@dashboard/e-commerce/CartWidget';
 
 // ----------------------------------------------------------------------
+const LIST_PRODUCT = loader('../../graphql/queries/product/listAllProduct.graphql');
+// ----------------------------------------------------------------------
 
-export default function SteelProductShop() {
+export default function WoodProductShop() {
   const { themeStretch } = useSettings();
 
   const dispatch = useDispatch();
 
   const [openFilter, setOpenFilter] = useState(false);
+
+  const [listProducts, setListProducts] = useState([]);
 
   const { products, sortBy, filters } = useSelector((state) => state.product);
 
@@ -41,6 +46,24 @@ export default function SteelProductShop() {
   const { reset, watch, setValue } = methods;
 
   const values = watch();
+
+  const { data: allProduct } = useQuery(LIST_PRODUCT, {
+    variables: {
+      input: {
+        stringQuery: '',
+        // checkInventory: null,
+        // categoryId: null,
+        args: {
+          first: 50,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (allProduct) setListProducts(allProduct.listAllProduct.edges.map((edge) => edge.node));
+  }, [allProduct]);
 
   const isDefault =
     !values.priceRange &&
@@ -107,9 +130,7 @@ export default function SteelProductShop() {
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             {
               name: 'Sản phẩm',
-              href: PATH_DASHBOARD.product.root,
             },
-            { name: 'Shop' },
           ]}
         />
 
@@ -136,7 +157,7 @@ export default function SteelProductShop() {
           {!isDefault && (
             <>
               <Typography variant="body2" gutterBottom>
-                <strong>{filteredProducts.length}</strong>
+                <strong>{listProducts.length}</strong>
                 &nbsp;sản phẩm
               </Typography>
 
@@ -155,8 +176,7 @@ export default function SteelProductShop() {
           )}
         </Stack>
 
-        <ShopProductList products={filteredProducts} loading={!products.length && isDefault} />
-        <CartWidget />
+        <ShopProductList products={listProducts} loading={!listProducts.length && isDefault} />
       </Container>
     </Page>
   );

@@ -203,9 +203,6 @@ export default function OrderList() {
     }).then((res) => res);
   }, [fetchMoreOrder, filterEndDate, filterName, filterStartDate, filterStatus, page, rowsPerPage, user]);
 
-  console.log('allOrder', tableData);
-  console.log('reformatStatus(filterStatus)', filterStatus);
-
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);

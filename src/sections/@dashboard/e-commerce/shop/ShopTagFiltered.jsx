@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { sentenceCase } from 'change-case';
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
-import { Chip, Typography, Stack, Button } from '@mui/material';
+import { styled, useTheme } from '@mui/material/styles';
+import { Button, Chip, Stack, Typography } from '@mui/material';
 // utils
 import getColorName from '../../../../utils/getColorName';
 // components
@@ -104,7 +104,7 @@ export default function ShopTagFiltered({
 
       {quote.length > 0 && (
         <WrapperStyle>
-          <LabelStyle>Đơn vị tính:</LabelStyle>
+          <LabelStyle>Trọng lượng:</LabelStyle>
           <Stack direction="row" flexWrap="wrap" sx={{ p: 0.75 }}>
             {quote.map((_quote) => (
               <Chip key={_quote} label={_quote} size="small" onDelete={() => onRemoveQuote(_quote)} sx={{ m: 0.5 }} />
