@@ -1,35 +1,38 @@
 // noinspection JSValidateTypes,DuplicatedCode
 
-import { Document, Image, Page, Text, View } from '@react-pdf/renderer';
-import { fVietNamCurrency } from '../../../../utils/formatNumber';
+import { Document, Page, Text, View } from '@react-pdf/renderer';
+import PropTypes from 'prop-types';
+import { formatPhoneNumber, fVietNamCurrency } from '../../../../utils/formatNumber';
 import styles from './InvoiceStyle';
-import { orderPropTypes } from '../../../../constant';
+import { fDateToDay, fDateToMonth, fDateToYear } from '../../../../utils/formatTime';
 
 // ----------------------------------------------------------------------
 
 InvoicePDF.propTypes = {
-  invoice: orderPropTypes().isRequired,
+  invoice: PropTypes.object.isRequired,
 };
 
 export default function InvoicePDF({ invoice }) {
-  const { products, customer, freightPrice, sale } = invoice;
-  let totalPrice = products
-    ? products.reduce(
+  const { orderItemList } = invoice;
+  const totalPrice = orderItemList
+    ? orderItemList.reduce(
         (total, data) =>
-          data?.price && data?.weight && Number(data?.price) > 0 && Number(data?.weight) > 0
-            ? total + Number(data?.price) * Number(data?.weight) * Number(data?.quantity)
+          data?.unitPrice && data?.quantity && Number(data?.unitPrice) > 0 && Number(data?.quantity) > 0
+            ? total + Number(data?.unitPrice) * Number(data?.quantity)
             : total + 0,
         0
       )
     : 0;
-  totalPrice = freightPrice ? totalPrice + freightPrice : totalPrice;
+  // totalPrice = freightPrice ? totalPrice + freightPrice : totalPrice;
+
+  console.log('invoice', invoice);
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={[styles.header]}>
-          <Image source="/static/header-quotation.png" style={{ height: 'auto', marginTop: -20 }} />
-        </View>
+        {/* <View style={[styles.header]}> */}
+        {/*  <Image source="/static/header-quotation.png" style={{ height: 'auto', marginTop: -20 }} /> */}
+        {/* </View> */}
 
         <View style={[styles.headlineContainer, styles.pt140]}>
           <Text style={[styles.h2]}>BÁO GIÁ</Text>
@@ -37,21 +40,20 @@ export default function InvoicePDF({ invoice }) {
 
         <View style={[styles.gridContainer, styles.mb4]}>
           <View style={styles.col6}>
-            <Text style={[styles.overline, styles.mb6]}>Trân trọng báo cho: Mr/Ms.{customer.name}</Text>
-            <Text style={[styles.overline, styles.mb6]}>Đơn vị: {customer.company.companyName}</Text>
-            <Text style={[styles.overline, styles.mb6]}>Địa chỉ: {customer.company.address}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Trân trọng báo cho: Mr/Ms.{invoice.customer.name}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Đơn vị: {invoice.customer.companyName}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Địa chỉ: {invoice.customer.address}</Text>
           </View>
 
           <View style={styles.col6FlexEnd}>
-            <Text style={[styles.overline, styles.mb6]}>Email: {customer.email}</Text>
-            <Text style={[styles.overline, styles.mb6]}>Điện thoại: {customer.phoneNumber}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Điện thoại: {invoice.customer.phoneNumber}</Text>
           </View>
         </View>
 
         <View style={[styles.gridContainer, styles.mb4]}>
           <Text style={styles.body2}>
-            Công ty chúng tôi trân trọng gửi tới Quý Công Ty báo giá các sản phẩm thép hình U, I, V, H, thép tấm, thép
-            nhám, ống hợp đen, ống hộp mạ kẽm, thép mạ kẽm nóng và các sản phẩm phụ kiện ngành thép như sau
+            Công ty chúng tôi trân trọng gửi tới quý khách Mr/Ms.{invoice.customer.name} báo giá các sản phẩm gỗ và các
+            sản phẩm ngành gỗ như sau
           </Text>
         </View>
 
@@ -66,20 +68,12 @@ export default function InvoicePDF({ invoice }) {
                 <Text style={styles.subtitle2}>Sản phẩm</Text>
               </View>
 
-              <View style={[styles.tableCellWithBorderBase, styles.cell3WithBorder]}>
-                <Text style={styles.subtitle2}>Đvt</Text>
-              </View>
-
               <View style={[styles.tableCellWithBorderBase, styles.cell4WithBorder]}>
-                <Text style={styles.subtitle2}>Số lượng</Text>
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.cell5WithBorder]}>
-                <Text style={styles.subtitle2}>Đơn trọng (Kg/Đvt)</Text>
+                <Text style={styles.subtitle2}>Mã sản phẩm</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.cell6WithBorder]}>
-                <Text style={styles.subtitle2}>Tổng trọng (Kg)</Text>
+                <Text style={styles.subtitle2}>Số lượng (Tấn)</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.cell7WithBorder]}>
@@ -97,75 +91,37 @@ export default function InvoicePDF({ invoice }) {
           </View>
 
           <View style={styles.tableBody}>
-            {products &&
-              products.length > 0 &&
-              products.map((product, index) => (
-                <View style={[styles.tableRow, styles.tableBodyRow]} key={product.id}>
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
-                    <Text>{index + 1}</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
-                    <Text>{product.name}</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell3WithBorder]}>
-                    <Text>Cây</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
-                    <Text>{product.quantity}</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell5WithBorder]}>
-                    <Text>12.83</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
-                    <Text>1,283</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]}>
-                    <Text>{fVietNamCurrency(Number(product.price) * Number(product.weight))}</Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
-                    <Text>
-                      {fVietNamCurrency(Number(product.price) * Number(product.weight) * Number(product.quantity))}
-                    </Text>
-                  </View>
-
-                  <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
-                    <Text />
-                  </View>
+            {orderItemList?.map((odi, index) => (
+              <View key={index} style={[styles.tableRow, styles.tableBodyRow]}>
+                <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
+                  <Text>{index + 1}</Text>
                 </View>
-              ))}
 
-            <View style={[styles.tableRow, styles.tableBodyRow]}>
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
-                <Text>{products.length + 1}</Text>
+                <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
+                  <Text>{odi.product.name}</Text>
+                </View>
+
+                <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
+                  <Text>{odi.product.code}</Text>
+                </View>
+
+                <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
+                  <Text>{fVietNamCurrency(odi.quantity)}</Text>
+                </View>
+
+                <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]}>
+                  <Text>{fVietNamCurrency(odi.unitPrice)}</Text>
+                </View>
+
+                <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
+                  <Text>{fVietNamCurrency(Number(odi.quantity) * Number(odi.product.price))}</Text>
+                </View>
+
+                <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
+                  <Text>{odi.note}</Text>
+                </View>
               </View>
-
-              <View
-                style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2FreightPriceWithBorder]}
-              >
-                <Text>Cước vận chuyển</Text>
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
-                <Text />
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]} />
-
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
-                <Text>{fVietNamCurrency(Number(freightPrice))}</Text>
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
-                <Text />
-              </View>
-            </View>
+            ))}
 
             <View style={[styles.tableRow, styles.tableBodyRow]}>
               <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
@@ -173,18 +129,10 @@ export default function InvoicePDF({ invoice }) {
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
-                <Text style={[styles.borderBody2, { alignItems: 'center', alignSelf: 'center' }]}>Tổng đơn hàng</Text>
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell3WithBorder]}>
-                <Text />
+                <Text style={[styles.borderBody2, { alignItems: 'center', alignSelf: 'center' }]}>Cộng</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
-                <Text />
-              </View>
-
-              <View style={[styles.tableCellWithBorderBase, styles.bodyCell5WithBorder]}>
                 <Text />
               </View>
 
@@ -197,7 +145,97 @@ export default function InvoicePDF({ invoice }) {
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
-                <Text style={styles.borderBody2}>{fVietNamCurrency(Number(totalPrice))}</Text>
+                <Text>{fVietNamCurrency(totalPrice)}</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
+                <Text />
+              </View>
+            </View>
+
+            <View style={[styles.tableRow, styles.tableBodyRow]}>
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
+                <Text style={styles.borderBody2}>II</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
+                <Text style={[styles.borderBody2, { alignItems: 'center', alignSelf: 'center' }]}>Thuế VAT (10%)</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
+                <Text>{fVietNamCurrency(totalPrice * 0.1)}</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
+                <Text />
+              </View>
+            </View>
+
+            <View style={[styles.tableRow, styles.tableBodyRow]}>
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
+                <Text style={styles.borderBody2}>III</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
+                <Text style={[styles.borderBody2, { alignItems: 'center', alignSelf: 'center' }]}>Tiền vận chuyển</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
+                <Text>{fVietNamCurrency(invoice.freightPrice)}</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
+                <Text />
+              </View>
+            </View>
+
+            <View style={[styles.tableRow, styles.tableBodyRow]}>
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell1WithBorder]}>
+                <Text style={styles.borderBody2}>IV</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.alignItemsLeft, styles.bodyCell2WithBorder]}>
+                <Text style={[styles.borderBody2, { alignItems: 'center', alignSelf: 'center' }]}>Tổng đơn hàng</Text>
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell4WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell6WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell7WithBorder]}>
+                <Text />
+              </View>
+
+              <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
+                <Text style={styles.borderBody2}>{fVietNamCurrency(invoice.totalMoney)}</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
@@ -211,7 +249,6 @@ export default function InvoicePDF({ invoice }) {
           <View style={[styles.col65, { paddingTop: 5 }]}>
             <Text style={[styles.h3, styles.mb6]}>Báo giá trên:</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Đã bao gồm 10% thuế VAT</Text>
-            <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Giao theo bazem nhà máy</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Báo giá có hiệu lực 3 ngày</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Thời gian thực hiện: 1-2 ngày</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>
@@ -220,11 +257,14 @@ export default function InvoicePDF({ invoice }) {
           </View>
 
           <View style={[styles.col35FlexEnd, { paddingTop: 10 }]}>
-            <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>Hà Nội, ngày 30 tháng 11 năm 2022</Text>
+            <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>
+              Hà Nội, ngày {fDateToDay(invoice.updatedAt)} tháng {fDateToMonth(invoice.updatedAt)} năm{' '}
+              {fDateToYear(invoice.updatedAt)}
+            </Text>
             <Text
               style={[
                 styles.overline,
-                styles.mb4,
+                styles.mb40,
                 { textAlign: 'center', alignSelf: 'center', alignItems: 'center', paddingTop: 10 },
               ]}
             >
@@ -238,14 +278,14 @@ export default function InvoicePDF({ invoice }) {
                 { textAlign: 'center', alignSelf: 'center', alignItems: 'center', paddingTop: 10 },
               ]}
             >
-              {sale.displayName} - {sale.phone}
+              {invoice.sale.fullName} - {formatPhoneNumber(invoice.sale.phoneNumber)}
             </Text>
           </View>
         </View>
 
-        <View style={[styles.footer]}>
-          <Image source="/static/footer-quotation.png" style={{ zIndex: 8989 }} />
-        </View>
+        {/* <View style={[styles.footer]}> */}
+        {/*  <Image source="/static/footer-quotation.png" style={{ zIndex: 8989 }} /> */}
+        {/* </View> */}
       </Page>
     </Document>
   );

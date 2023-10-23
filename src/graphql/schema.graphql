@@ -59,6 +59,7 @@ type Mutation {
     deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
     deleteProduct(input: DeleteProductInput!): SuccessResponse!
     deleteUser(input: DeleteUserInput!): SuccessResponse!
+    importExcelProduct(input: ImportExcelProductInput!): [Product]!
     updateCategory(input: UpdateCategoryInput!): SuccessResponse!
     updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
@@ -89,6 +90,7 @@ type Order {
     freightPrice: Float
     id: Int!
     invoiceNo: String!
+    orderItemList: [OrderItem]
     sale: User!
     status: StatusOrder!
     totalMoney: Float
@@ -106,12 +108,36 @@ type OrderEdge {
     node: Order
 }
 
+type OrderItem {
+    createdAt: Date
+    id: Int!
+    note: String
+    order: Order!
+    product: Product!
+    quantity: Int
+    unitPrice: Float
+    updatedAt: Date
+    weight: Float
+}
+
+type OrderProcess {
+    createdAt: Date
+    description: String
+    fromStatus: String!
+    id: Int!
+    order: Order!
+    toStatus: String!
+    updatedAt: Date
+    user: User!
+}
+
 type PageInfo {
     endCursor: Cursor
     hasNextPage: Boolean!
 }
 
 type Product {
+    age: Int
     category: Category!
     code: String!
     createdAt: Date
@@ -119,6 +145,7 @@ type Product {
     height: Float
     id: Int!
     image: String
+    inventory: Float
     name: String!
     price: Float!
     quantity: Int
@@ -140,12 +167,14 @@ type ProductEdge {
 
 type Query {
     getCustomerById(CustomerId: Int!): Customer!
+    getOrderById(orderId: Int!): Order!
     getProductById(productId: Int!): Product!
     getUserById(userId: Int!): User!
     listAllCategory: [Category]!
     listAllCustomer(input: ListAllCustomerInput!): CustomerConnection!
     listAllOrder(input: ListAllOrderInput!): ListAllOrderResponse!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
+    listInformationOrder(orderId: Int!): [OrderProcess]!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
     users(input: UsersInput!): UserConnection!
@@ -206,8 +235,8 @@ enum Role {
 }
 
 enum StatusOrder {
-    Delivering
     creatNew
+    delivering
     done
     paid
     paymentConfirmation
@@ -249,11 +278,13 @@ input CreateOrderInput {
 }
 
 input CreateProductInput {
+    age: Int
     categoryId: Int!
     code: String!
     description: String
     height: Float
     image: Upload
+    inventory: Float
     name: String!
     price: Float!
     quantity: Int
@@ -283,6 +314,10 @@ input DeleteProductInput {
 
 input DeleteUserInput {
     ids: [Int!]!
+}
+
+input ImportExcelProductInput {
+    fileExcelProducts: Upload!
 }
 
 input ListAllCustomerInput {
@@ -348,12 +383,14 @@ input UpdateOrderInput {
 }
 
 input UpdateProductInput {
+    age: Int
     categoryId: Int
     code: String
     description: String
     height: Float
     id: Int!
     image: Upload
+    inventory: Float
     name: String
     price: Float
     quantity: Int
@@ -367,7 +404,6 @@ input UpdateProductOrderInput {
     priceProduct: Float
     productId: Int
     quantity: Int
-    weightProduct: Float
 }
 
 input UpdateUserInput {
@@ -407,5 +443,4 @@ input productInput {
     priceProduct: Float!
     productId: Int!
     quantity: Int!
-    weightProduct: Float
 }

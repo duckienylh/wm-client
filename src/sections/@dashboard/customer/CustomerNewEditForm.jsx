@@ -49,8 +49,6 @@ export default function CustomerNewEditForm({ isEdit, currentCustomer }) {
     [currentCustomer]
   );
 
-  console.log(currentCustomer);
-
   const methods = useForm({
     resolver: yupResolver(NewCustomerSchema),
     defaultValues,

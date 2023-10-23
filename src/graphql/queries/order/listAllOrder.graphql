@@ -5,6 +5,7 @@ query ListAllOrder($input: ListAllOrderInput!) {
         deliveryOrderCounter
         doneOrderCounter
         orders {
+            totalCount
             edges {
                 node {
                     id
@@ -30,6 +31,8 @@ query ListAllOrder($input: ListAllOrderInput!) {
                         createdAt
                         updatedAt
                     }
+                    freightPrice
+                    deliverAddress
                     invoiceNo
                     VAT
                     totalMoney

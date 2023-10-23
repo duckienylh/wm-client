@@ -36,3 +36,15 @@ export function getNextNDay(no) {
   nextDay.setDate(nextDay.getDate() + no);
   return nextDay;
 }
+
+export function fDateToDay(date) {
+  return format(new Date(date), 'dd');
+}
+
+export function fDateToYear(date) {
+  return format(new Date(date), 'yyyy');
+}
+
+export function fDateToMonth(date) {
+  return format(new Date(date), 'MM');
+}

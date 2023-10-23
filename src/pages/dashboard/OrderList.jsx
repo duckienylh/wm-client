@@ -26,7 +26,7 @@ import { useQuery } from '@apollo/client';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 import Page from '../../components/Page';
 import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
@@ -111,6 +111,8 @@ export default function OrderList() {
 
   const [totalDeliver, setTotalDeliver] = useState(0);
 
+  const [totalCount, setTotalCount] = useState(0);
+
   const { data: allOrder, fetchMore: fetchMoreOrder } = useQuery(LIST_ORDERS, {
     variables: {
       input: {
@@ -176,6 +178,7 @@ export default function OrderList() {
       setTotalCompleted(allOrder.listAllOrder.totalCompleted);
       setTotalPaid(allOrder.listAllOrder.totalPaid);
       setTotalDeliver(allOrder.listAllOrder.totalDeliver);
+      setTotalCount(allOrder.listAllOrder.orders.totalCount);
     }
   }, [allOrder]);
 
@@ -350,7 +353,10 @@ export default function OrderList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onFilterStatus}
+            onChange={(event, value) => {
+              setPage(0);
+              onFilterStatus(event, value);
+            }}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {TABS.map((tab, idx) => (
@@ -449,7 +455,10 @@ export default function OrderList() {
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, tableData.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -461,7 +470,7 @@ export default function OrderList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={tableData.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -482,4 +491,8 @@ export default function OrderList() {
       </Container>
     </Page>
   );
+}
+
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

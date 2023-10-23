@@ -109,15 +109,12 @@ export const PATH_DASHBOARD = {
     new: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/tao-moi`),
     view: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/${id}/cap-nhat`),
-    demoEdit: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1/cap-nhat`),
-    demoView: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5`),
   },
   customer: {
     root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}`),
     list: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/danh-sach`),
     new: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/tao-moi`),
     edit: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/${id}/cap-nhat`),
-    demoEdit: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/reece-chung/cap-nhat`),
   },
   blog: {
     root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.blog}`),

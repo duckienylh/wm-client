@@ -101,7 +101,7 @@ export default function AccountGeneral() {
 
       if (file) {
         setValue(
-          'photoURL',
+          'avatarURL',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })

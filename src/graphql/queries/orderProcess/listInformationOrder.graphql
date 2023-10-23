@@ -1,0 +1,26 @@
+query ListInformationOrder($orderId: Int!) {
+    listInformationOrder(orderId: $orderId) {
+        id
+        order {
+            id
+        }
+        user {
+            id
+            email
+            userName
+            phoneNumber
+            firstName
+            lastName
+            fullName
+            address
+            avatarURL
+            isActive
+            role
+        }
+        fromStatus
+        toStatus
+        description
+        createdAt
+        updatedAt
+    }
+}

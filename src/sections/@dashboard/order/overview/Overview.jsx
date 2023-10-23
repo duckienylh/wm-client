@@ -1,27 +1,31 @@
 import { Grid, Stack } from '@mui/material';
-import { OrderStatusInfo, TasksNeedToBeDone, OrderTimeline } from './common';
-import { orderPropTypes } from '../../../../constant';
-import useAuth from '../../../../hooks/useAuth';
+import PropTypes from 'prop-types';
+import { OrderTimeline } from './common';
+import OrderQuotationDetails from './common/OrderQuotationDetails';
+import OrderCustomerDeliveryInfo from './common/OrderCustomerDeliveryInfo';
+import InvoiceToolbar from '../details/InvoiceToolbar';
 
 // ----------------------------------------------------------------------
 
 Overview.propTypes = {
-  order: orderPropTypes().isRequired,
+  order: PropTypes.object.isRequired,
 };
 
 export default function Overview({ order }) {
-  const { user } = useAuth();
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={8}>
+        <InvoiceToolbar invoice={order} />
         <Stack spacing={3}>
-          <OrderStatusInfo order={order} />
-          <TasksNeedToBeDone order={order} user={user} />
+          {/* <OrderStatusInfo order={order} /> */}
+          {/* <TasksNeedToBeDone order={order} user={user} /> */}
+          <OrderQuotationDetails order={order} />
+          <OrderTimeline />
         </Stack>
       </Grid>
 
       <Grid item xs={12} md={4}>
-        <OrderTimeline order={order} />
+        <OrderCustomerDeliveryInfo order={order} />
       </Grid>
     </Grid>
   );
