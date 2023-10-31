@@ -73,7 +73,7 @@ export default function InvoicePDF({ invoice }) {
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.cell6WithBorder]}>
-                <Text style={styles.subtitle2}>Số lượng (Tấn)</Text>
+                <Text style={styles.subtitle2}>Số lượng (Kg)</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.cell7WithBorder]}>

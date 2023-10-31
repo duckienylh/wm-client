@@ -9,6 +9,8 @@ query GetProductById($productId: Int!){
         code
         price
         quantity
+        inventory
+        age
         height
         width
         weight

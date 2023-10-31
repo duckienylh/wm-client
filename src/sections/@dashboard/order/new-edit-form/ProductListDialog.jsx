@@ -46,7 +46,7 @@ const TABLE_HEAD = [
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
   { id: 'height', label: 'Chiều dài (m)', align: 'right' },
   { id: 'width', label: 'Chiều rộng (m)', align: 'right' },
-  { id: 'weight', label: 'Tồn kho (Tấn)', align: 'right' },
+  { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
   { id: '' },
 ];

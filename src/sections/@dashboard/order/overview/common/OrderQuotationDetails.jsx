@@ -23,11 +23,12 @@ Overview.propTypes = {
 };
 
 export default function OrderQuotationDetails({ order }) {
+  const { invoiceNo, freightPrice, totalMoney, orderItemList } = order;
   return (
     <Card sx={{ py: 1, p: 2 }}>
       <Stack direction="row">
         <Typography fontWeight={900} variant="subtitle1">
-          Mã đơn hàng: {order.invoiceNo}
+          Mã đơn hàng: {invoiceNo}
         </Typography>
       </Stack>
 
@@ -43,14 +44,14 @@ export default function OrderQuotationDetails({ order }) {
               <TableRow>
                 <TableCell width={30}>#</TableCell>
                 <TableCell align="left">Sản phẩm</TableCell>
-                <TableCell align="left">Số lượng (Tấn)</TableCell>
+                <TableCell align="left">Số lượng (Kg)</TableCell>
                 <TableCell align="right">Giá (VNĐ)</TableCell>
                 <TableCell align="right">Tổng (VNĐ)</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {order.orderItemList?.map((odi, idx) => (
+              {orderItemList?.map((odi, idx) => (
                 <TableRow
                   sx={{
                     borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
@@ -86,9 +87,9 @@ export default function OrderQuotationDetails({ order }) {
 
       <Stack alignItems={'flex-end'}>
         <Stack spacing={1.1}>
-          <Typography variant="body2">Phí vận chuyển: {fVietNamCurrency(order.freightPrice)} VNĐ</Typography>
+          <Typography variant="body2">Phí vận chuyển: {fVietNamCurrency(freightPrice)} VNĐ</Typography>
           <Typography variant="body2">VAT: 10% </Typography>
-          <Typography variant="body2">Tổng tiền: {fVietNamCurrency(order.totalMoney)} VNĐ</Typography>
+          <Typography variant="body2">Tổng tiền: {fVietNamCurrency(totalMoney)} VNĐ</Typography>
         </Stack>
       </Stack>
     </Card>

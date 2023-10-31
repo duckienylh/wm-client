@@ -23,15 +23,14 @@ import { convertStringToNumber, fVietNamCurrency } from '../../../../utils/forma
 import NewCustomerDialog from './NewCustomerDialog';
 
 // ----------------------------------------------------------------------
-const CREATE_ORDER = loader('../../../../graphql/mutations/order/createOrder.graphql');
+const UPDATE_ORDER = loader('../../../../graphql/mutations/order/updateOrder.graphql');
 // ----------------------------------------------------------------------
 
-OrderNewEditForm.propTypes = {
-  isEdit: PropTypes.bool,
+OrderEdit.propTypes = {
   currentOrder: PropTypes.object,
 };
 
-export default function OrderNewEditForm({ isEdit, currentOrder }) {
+export default function OrderEdit({ currentOrder }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
@@ -44,8 +43,6 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
 
   const [customer, setCustomer] = useState({});
 
-  const [product, setProduct] = useState([]);
-
   const NewOrderSchema = Yup.object().shape({
     customer: Yup.object().nullable().required('Đơn hàng phải có thông tin khách hàng'),
     products: Yup.array().min(1, 'Đơn hàng phải có sản phẩm'),
@@ -55,9 +52,11 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
   const defaultValues = useMemo(
     () => ({
       customer: currentOrder?.customer || null,
-      products: currentOrder?.product || [],
-      freightPrice: 0,
-      deliverAddress: '',
+      products: currentOrder?.orderItemList || [],
+      freightPrice: currentOrder?.freightPrice || 0,
+      deliverAddress: currentOrder?.deliverAddress || '',
+      invoiceNo: currentOrder?.invoiceNo || '',
+      sale: currentOrder?.sale || '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentOrder]
@@ -79,19 +78,16 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
   const values = watch();
 
   useEffect(() => {
-    if (isEdit && currentOrder) {
-      reset(defaultValues);
-    }
-    if (!isEdit) {
+    if (currentOrder) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentOrder]);
+  }, [currentOrder]);
 
-  const [createOrder] = useMutation(CREATE_ORDER, {
+  const [updateOrder] = useMutation(UPDATE_ORDER, {
     onCompleted: async (res) => {
       if (res) {
-        enqueueSnackbar('Tạo đơn hàng thành công!', { variant: 'success' });
+        enqueueSnackbar('Cập nhật đơn hàng thành công!', { variant: 'success' });
         return res;
       }
       return null;
@@ -100,17 +96,18 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
 
   const handleCreateAndSend = async () => {
     try {
-      await createOrder({
+      await updateOrder({
         variables: {
           input: {
             // saleId: Number(user?.id),
-            saleId: 4,
-            customerId: Number(customer.id),
+            id: Number(currentOrder?.id),
+            customerId: Number(values.customer.id),
             product: values.products?.map((pr) => ({
-              priceProduct: pr.price,
-              productId: Number(pr.id),
+              orderItem: Number(pr.id),
+              priceProduct: Number(pr.unitPrice),
+              productId: Number(pr.product.id),
               quantity: parseInt(pr.quantity, 10),
-              description: pr.description,
+              description: pr.product.description,
             })),
             VAT: 0.1,
             freightPrice: Number(values.freightPrice),
@@ -118,7 +115,7 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
           },
         },
         onError: (error) => {
-          enqueueSnackbar(`Tạo đơn hàng không thành công. Nguyên nhân: ${error.message}`, {
+          enqueueSnackbar(`Cập nhật đơn hàng không thành công. Nguyên nhân: ${error.message}`, {
             variant: 'error',
           });
         },
@@ -132,34 +129,40 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
   };
 
   const handleAddProduct = (prds) => {
-    const idProduct = product.map((e) => e.id);
+    const idProduct = values.products.map((e) => e.product.id);
     const idprds = prds.map((e) => e.id);
-    // check trung san pham
+
     values.products.forEach((pr, idx) => {
-      if (idprds.includes(pr.id) && values.products.length > 0) {
+      if (idprds.includes(pr.product.id) && values.products.length > 0) {
         setValue(`products[${idx}].quantity`, Number(values.products[idx].quantity) + 1);
       }
     });
 
-    const notExistProduct = prds.filter((pr) => !idProduct.includes(pr.id));
+    const arr = [];
+    for (let i = 0; i < prds.length; i += 1) {
+      const a = {
+        product: prds[i],
+        quantity: 1,
+        unitPrice: prds[i].price,
+      };
+      arr.push(a);
+    }
+    const notExistProduct = arr.filter((pr) => !idProduct.includes(pr.product.id));
     setValue('products', [...values.products, ...notExistProduct]);
-    setProduct([...values.products, ...notExistProduct]);
   };
 
   const totalMoney =
     values.products.length > 0
       ? values.products.reduce(
           (totalMoney, prd) =>
-            prd?.price && prd?.quantity ? totalMoney + Number(prd?.price) * Number(prd?.quantity) : totalMoney,
+            prd?.unitPrice && prd?.quantity ? totalMoney + Number(prd?.unitPrice) * Number(prd?.quantity) : totalMoney,
           0
         )
       : 0;
 
   const handleRemove = (productId) => {
-    const deletedProduct = values.products.filter((pr) => Number(productId) !== Number(pr.id));
-
+    const deletedProduct = values.products.filter((pr) => Number(productId) !== Number(pr.product.id));
     setValue('products', deletedProduct);
-    setProduct(deletedProduct);
   };
 
   return (
@@ -168,10 +171,10 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
         <Grid item xs={12} md={12}>
           <Grid container spacing={1}>
             <Grid item xs={12} md={6} p={1}>
-              <SalesContractInfo sale={user} invoiceNo={''} />
+              <SalesContractInfo sale={values.sale ? values.sale : null} invoiceNo={values.invoiceNo} />
             </Grid>
             <Grid item xs={12} md={6} p={1}>
-              <CustomerContractInfo handleClick={onOpenCustomer} customer={customer} />
+              <CustomerContractInfo handleClick={onOpenCustomer} customer={values.customer} />
             </Grid>
           </Grid>
         </Grid>
@@ -196,9 +199,9 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
                 <Stack key={index} alignItems="flex-end" spacing={1.5}>
                   <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ width: 1 }}>
                     <RHFTextField
-                      name={`products[${index}].name`}
+                      name={`products[${index}].product.name`}
                       label="Tên sản phẩm"
-                      value={values.products[index].name}
+                      value={values.products[index].product?.name}
                       onChange={() => console.log('Không được sửa')}
                       InputLabelProps={{ shrink: true }}
                     />
@@ -216,12 +219,12 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
                     />
 
                     <RHFNumberField
-                      name={`products[${index}].price`}
+                      name={`products[${index}].unitPrice`}
                       label="Đơn Giá (/1 Kg)"
                       value={
-                        values.products[index].price !== 0
-                          ? fVietNamCurrency(values.products[index].price)
-                          : fVietNamCurrency(values.products[index].price)
+                        values.products[index].unitPrice !== 0
+                          ? fVietNamCurrency(values.products[index].unitPrice)
+                          : fVietNamCurrency(values.products[index].unitPrice)
                       }
                       setValue={setValue}
                       InputProps={{
@@ -231,9 +234,11 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
                     />
 
                     <RHFTextField
-                      name={`products[${index}].description`}
+                      name={`products[${index}].product.description`}
                       label="Ghi chú"
-                      value={values.products[index].description ? values.products[index].description : ''}
+                      value={
+                        values.products[index].product.description ? values.products[index].product?.description : ''
+                      }
                       InputLabelProps={{ shrink: true }}
                       // sx={{ maxWidth: { md: 350 } }}
                     />
@@ -242,7 +247,7 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
                       name={`products[${index}].total`}
                       label="Tổng"
                       value={fVietNamCurrency(
-                        values.products[index].quantity * convertStringToNumber(values.products[index].price)
+                        values.products[index].quantity * convertStringToNumber(values.products[index].unitPrice)
                       )}
                       InputProps={{
                         endAdornment: <InputAdornment position="start">VNĐ</InputAdornment>,
@@ -253,7 +258,7 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
                     <Button
                       color="error"
                       startIcon={<Iconify icon="eva:trash-2-outline" />}
-                      onClick={() => handleRemove(prd.id)}
+                      onClick={() => handleRemove(prd.product.id)}
                     >
                       Xóa
                     </Button>
@@ -306,7 +311,7 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
               loading={isSubmitting}
               onClick={handleSubmit(handleCreateAndSend)}
             >
-              {isEdit ? 'Cập nhật' : 'Tạo đơn hàng'}
+              Cập nhật
             </LoadingButton>
           </Stack>
         </CardContent>

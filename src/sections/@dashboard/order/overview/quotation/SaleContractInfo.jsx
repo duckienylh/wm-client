@@ -19,10 +19,10 @@ export default function SalesContractInfo({ invoiceNo, sale }) {
           <Stack spacing={1.1}>
             <Typography variant="body2">Mã đơn hàng: {invoiceNo ?? ''}</Typography>
             <Typography variant="body2">
-              Kinh doanh: {user?.role === Role.sales ? user?.fullName : sale.fullName}
+              Kinh doanh: {user?.role === Role.sales ? user?.fullName : sale?.fullName}
             </Typography>
             <Typography variant="body2">
-              Điện thoại: {user?.role === Role.sales ? user?.phoneNumber : sale.phoneNumber}
+              Điện thoại: {user?.role === Role.sales ? user?.phoneNumber : sale?.phoneNumber}
             </Typography>
           </Stack>
         </CardContent>
