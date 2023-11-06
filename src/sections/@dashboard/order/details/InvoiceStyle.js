@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   tableWithBorder: { display: 'flex', width: 'auto' },
   tableHeader: {},
   tableHeaderRow: {
-    backgroundColor: '#AAF27F',
+    backgroundColor: '#a1dcf3',
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,

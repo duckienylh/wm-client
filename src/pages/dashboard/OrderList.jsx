@@ -46,7 +46,7 @@ const LIST_ORDERS = loader('../../graphql/queries/order/listAllOrder.graphql');
 const TABLE_HEAD = [
   { id: 'stt', label: 'STT', align: 'right' },
   { id: 'invoiceNumber', label: 'Khách hàng', align: 'left' },
-  { id: 'createDate', label: 'Tạo ngày', align: 'left' },
+  { id: 'createDate', label: 'Ngày tạo', align: 'left' },
   { id: 'dueDate', label: 'Ngày giao hàng', align: 'left' },
   { id: 'price', label: 'Tổng đơn hàng', align: 'left', width: 150 },
   { id: 'status', label: 'Trạng thái', align: 'left', width: 160 },

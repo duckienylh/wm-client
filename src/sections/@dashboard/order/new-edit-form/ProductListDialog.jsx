@@ -238,6 +238,9 @@ export default function ProductListDialog({ open, onClose, onSelect }) {
                   <Tooltip title="Thêm sản phẩm vào đơn hàng">
                     <IconButton color="primary" onClick={() => handleAddProductIntoOrder(selected)}>
                       <Iconify icon={'material-symbols:assignment-add-rounded'} />
+                      <Typography variant="subtitle1" sx={{ mr: 1 }}>
+                        Thêm sản phẩm
+                      </Typography>
                     </IconButton>
                   </Tooltip>
                 }

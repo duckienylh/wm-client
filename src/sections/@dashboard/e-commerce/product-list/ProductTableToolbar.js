@@ -41,30 +41,34 @@ export default function ProductTableToolbar({
 }) {
   return (
     <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems="center" sx={{ py: 2.5, px: 3 }}>
-      <FormControl
-        sx={{
-          width: { xs: 1, md: 240 },
-        }}
-      >
-        <InputLabel sx={{ '&.Mui-focused': { color: 'text.primary' } }}>Danh mục</InputLabel>
-        <Select value={filterCategory} onChange={onFilterCategory} input={<OutlinedInput label="Danh mục" />}>
-          {[DEFAULT_CATEGORY, ...categories].map((option, idx) => (
-            <MenuItem
-              key={idx}
-              value={option}
-              sx={{
-                p: 0,
-                mx: 1,
-                borderRadius: 0.75,
-                typography: 'body2',
-                textTransform: 'capitalize',
-              }}
-            >
-              {option.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      {categories && (
+        <FormControl
+          sx={{
+            width: { xs: 1, md: 240 },
+          }}
+        >
+          <InputLabel sx={{ '&.Mui-focused': { color: 'text.primary' } }}>Danh mục</InputLabel>
+
+          <Select value={filterCategory} onChange={onFilterCategory} input={<OutlinedInput label="Danh mục" />}>
+            {[DEFAULT_CATEGORY, ...categories].map((option, idx) => (
+              <MenuItem
+                key={idx}
+                value={option}
+                sx={{
+                  p: 0,
+                  mx: 1,
+                  borderRadius: 0.75,
+                  typography: 'body2',
+                  textTransform: 'capitalize',
+                }}
+              >
+                {option.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
+
       <TextField
         fullWidth
         value={filterName}

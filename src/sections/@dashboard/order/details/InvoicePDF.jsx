@@ -61,7 +61,7 @@ export default function InvoicePDF({ invoice }) {
           <View style={styles.tableHeader}>
             <View style={[styles.tableRow, styles.tableHeaderRow]}>
               <View style={[styles.tableCellWithBorderBase, styles.cell1WithBorder]}>
-                <Text style={styles.subtitle2}>Stt</Text>
+                <Text style={styles.subtitle2}>STT</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.cell2WithBorder]}>

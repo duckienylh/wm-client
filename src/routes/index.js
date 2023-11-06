@@ -57,6 +57,20 @@ export default function Router() {
         { path: SINGLE_KEY_PATH.userAccount, element: <UserAccount /> },
 
         {
+          path: SINGLE_KEY_PATH.categoryList,
+          children: [
+            {
+              element: (
+                <Navigate to={`/${SINGLE_KEY_PATH.dashboard}/${SINGLE_KEY_PATH.categoryList}/danh-sach`} replace />
+              ),
+              index: true,
+            },
+            { path: 'danh-sach', element: <CategoryList /> },
+            { path: 'danh-sach-go/:id', element: <CategoryListProduct /> },
+          ],
+        },
+
+        {
           path: SINGLE_KEY_PATH.product,
           children: [
             {
@@ -214,6 +228,9 @@ const EcommerceProductDetails = Loadable(lazy(() => import('../pages/dashboard/P
 const EcommerceProductList = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductList')));
 const EcommerceProductCreate = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductCreate')));
 const EcommerceCheckout = Loadable(lazy(() => import('../pages/dashboard/EcommerceCheckout')));
+// ----------------
+const CategoryList = Loadable(lazy(() => import('../pages/dashboard/CategoryList')));
+const CategoryListProduct = Loadable(lazy(() => import('../sections/@dashboard/category-product/CategoryListProduct')));
 
 // INVOICE
 const OrderList = Loadable(lazy(() => import('../pages/dashboard/OrderList')));

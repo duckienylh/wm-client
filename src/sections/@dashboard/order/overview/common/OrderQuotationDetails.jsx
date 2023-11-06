@@ -44,9 +44,9 @@ export default function OrderQuotationDetails({ order }) {
               <TableRow>
                 <TableCell width={30}>#</TableCell>
                 <TableCell align="left">Sản phẩm</TableCell>
-                <TableCell align="left">Số lượng (Kg)</TableCell>
-                <TableCell align="right">Giá (VNĐ)</TableCell>
-                <TableCell align="right">Tổng (VNĐ)</TableCell>
+                <TableCell align="center">Số lượng (Kg)</TableCell>
+                <TableCell align="center">Giá (VNĐ)</TableCell>
+                <TableCell align="center">Tổng (VNĐ)</TableCell>
               </TableRow>
             </TableHead>
 
@@ -58,7 +58,7 @@ export default function OrderQuotationDetails({ order }) {
                   }}
                   key={idx}
                 >
-                  <TableCell>
+                  <TableCell align="center">
                     <Typography sx={{ fontWeight: 'bold' }} variant="subtitle2">
                       {idx + 1}
                     </Typography>
@@ -72,10 +72,9 @@ export default function OrderQuotationDetails({ order }) {
                     />
                     {odi.product?.name}
                   </TableCell>
-                  {/* <TableCell align="left">{odi.product?.name}</TableCell> */}
-                  <TableCell align="left">{fVietNamCurrency(odi.quantity)}</TableCell>
-                  <TableCell align="right">{fVietNamCurrency(odi.unitPrice)}</TableCell>
-                  <TableCell align="right">{fVietNamCurrency(Number(odi.quantity) * Number(odi.unitPrice))}</TableCell>
+                  <TableCell align="center">{fVietNamCurrency(odi.quantity)}</TableCell>
+                  <TableCell align="center">{fVietNamCurrency(odi.unitPrice)}</TableCell>
+                  <TableCell align="center">{fVietNamCurrency(Number(odi.quantity) * Number(odi.unitPrice))}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

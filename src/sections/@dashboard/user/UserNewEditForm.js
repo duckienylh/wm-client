@@ -69,7 +69,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
       email: currentUser?.email || '',
       phoneNumber: currentUser?.phoneNumber || '',
       address: currentUser?.address || '',
-      avatarUrl: currentUser?.avatarURL || '',
+      avatarUrl: currentUser?.avatarURL || null,
       status: currentUser?.isActive,
       role: currentUser?.role || '',
     }),
@@ -125,7 +125,7 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     const response = await createFn({
       variables: {
         input: {
-          avatarURL: avatar,
+          avatar,
           email,
           userName,
           phoneNumber,
@@ -151,15 +151,14 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
     }
   };
 
-  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email, status) => {
+  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email, status, avatar) => {
     const response = await updateFn({
       variables: {
         input: {
           id,
           userName,
           role,
-          // TODO: chua lam update avatar
-          avatarURL: null,
+          avatarURL: avatar,
           firstName,
           lastName,
           phoneNumber,
@@ -195,7 +194,8 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
           values.address,
           values.role,
           values.email,
-          values.status
+          values.status,
+          values.avatarUrl
         );
       } else {
         await create(

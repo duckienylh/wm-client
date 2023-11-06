@@ -1,4 +1,4 @@
-import { adminNavConfig, directorNavConfig, driverNavConfig, salesNavConfig } from './NavbarRouteByRole';
+import { adminNavConfig } from './NavbarRouteByRole';
 import { Role } from '../../../constant';
 
 // ----------------------------------------------------------------------
@@ -8,11 +8,11 @@ const navConfig = (user) => {
     case Role.admin:
       return adminNavConfig;
     case Role.director:
-      return directorNavConfig;
+      return adminNavConfig;
     case Role.sales:
-      return salesNavConfig;
+      return adminNavConfig;
     case Role.driver:
-      return driverNavConfig;
+      return adminNavConfig;
     default:
       return [];
   }

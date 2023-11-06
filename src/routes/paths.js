@@ -18,6 +18,7 @@ export const SINGLE_KEY_PATH = {
   transportation: 'xe-phuong-tien',
   driver: 'lai-phu-xe',
   deliveryOrder: 'lenh-xuat-hang',
+  categoryList: 'loai-san-pham',
 };
 
 function path(root, subLink) {
@@ -125,6 +126,10 @@ export const PATH_DASHBOARD = {
       ROOTS_DASHBOARD,
       `/${SINGLE_KEY_PATH.blog}/bai-viet/apply-these-7-secret-techniques-to-improve-event`
     ),
+  },
+  categoryList: {
+    root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.categoryList}/danh-sach`),
+    categoryListProduct: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.categoryList}/danh-sach-go/${id}`),
   },
 };
 

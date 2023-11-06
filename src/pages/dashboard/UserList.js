@@ -45,9 +45,9 @@ import { formatRoleInput } from '../../utils/formatRole';
 const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
 
 const TABLE_HEAD = [
-  { id: 'STT', label: 'STT', align: 'left' },
+  { id: 'STT', label: 'STT', align: 'center' },
   { id: 'name', label: 'Tên người dùng', align: 'left' },
-  { id: 'numberPhone', label: 'Số điện thoại', align: 'left' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
   { id: 'role', label: 'Chức vụ', align: 'left' },
   { id: 'status', label: 'Trạng thái', align: 'left' },
   { id: '' },
