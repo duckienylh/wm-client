@@ -22,6 +22,7 @@ import {
 import { loader } from 'graphql.macro';
 // import XlsxPopulate from 'xlsx-populate';
 // import { saveAs } from 'file-saver';
+import * as xlsx from 'xlsx';
 import useTable from '../../../hooks/useTable';
 import useSettings from '../../../hooks/useSettings';
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -188,7 +189,7 @@ export default function CategoryListProduct() {
   const { data: exportProduct, refetch: refetchExportProduct } = useQuery(LIST_PRODUCT, {
     variables: {
       input: {
-        category: Number(id),
+        categoryId: Number(id),
       },
     },
   });
@@ -227,7 +228,7 @@ export default function CategoryListProduct() {
 
   useEffect(() => {
     if (exportProduct) {
-      setConvertData(exportProduct.listAllProducts?.edges.map((edge) => edge.node));
+      setConvertData(exportProduct.listAllProduct?.edges.map((edge) => edge.node));
     }
   }, [exportProduct]);
 
@@ -263,170 +264,40 @@ export default function CategoryListProduct() {
     return sheetData;
   };
 
-  // const handleSaveAsExcel = () => {
-  //   const header = [
-  //     'Tên',
-  //     'Trọng lượng',
-  //     'Giá',
-  //     'Chiều rộng',
-  //     'Độ dài',
-  //     'Mã sản phẩm',
-  //     'Tồn kho',
-  //     'Tuổi',
-  //     'Danh mục',
-  //     'Mô tả',
-  //   ];
-  //
-  //   XlsxPopulate.fromBlankAsync().then(async (workbook) => {
-  //     const sheet1 = workbook.sheet(0).name('san_pham_go');
-  //     const sheetData = getSheetData(exportData, header);
-  //
-  //     sheet1.cell('A1').value(sheetData);
-  //
-  //     sheet1.column('A').width(35).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.column('B').width(8).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'center',
-  //     });
-  //     sheet1.column('C').width(13).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('D').width(14).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('E').width(18).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('F').width(15).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('G').width(18).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('H').width(13).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'center',
-  //     });
-  //     sheet1.column('I').width(10).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //     sheet1.column('J').width(10).style({
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'right',
-  //     });
-  //
-  //     // Get the range of the entire data in the sheet
-  //     const range = sheet1.usedRange();
-  //
-  //     // Set the border style of the entire range
-  //     range.style({
-  //       border: true,
-  //       borderColor: '959595',
-  //       borderStyle: 'medium',
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '666666',
-  //     });
-  //
-  //     for (let i = 1; i <= range._maxRowNumber; i += 1) {
-  //       sheet1.row(i).height(25.2);
-  //     }
-  //
-  //     sheet1.cell('A1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('B1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('C1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('D1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('E1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('F1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('G1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('H1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('I1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //     sheet1.cell('J1').style({
-  //       fontFamily: 'Arial',
-  //       fontSize: 11,
-  //       fontColor: '000000',
-  //       border: false,
-  //       verticalAlignment: 'center',
-  //       horizontalAlignment: 'left',
-  //     });
-  //
-  //     return workbook.outputAsync().then((res) => {
-  //       saveAs(res, `${category?.name}.xlsx`);
-  //     });
-  //   });
-  // };
+  console.log(
+    'xlsx',
+    getSheetData(exportData, [
+      'Tên',
+      'Trọng lượng',
+      'Giá',
+      'Chiều rộng',
+      'Độ dài',
+      'Mã sản phẩm',
+      'Tồn kho',
+      'Tuổi',
+      'Danh mục',
+      'Mô tả',
+    ])
+  );
+
+  const handleSaveAsExcel = () => {
+    const headerExcel = [
+      'Tên',
+      'Trọng lượng',
+      'Giá',
+      'Chiều rộng',
+      'Độ dài',
+      'Mã sản phẩm',
+      'Tồn kho',
+      'Tuổi',
+      'Danh mục',
+      'Mô tả',
+    ];
+    const workBook = xlsx.utils.book_new();
+    const workSheet = xlsx.utils.json_to_sheet(getSheetData(exportData, headerExcel));
+    xlsx.utils.book_append_sheet(workBook, workSheet);
+    xlsx.writeFile(workBook, `${category?.name}.xlsx`);
+  };
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -535,7 +406,7 @@ export default function CategoryListProduct() {
                 alignSelf: 'center',
               }}
               variant="contained"
-              // onClick={handleSaveAsExcel}
+              onClick={handleSaveAsExcel}
               startIcon={<Iconify icon={'material-symbols:download-rounded'} />}
             >
               Tải file
