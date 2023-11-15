@@ -264,22 +264,6 @@ export default function CategoryListProduct() {
     return sheetData;
   };
 
-  console.log(
-    'xlsx',
-    getSheetData(exportData, [
-      'Tên',
-      'Trọng lượng',
-      'Giá',
-      'Chiều rộng',
-      'Độ dài',
-      'Mã sản phẩm',
-      'Tồn kho',
-      'Tuổi',
-      'Danh mục',
-      'Mô tả',
-    ])
-  );
-
   const handleSaveAsExcel = () => {
     const headerExcel = [
       'Tên',

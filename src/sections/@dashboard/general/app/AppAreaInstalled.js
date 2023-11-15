@@ -122,6 +122,7 @@ export default function AppAreaInstalled() {
         {(user.role === Role.admin || user.role === Role.director) && (
           <TextField
             fullWidth
+            size="small"
             label="NV bán hàng"
             value={filterSales}
             onChange={handleFilter}

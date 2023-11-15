@@ -56,6 +56,7 @@ type DeliverOrder {
 type ListAllOrderResponse {
     allOrderCounter: Int!
     creatNewOrderCounter: Int!
+    createExportOrderCounter: Int!
     deliveryOrderCounter: Int!
     doneOrderCounter: Int!
     orders: OrderConnection

@@ -2,6 +2,7 @@ query ListAllOrder($input: ListAllOrderInput!) {
     listAllOrder(input: $input) {
         allOrderCounter
         creatNewOrderCounter
+        createExportOrderCounter
         deliveryOrderCounter
         doneOrderCounter
         orders {

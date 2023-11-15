@@ -96,6 +96,7 @@ export default function OrderList() {
   const [countOrder, setCountOrder] = useState({
     allOrderCounter: 0,
     creatNewOrderCounter: 0,
+    createExportOrderCounter: 0,
     deliveryOrderCounter: 0,
     successDeliveryOrderCounter: 0,
     paymentConfirmationOrderCounter: 0,
@@ -152,6 +153,7 @@ export default function OrderList() {
         totalRevenue: fetchMoreResult.listAllOrder.totalRevenue,
         allOrderCounter: fetchMoreResult.listAllOrder.allOrderCounter,
         creatNewOrderCounter: fetchMoreResult.listAllOrder.creatNewOrderCounter,
+        createExportOrderCounter: fetchMoreResult.listAllOrder.createExportOrderCounter,
         deliveryOrderCounter: fetchMoreResult.listAllOrder.deliveryOrderCounter,
         successDeliveryOrderCounter: fetchMoreResult.listAllOrder.successDeliveryOrderCounter,
         paymentConfirmationOrderCounter: fetchMoreResult.listAllOrder.paymentConfirmationOrderCounter,
@@ -167,6 +169,7 @@ export default function OrderList() {
       setCountOrder({
         allOrderCounter: parseInt(allOrder?.listAllOrder.allOrderCounter, 10),
         creatNewOrderCounter: parseInt(allOrder?.listAllOrder.creatNewOrderCounter, 10),
+        createExportOrderCounter: parseInt(allOrder?.listAllOrder.createExportOrderCounter, 10),
         deliveryOrderCounter: parseInt(allOrder?.listAllOrder.deliveryOrderCounter, 10),
         successDeliveryOrderCounter: parseInt(allOrder?.listAllOrder.successDeliveryOrderCounter, 10),
         paymentConfirmationOrderCounter: parseInt(allOrder?.listAllOrder.paymentConfirmationOrderCounter, 10),
@@ -249,6 +252,12 @@ export default function OrderList() {
       label: 'Mới',
       color: 'success',
       count: countOrder.creatNewOrderCounter,
+    },
+    {
+      value: OrderStatus.new,
+      label: 'Chốt đơn - tạo lệnh xuất hàng',
+      color: 'success',
+      count: countOrder.createExportOrderCounter,
     },
     {
       value: OrderStatus.inProgress,
