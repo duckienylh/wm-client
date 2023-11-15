@@ -1,9 +1,7 @@
 import { styled } from '@mui/material/styles';
-import { Box, Button, Stack, Container, Typography, InputAdornment } from '@mui/material';
+import { Box, Container, Typography } from '@mui/material';
 import useCountdown from '../hooks/useCountdown';
 import Page from '../components/Page';
-import InputStyle from '../components/InputStyle';
-import SocialsButton from '../components/SocialsButton';
 import { ComingSoonIllustration } from '../assets';
 
 // ----------------------------------------------------------------------
@@ -31,7 +29,7 @@ const SeparatorStyle = styled(Typography)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function ComingSoon() {
-  const countdown = useCountdown(new Date('02/01/2023 21:30'));
+  const countdown = useCountdown(new Date('01/01/2024 21:30'));
 
   return (
     <Page title="Sắp ra mắt hãy theo dõi" sx={{ height: 1 }}>
@@ -39,7 +37,7 @@ export default function ComingSoon() {
         <Container>
           <Box sx={{ maxWidth: 480, margin: 'auto', textAlign: 'center' }}>
             <Typography variant="h3" paragraph>
-              Săp hoàn thành!
+              Sắp hoàn thành!
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
               Chức năng đang được phát triển và sắp ra mắt trong!
@@ -75,24 +73,24 @@ export default function ComingSoon() {
               </div>
             </CountdownStyle>
 
-            <InputStyle
-              fullWidth
-              placeholder="Nhập email của bạn"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <Button variant="contained" size="large">
-                      Nhận thông báo
-                    </Button>
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ my: 5, '& .MuiOutlinedInput-root': { pr: 0.5 } }}
-            />
+            {/* <InputStyle */}
+            {/*  fullWidth */}
+            {/*  placeholder="Nhập email của bạn" */}
+            {/*  InputProps={{ */}
+            {/*    endAdornment: ( */}
+            {/*      <InputAdornment position="end"> */}
+            {/*        <Button variant="contained" size="large"> */}
+            {/*          Nhận thông báo */}
+            {/*        </Button> */}
+            {/*      </InputAdornment> */}
+            {/*    ), */}
+            {/*  }} */}
+            {/*  sx={{ my: 5, '& .MuiOutlinedInput-root': { pr: 0.5 } }} */}
+            {/* /> */}
 
-            <Stack alignItems="center">
-              <SocialsButton size="large" initialColor />
-            </Stack>
+            {/* <Stack alignItems="center"> */}
+            {/*  <SocialsButton size="large" initialColor /> */}
+            {/* </Stack> */}
           </Box>
         </Container>
       </RootStyle>

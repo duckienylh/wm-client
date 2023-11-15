@@ -55,13 +55,13 @@ const deliveryOrderTab = (order) => ({
 const ORDER_INFO_TABS = (order, userRole) => {
   switch (userRole) {
     case Role.admin:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.manager:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.director:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.accountant:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.sales:
       return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
     case Role.driver:

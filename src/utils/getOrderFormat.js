@@ -2,6 +2,8 @@ export const formatStatus = (status) => {
   switch (status) {
     case 'creatNew':
       return 'Tạo mới';
+    case 'createExportOrder':
+      return 'Chốt đơn - Tạo lệnh xuất hàng';
     case 'delivering':
       return 'Đang giao hàng';
     case 'successDelivery':
@@ -21,6 +23,8 @@ export const reformatStatus = (status) => {
   switch (status) {
     case 'Tạo mới':
       return 'creatNew';
+    case 'Chốt đơn - Tạo lệnh xuất hàng':
+      return 'createExportOrder';
     case 'Đang giao hàng':
       return 'delivering';
     case 'Giao hàng thành công':

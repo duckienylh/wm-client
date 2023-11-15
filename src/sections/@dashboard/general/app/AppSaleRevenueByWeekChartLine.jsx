@@ -1,29 +1,41 @@
-// noinspection DuplicatedCode
-
-import merge from 'lodash/merge';
 import { useEffect, useState } from 'react';
-import ReactApexChart from 'react-apexcharts';
-// @mui
-import { Box, Button, Card, CardHeader, MenuItem, Stack, TextField, Typography } from '@mui/material';
-// components
-import { loader } from 'graphql.macro';
 import { useQuery } from '@apollo/client';
+import merge from 'lodash/merge';
+import { Box, Button, Card, CardHeader, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { Icon } from '@iconify/react';
+import ReactApexChart from 'react-apexcharts';
+import { loader } from 'graphql.macro';
 import { BaseOptionChart } from '../../../../components/chart';
-import useAuth from '../../../../hooks/useAuth';
 import { Role } from '../../../../constant';
+import useAuth from '../../../../hooks/useAuth';
+import { fDate, fDateToDay, fddMMYYYYWithSlash } from '../../../../utils/formatTime';
+import { getDatesOfWeek } from '../../../../utils/utiltites';
 
 // ----------------------------------------------------------------------
-const REPORT_REVENUE_BY_MONTH = loader('../../../../graphql/queries/user/salesReportRevenueByMonth.graphql');
+const REPORT_REVENUE_BY_WEEK = loader('../../../../graphql/queries/user/salesReportRevenueByWeek.graphql');
 const GET_ALL_SALE = loader('../../../../graphql/queries/user/users.graphql');
 // ----------------------------------------------------------------------
 
-export default function AppAreaInstalled() {
+export default function AppSaleRevenueByWeekChartLine() {
   const { user } = useAuth();
+
+  const currentDate = new Date();
+
+  const date = currentDate.getDate();
+
+  const day = currentDate.getDay();
+
+  const currentWeekOfMonth = Math.ceil((date - 1 - day) / 7 + 1);
+
+  const currentMonth = currentDate.getMonth() + 1;
 
   const currentYear = new Date().getFullYear();
 
-  const [year, setYear] = useState(currentYear);
+  const [start, setStart] = useState(getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[0]);
+
+  const [end, setEnd] = useState(getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[6]);
+
+  const [count, setCount] = useState(currentWeekOfMonth);
 
   const [chartData, setChartData] = useState([]);
 
@@ -36,6 +48,8 @@ export default function AppAreaInstalled() {
   const [selectedSaleFullName, setSelectedSaleFullName] = useState(null);
 
   const [chartDataOptions, setChartDataOptions] = useState([]);
+
+  const [labelDays, setLabelDays] = useState([]);
 
   const { data: getAllSales } = useQuery(GET_ALL_SALE, {
     variables: {
@@ -51,28 +65,34 @@ export default function AppAreaInstalled() {
     }
   }, [getAllSales]);
 
-  const { data: salesReportByMonth } = useQuery(REPORT_REVENUE_BY_MONTH, {
+  const { data: salesReportByWeek } = useQuery(REPORT_REVENUE_BY_WEEK, {
     variables: {
       input: {
         saleId: user.role !== Role.sales ? selectedSaleId : Number(user.id),
-        startAt: new Date(year, 0, 1),
-        endAt: new Date(year, 11, 31),
+        startAt: fDate(start),
+        endAt: fDate(end),
       },
     },
   });
 
   useEffect(() => {
-    if (salesReportByMonth) {
-      setChartData(salesReportByMonth.salesReportRevenueByMonth?.map((e) => (e?.totalRevenue).toFixed(2)));
+    if (salesReportByWeek) {
+      setChartData(salesReportByWeek.salesReportRevenueByWeek?.map((e) => (e?.totalRevenue).toFixed(2)));
+      setLabelDays(salesReportByWeek.salesReportRevenueByWeek?.map((e) => fddMMYYYYWithSlash(e?.date)));
     }
-  }, [salesReportByMonth]);
+  }, [salesReportByWeek]);
 
-  const addYear = () => {
-    setYear(year + 1);
+  const addWeek = () => {
+    setCount(count + 1);
   };
-  const subYear = () => {
-    setYear(year - 1);
+  const subWeek = () => {
+    setCount(count - 1);
   };
+
+  useEffect(() => {
+    setStart(getDatesOfWeek(count, currentMonth, currentYear)[0]);
+    setEnd(getDatesOfWeek(count, currentMonth, currentYear)[6]);
+  }, [count, currentMonth, currentYear]);
 
   const handleFilter = (event) => {
     setFilterSales(event.target.value);
@@ -94,20 +114,7 @@ export default function AppAreaInstalled() {
 
   const chartOptions = merge(BaseOptionChart(), {
     xaxis: {
-      categories: [
-        'Tháng 01',
-        'Tháng 02',
-        'Tháng 03',
-        'Tháng 04',
-        'Tháng 05',
-        'Tháng 06',
-        'Tháng 07',
-        'Tháng 08',
-        'Tháng 09',
-        'Tháng 10',
-        'Tháng 11',
-        'Tháng 12',
-      ],
+      categories: labelDays,
     },
   });
 
@@ -118,10 +125,12 @@ export default function AppAreaInstalled() {
         direction={{ xs: 'column', sm: 'row' }}
         sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
       >
-        <CardHeader title="Biều đồ doanh thu hàng tháng" sx={{ mt: -3 }} />
+        <CardHeader title="Biều đồ doanh thu hàng tuần" sx={{ mt: -3 }} />
+
         {(user.role === Role.admin || user.role === Role.director) && (
           <TextField
             fullWidth
+            size="small"
             label="NV bán hàng"
             value={filterSales}
             onChange={handleFilter}
@@ -136,7 +145,7 @@ export default function AppAreaInstalled() {
               textTransform: 'capitalize',
             }}
           >
-            <MenuItem value="Tất cả" defaultValue onClick={() => handleGetSaleId(null, null)} />
+            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null, null)} />
             {listSales?.map((option) => (
               <MenuItem
                 key={option.id}
@@ -155,16 +164,22 @@ export default function AppAreaInstalled() {
             ))}
           </TextField>
         )}
+
         <Stack direction="row" spacing={3}>
-          <Button variant="text" onClick={subYear} startIcon={<Icon icon="carbon:previous-filled" />} />
+          <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
           <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
-            {`Năm ${year}`}
+            {`Từ Ngày ${fDateToDay(start)} - ${fddMMYYYYWithSlash(end)}`}
           </Typography>
           <Button
             variant="text"
-            disabled={year >= currentYear}
-            onClick={addYear}
-            startIcon={<Icon icon="carbon:next-filled" />}
+            disabled={
+              getDatesOfWeek(count, currentMonth, currentYear)[0] >=
+                getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[0] ||
+              getDatesOfWeek(count, currentMonth, currentYear)[6] >=
+                getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[6]
+            }
+            onClick={addWeek}
+            endIcon={<Icon icon="carbon:next-filled" />}
           />
         </Stack>
       </Stack>

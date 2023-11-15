@@ -48,3 +48,17 @@ export function fDateToYear(date) {
 export function fDateToMonth(date) {
   return format(new Date(date), 'MM');
 }
+
+export function fDateToDayMonth(date) {
+  return format(new Date(date), 'dd/MM');
+}
+
+export function getDateNextNMonth(date, no) {
+  const nextMonth = new Date(date);
+  nextMonth.setMonth(nextMonth.getMonth() + no);
+  return nextMonth;
+}
+
+export function fMonthYear(date) {
+  return format(new Date(date), 'MM/yyyy');
+}

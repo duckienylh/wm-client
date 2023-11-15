@@ -6,6 +6,12 @@ schema {
     subscription: Subscription
 }
 
+type AdminReportRevenueByMonthResponse {
+    sale: String!
+    totalOrder: Int!
+    totalRevenue: Float!
+}
+
 type Category {
     createdAt: Date
     id: Int!
@@ -35,6 +41,18 @@ type CustomerEdge {
     node: Customer
 }
 
+type DeliverOrder {
+    createdAt: Date
+    customer: Customer!
+    deliveryDate: Date!
+    description: String
+    driver: User
+    id: Int!
+    order: Order!
+    receivingNote: String
+    updatedAt: Date
+}
+
 type ListAllOrderResponse {
     allOrderCounter: Int!
     creatNewOrderCounter: Int!
@@ -53,6 +71,7 @@ type ListAllOrderResponse {
 type Mutation {
     createCategory(input: CreateCategoryInput!): Category!
     createCustomer(input: CreateCustomerInput!): Customer!
+    createDeliverOrder(input: CreateDeliverOrderInput!): DeliverOrder!
     createOrder(input: CreateOrderInput!): Order!
     createProduct(input: CreateProductInput!): Product!
     createUser(input: CreateUserInput!): User!
@@ -62,6 +81,7 @@ type Mutation {
     importExcelProduct(input: ImportExcelProductInput!): [Product]!
     updateCategory(input: UpdateCategoryInput!): SuccessResponse!
     updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
+    updateDeliverOrder(input: UpdateDeliverOrderInput!): SuccessResponse!
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
@@ -114,7 +134,7 @@ type OrderItem {
     note: String
     order: Order!
     product: Product!
-    quantity: Int
+    quantity: Float
     unitPrice: Float
     updatedAt: Date
     weight: Float
@@ -148,7 +168,7 @@ type Product {
     inventory: Float
     name: String!
     price: Float!
-    quantity: Int
+    quantity: Float
     updatedAt: Date
     weight: Float
     width: Float
@@ -166,6 +186,8 @@ type ProductEdge {
 }
 
 type Query {
+    adminReportRevenueByMonth(input: AdminReportRevenueByMonthInput!): [AdminReportRevenueByMonthResponse]!
+    getCategoryById(id: Int!): Category!
     getCustomerById(CustomerId: Int!): Customer!
     getOrderById(orderId: Int!): Order!
     getProductById(productId: Int!): Product!
@@ -177,7 +199,19 @@ type Query {
     listInformationOrder(orderId: Int!): [OrderProcess]!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
+    salesReportRevenueByMonth(input: SalesReportRevenueByMonthInput!): [SalesReportRevenueByMonthResponse]!
+    salesReportRevenueByWeek(input: SalesReportRevenueByWeekInput!): [SalesReportRevenueByWeekResponse]!
     users(input: UsersInput!): UserConnection!
+}
+
+type SalesReportRevenueByMonthResponse {
+    month: Int!
+    totalRevenue: Float!
+}
+
+type SalesReportRevenueByWeekResponse {
+    date: Date!
+    totalRevenue: Float!
 }
 
 type Subscription {
@@ -236,6 +270,7 @@ enum Role {
 
 enum StatusOrder {
     creatNew
+    createExportOrder
     delivering
     done
     paid
@@ -255,6 +290,11 @@ scalar JSON
 
 scalar Upload
 
+input AdminReportRevenueByMonthInput {
+    endAt: Date!
+    startAt: Date!
+}
+
 input CreateCategoryInput {
     name: String!
 }
@@ -265,6 +305,16 @@ input CreateCustomerInput {
     email: String
     name: String
     phoneNumber: String!
+}
+
+input CreateDeliverOrderInput {
+    createdBy: Int!
+    customerId: Int!
+    deliveryDate: Date!
+    description: String
+    driverId: Int
+    orderId: Int!
+    receivingNote: String
 }
 
 input CreateOrderInput {
@@ -287,7 +337,7 @@ input CreateProductInput {
     inventory: Float
     name: String!
     price: Float!
-    quantity: Int
+    quantity: Float
     weight: Float
     width: Float
 }
@@ -348,6 +398,18 @@ input PaginationInput {
     last: Int
 }
 
+input SalesReportRevenueByMonthInput {
+    endAt: Date!
+    saleId: Int
+    startAt: Date!
+}
+
+input SalesReportRevenueByWeekInput {
+    endAt: Date!
+    saleId: Int
+    startAt: Date!
+}
+
 input SubscribeNotificationsInput {
     "excludingEvent: Khi user không muốn nhận thông từ 1 sự kiện nào đó"
     excludingEvent: [NotificationEvent!]
@@ -367,6 +429,16 @@ input UpdateCustomerInput {
     id: Int!
     name: String
     phoneNumber: String
+}
+
+input UpdateDeliverOrderInput {
+    customerId: Int
+    deliveryDate: Date
+    description: String
+    driverId: Int
+    id: Int!
+    orderId: Int
+    receivingNote: String
 }
 
 input UpdateOrderInput {
@@ -393,16 +465,16 @@ input UpdateProductInput {
     inventory: Float
     name: String
     price: Float
-    quantity: Int
+    quantity: Float
     weight: Float
     width: Float
 }
 
 input UpdateProductOrderInput {
     description: String
-    orderItem: Int!
+    orderItem: Int
     priceProduct: Float
-    productId: Int
+    productId: Int!
     quantity: Int
 }
 
