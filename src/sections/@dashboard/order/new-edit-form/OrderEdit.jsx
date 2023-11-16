@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -40,8 +40,6 @@ export default function OrderEdit({ currentOrder }) {
   const { toggle: openNewCustomer, onOpen: onOpenNewCustomer, onClose: onCloseNewCustomer } = useToggle();
 
   const { toggle: openProduct, onOpen: onOpenProduct, onClose: onCloseProduct } = useToggle();
-
-  const [customer, setCustomer] = useState({});
 
   const NewOrderSchema = Yup.object().shape({
     customer: Yup.object().nullable().required('Đơn hàng phải có thông tin khách hàng'),
@@ -99,8 +97,9 @@ export default function OrderEdit({ currentOrder }) {
       await updateOrder({
         variables: {
           input: {
-            // saleId: Number(user?.id),
             id: Number(currentOrder?.id),
+            // TODO: sửa lại saleId ở đây
+            saleId: 4,
             customerId: Number(values.customer.id),
             product: values.products?.map((pr) => ({
               orderItem: Number(pr.id),
@@ -322,7 +321,6 @@ export default function OrderEdit({ currentOrder }) {
         onClose={onCloseCustomer}
         onSelect={(customer) => {
           setValue('customer', customer);
-          setCustomer(customer);
         }}
         onOpenNewCustomer={onOpenNewCustomer}
       />
@@ -338,7 +336,6 @@ export default function OrderEdit({ currentOrder }) {
         onClose={onCloseNewCustomer}
         onSelect={(customer) => {
           setValue('customer', customer);
-          setCustomer(customer);
         }}
       />
     </FormProvider>
