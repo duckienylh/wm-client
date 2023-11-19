@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import { Card, CardHeader, Link, Stack, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 import Iconify from '../../../../components/Iconify';
-import { customerPropTypes } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 
@@ -16,14 +16,14 @@ const IconStyle = styled(Iconify)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 CustomerAbout.propTypes = {
-  customer: customerPropTypes().isRequired,
+  customer: PropTypes.object.isRequired,
 };
 
 export default function CustomerAbout({ customer }) {
   if (!customer) {
     return null;
   }
-  const { company, phoneNumber, name } = customer;
+  const { companyName, phoneNumber, name, address } = customer;
 
   return (
     <Card>
@@ -48,7 +48,7 @@ export default function CustomerAbout({ customer }) {
           <Typography variant="body2">
             Địa chỉ &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
-              {company?.address}
+              {address}
             </Link>
           </Typography>
         </Stack>
@@ -57,7 +57,7 @@ export default function CustomerAbout({ customer }) {
           <IconStyle icon={'ic:round-business-center'} />
           <Typography variant="body2">
             <Link component="span" variant="subtitle2" color="text.primary">
-              {company?.companyName}
+              {companyName}
             </Link>
           </Typography>
         </Stack>

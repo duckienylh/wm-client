@@ -15,27 +15,27 @@ const IconStyle = styled(Iconify)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-DriverAbout.propTypes = {
-  driver: PropTypes.object,
+SaleAbout.propTypes = {
+  sale: PropTypes.object,
 };
 
-export default function DriverAbout({ driver }) {
-  if (!driver) {
+export default function SaleAbout({ sale }) {
+  if (!sale) {
     return (
       <Card sx={{ pt: 3, px: 5, minHeight: 242 }}>
-        <Typography variant="h6">Chưa có thông tin lái xe</Typography>
+        <Typography variant="h6">Chưa có thông tin nhân viên bán hàng</Typography>
       </Card>
     );
   }
-  const { fullName, phoneNumber } = driver;
+  const { fullName, phoneNumber } = sale;
 
   return (
     <Card sx={{ minHeight: 242 }}>
-      <CardHeader title="Thông tin lái xe" />
+      <CardHeader title="Thông tin NV bán hàng" />
       <Stack spacing={2} sx={{ p: 3 }}>
         <Stack direction="row">
           <IconStyle icon={'healthicons:truck-driver'} />
-          <Typography variant="h6" color="text.primary">
+          <Typography variant="h6" color="text.primary" component="span">
             {fullName}
           </Typography>
         </Stack>

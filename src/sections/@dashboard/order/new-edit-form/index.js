@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,12 +25,7 @@ import NewCustomerDialog from './NewCustomerDialog';
 const CREATE_ORDER = loader('../../../../graphql/mutations/order/createOrder.graphql');
 // ----------------------------------------------------------------------
 
-OrderNewEditForm.propTypes = {
-  isEdit: PropTypes.bool,
-  currentOrder: PropTypes.object,
-};
-
-export default function OrderNewEditForm({ isEdit, currentOrder }) {
+export default function OrderNewEditForm() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
@@ -54,13 +48,12 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
 
   const defaultValues = useMemo(
     () => ({
-      customer: currentOrder?.customer || null,
-      products: currentOrder?.product || [],
+      customer: null,
+      products: [],
       freightPrice: 0,
       deliverAddress: '',
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentOrder]
+    []
   );
 
   const methods = useForm({
@@ -79,14 +72,10 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
   const values = watch();
 
   useEffect(() => {
-    if (isEdit && currentOrder) {
-      reset(defaultValues);
-    }
-    if (!isEdit) {
-      reset(defaultValues);
-    }
+    reset(defaultValues);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentOrder]);
+  }, []);
 
   const [createOrder] = useMutation(CREATE_ORDER, {
     onCompleted: async (res) => {
@@ -103,8 +92,8 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
       await createOrder({
         variables: {
           input: {
-            // saleId: Number(user?.id),
-            saleId: 4,
+            saleId: Number(user?.id),
+            // saleId: 4,
             customerId: Number(customer.id),
             product: values.products?.map((pr) => ({
               priceProduct: pr.price,
@@ -303,10 +292,11 @@ export default function OrderNewEditForm({ isEdit, currentOrder }) {
             <LoadingButton
               size="large"
               variant="contained"
+              disabled={!(values.customer && values.products)}
               loading={isSubmitting}
               onClick={handleSubmit(handleCreateAndSend)}
             >
-              {isEdit ? 'Cập nhật' : 'Tạo đơn hàng'}
+              {'Tạo đơn hàng'}
             </LoadingButton>
           </Stack>
         </CardContent>

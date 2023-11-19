@@ -38,6 +38,23 @@ query GetOrderById($orderId: Int!) {
             note
             weight
         }
+        deliverOrderList{
+            id
+            customer{
+                id
+                name
+                phoneNumber
+                email
+                address
+                companyName
+            }
+            order{
+                id
+            }
+            deliveryDate
+            receivingNote
+            description
+        }
         freightPrice
         deliverAddress
         invoiceNo

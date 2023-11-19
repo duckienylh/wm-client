@@ -13,6 +13,7 @@ import { Card, Grid, InputAdornment, Stack, Typography } from '@mui/material';
 // routes
 import { loader } from 'graphql.macro';
 import { useMutation, useQuery } from '@apollo/client';
+import isString from 'lodash/isString';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import { FormProvider, RHFEditor, RHFSelect, RHFTextField, RHFUploadMultiFile } from '../../../components/hook-form';
@@ -56,7 +57,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     () => ({
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
-      images: currentProduct?.images || [],
+      images: currentProduct?.image ? [currentProduct?.image] : [],
       code: currentProduct?.code || '',
       price: currentProduct?.price || 0,
       category: currentProduct?.category?.id || '',
@@ -113,14 +114,12 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               categoryId: Number(values.category),
               code: values.code,
               price: Number(values.price),
-              // quantity: Number(values.quantity),
               height: Number(values.height),
               width: Number(values.width),
               inventory: Number(values.inventory),
               age: Number(values.age),
               description: values.description,
-              // TODO: xu ly lai anh san pham
-              image: null,
+              image: values.images[0],
             },
           },
         });
@@ -139,8 +138,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               inventory: values.inventory === currentProduct?.inventory ? null : values.inventory,
               age: values.age === currentProduct?.age ? null : values.age,
               description: values.description === currentProduct?.description ? null : values.description,
-              // TODO: xu ly lai anh san pham
-              image: null,
+              image: isString(values.images[0]) ? values.images[0] : null,
             },
           },
         });

@@ -61,19 +61,19 @@ export const adminNavConfig = [
         ],
       },
       // product
+      // {
+      //   title: 'Sản phẩm',
+      //   path: PATH_DASHBOARD.product.root,
+      //   icon: ICONS.cart,
+      //   children: [
+      //     { title: 'Danh sách', path: PATH_DASHBOARD.product.list },
+      //     { title: 'Danh sách dạng lưới', path: PATH_DASHBOARD.product.shop },
+      //     { title: 'Chi tiết', path: PATH_DASHBOARD.product.demoView },
+      //     { title: 'Tạo SP mới', path: PATH_DASHBOARD.product.new },
+      //   ],
+      // },
       {
         title: 'Sản phẩm',
-        path: PATH_DASHBOARD.product.root,
-        icon: ICONS.cart,
-        children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.product.list },
-          { title: 'Danh sách dạng lưới', path: PATH_DASHBOARD.product.shop },
-          { title: 'Chi tiết', path: PATH_DASHBOARD.product.demoView },
-          { title: 'Tạo SP mới', path: PATH_DASHBOARD.product.new },
-        ],
-      },
-      {
-        title: 'Sản phẩm - loai san pham',
         path: PATH_DASHBOARD.categoryList.root,
         icon: ICONS.cart,
       },

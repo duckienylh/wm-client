@@ -53,6 +53,24 @@ type DeliverOrder {
     updatedAt: Date
 }
 
+type DeliverOrderConnection {
+    edges: [DeliverOrderEdge]
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type DeliverOrderEdge {
+    cursor: String!
+    node: DeliverOrder
+}
+
+type ListAllDeliverOrderResponse {
+    allOrderCounter: Int!
+    deliverOrder: DeliverOrderConnection
+    doneOrderCounter: Int!
+    inProcessingCounter: Int!
+}
+
 type ListAllOrderResponse {
     allOrderCounter: Int!
     creatNewOrderCounter: Int!
@@ -107,6 +125,7 @@ type Order {
     createdAt: Date
     customer: Customer!
     deliverAddress: String
+    deliverOrderList: [DeliverOrder]
     discount: Float
     freightPrice: Float
     id: Int!
@@ -195,6 +214,7 @@ type Query {
     getUserById(userId: Int!): User!
     listAllCategory: [Category]!
     listAllCustomer(input: ListAllCustomerInput!): CustomerConnection!
+    listAllDeliverOrder(input: ListAllDeliverOrderInput!): ListAllDeliverOrderResponse!
     listAllOrder(input: ListAllOrderInput!): ListAllOrderResponse!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
     listInformationOrder(orderId: Int!): [OrderProcess]!
@@ -376,6 +396,14 @@ input ListAllCustomerInput {
     searchQuery: String
 }
 
+input ListAllDeliverOrderInput {
+    args: PaginationInput
+    driverId: Int
+    queryString: String
+    saleId: Int
+    status: String
+}
+
 input ListAllOrderInput {
     args: PaginationInput
     createAt: filterDate
@@ -451,7 +479,7 @@ input UpdateOrderInput {
     id: Int!
     invoiceNo: String
     product: [UpdateProductOrderInput!]
-    saleId: Int
+    saleId: Int!
     status: StatusOrder
 }
 

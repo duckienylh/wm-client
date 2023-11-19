@@ -11,6 +11,7 @@ import useTabs from '../../hooks/useTabs';
 import { Overview } from '../../sections/@dashboard/order/overview';
 import { Role } from '../../constant';
 import useAuth from '../../hooks/useAuth';
+import SummaryDeliveryOrder from '../../sections/@dashboard/order/overview/delivery-order/SummaryDeliveryOrder';
 
 // ----------------------------------------------------------------------
 const ORDER_BY_ID = loader('../../graphql/queries/order/getOrderById.graphql');
@@ -49,7 +50,7 @@ const deliveryOrderTab = (order) => ({
   value: 'deliveryOrder',
   label: deliveryOrderTabLabel,
   icon: <Iconify icon={'mdi:truck-delivery-outline'} width={20} height={20} />,
-  // component: <SummaryDeliveryOrder order={order} />,
+  component: <SummaryDeliveryOrder order={order} />,
 });
 
 const ORDER_INFO_TABS = (order, userRole) => {

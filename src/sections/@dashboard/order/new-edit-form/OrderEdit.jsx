@@ -98,8 +98,7 @@ export default function OrderEdit({ currentOrder }) {
         variables: {
           input: {
             id: Number(currentOrder?.id),
-            // TODO: sửa lại saleId ở đây
-            saleId: 4,
+            saleId: Number(user?.id),
             customerId: Number(values.customer.id),
             product: values.products?.map((pr) => ({
               orderItem: Number(pr.id),
@@ -307,6 +306,7 @@ export default function OrderEdit({ currentOrder }) {
             <LoadingButton
               size="large"
               variant="contained"
+              disabled={!(values.customer && values.products)}
               loading={isSubmitting}
               onClick={handleSubmit(handleCreateAndSend)}
             >
