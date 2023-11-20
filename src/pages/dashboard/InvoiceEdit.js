@@ -2,17 +2,21 @@ import { useParams } from 'react-router-dom';
 // @mui
 import { Container } from '@mui/material';
 // routes
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // _mock_
-import { _orders } from '../../_mock';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // sections
-import InvoiceNewEditForm from '../../sections/@dashboard/order/new-edit-form';
+import OrderEdit from '../../sections/@dashboard/order/new-edit-form/OrderEdit';
 
+// ----------------------------------------------------------------------
+const ORDER_BY_ID = loader('../../graphql/queries/order/getOrderById.graphql');
 // ----------------------------------------------------------------------
 
 export default function InvoiceEdit() {
@@ -20,21 +24,31 @@ export default function InvoiceEdit() {
 
   const { id } = useParams();
 
-  const currentInvoice = _orders.find((invoice) => invoice.id === id);
+  const [currentOrder, setCurrentOrder] = useState({});
+
+  const { data: order } = useQuery(ORDER_BY_ID, {
+    variables: {
+      orderId: Number(id),
+    },
+  });
+
+  useEffect(() => {
+    if (order) setCurrentOrder(order.getOrderById);
+  }, [order]);
 
   return (
-    <Page title="Invoices: Edit">
+    <Page title="Sửa báo giá">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Edit invoice"
+          heading="Sửa báo giá"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Invoices', href: PATH_DASHBOARD.saleAndMarketing.list },
-            { name: currentInvoice?.invoiceNumber || '' },
+            { name: 'Đơn hàng', href: PATH_DASHBOARD.saleAndMarketing.list },
+            { name: currentOrder?.invoiceNo || '' },
           ]}
         />
 
-        <InvoiceNewEditForm isEdit currentOrder={currentInvoice} />
+        <OrderEdit currentOrder={currentOrder} />
       </Container>
     </Page>
   );

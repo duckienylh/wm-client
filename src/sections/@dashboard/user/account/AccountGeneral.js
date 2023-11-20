@@ -10,6 +10,7 @@ import { LoadingButton } from '@mui/lab';
 // hooks
 import { loader } from 'graphql.macro';
 import { useMutation } from '@apollo/client';
+import isString from 'lodash/isString';
 import useAuth from '../../../../hooks/useAuth';
 // utils
 import { fData } from '../../../../utils/formatNumber';
@@ -83,7 +84,7 @@ export default function AccountGeneral() {
             id: parseInt(user.id, 10),
             firstName: values.firstName?.trim() !== user.firstName ? values.firstName : null,
             lastName: values.lastName?.trim() !== user.lastName ? values.lastName : null,
-            avatarURL: values.avatarURL,
+            avatarURL: isString(values.avatarURL) ? null : values.avatarURL,
             address: values.address?.trim() !== user.address ? values.address : null,
           },
         },
@@ -93,6 +94,7 @@ export default function AccountGeneral() {
         variant: 'error',
       });
     }
+    window.location.reload();
   };
 
   const handleDrop = useCallback(
@@ -101,7 +103,7 @@ export default function AccountGeneral() {
 
       if (file) {
         setValue(
-          'photoURL',
+          'avatarURL',
           Object.assign(file, {
             preview: URL.createObjectURL(file),
           })

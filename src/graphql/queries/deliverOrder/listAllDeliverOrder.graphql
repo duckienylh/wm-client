@@ -1,0 +1,81 @@
+query ListAllDeliverOrder($input: ListAllDeliverOrderInput!) {
+    listAllDeliverOrder(input: $input) {
+        deliverOrder {
+            edges{
+                cursor
+                node{
+                    id
+                    customer{
+                        id
+                        name
+                        phoneNumber
+                        email
+                        address
+                        companyName
+                    }
+                    order{
+                        id
+                        sale {
+                            id
+                            email
+                            userName
+                            phoneNumber
+                            firstName
+                            lastName
+                            fullName
+                            address
+                            avatarURL
+                            isActive
+                            role
+                        }
+                        customer {
+                            id
+                            name
+                            phoneNumber
+                            email
+                            address
+                            companyName
+                        }
+                        orderItemList {
+                            id
+                            product {
+                                id
+                                name
+                                code
+                                price
+                                image
+                                description
+                                quantity
+                            }
+                            quantity
+                            unitPrice
+                            note
+                            weight
+                        }
+                        invoiceNo
+                        VAT
+                        totalMoney
+                        status
+                        createdAt
+                        updatedAt
+                    }
+                    driver{
+                        id
+                        fullName
+                        phoneNumber
+                        firstName
+                        lastName
+                        role
+                    }
+                    deliveryDate
+                    receivingNote
+                    description
+                }
+            }
+            totalCount
+        }
+        allOrderCounter
+        doneOrderCounter
+        inProcessingCounter
+    }
+}

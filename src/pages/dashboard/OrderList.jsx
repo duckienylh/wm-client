@@ -26,7 +26,7 @@ import { useQuery } from '@apollo/client';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 import Page from '../../components/Page';
 import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
@@ -46,7 +46,7 @@ const LIST_ORDERS = loader('../../graphql/queries/order/listAllOrder.graphql');
 const TABLE_HEAD = [
   { id: 'stt', label: 'STT', align: 'right' },
   { id: 'invoiceNumber', label: 'Khách hàng', align: 'left' },
-  { id: 'createDate', label: 'Tạo ngày', align: 'left' },
+  { id: 'createDate', label: 'Ngày tạo', align: 'left' },
   { id: 'dueDate', label: 'Ngày giao hàng', align: 'left' },
   { id: 'price', label: 'Tổng đơn hàng', align: 'left', width: 150 },
   { id: 'status', label: 'Trạng thái', align: 'left', width: 160 },
@@ -96,6 +96,7 @@ export default function OrderList() {
   const [countOrder, setCountOrder] = useState({
     allOrderCounter: 0,
     creatNewOrderCounter: 0,
+    createExportOrderCounter: 0,
     deliveryOrderCounter: 0,
     successDeliveryOrderCounter: 0,
     paymentConfirmationOrderCounter: 0,
@@ -110,6 +111,8 @@ export default function OrderList() {
   const [totalPaid, setTotalPaid] = useState(0);
 
   const [totalDeliver, setTotalDeliver] = useState(0);
+
+  const [totalCount, setTotalCount] = useState(0);
 
   const { data: allOrder, fetchMore: fetchMoreOrder } = useQuery(LIST_ORDERS, {
     variables: {
@@ -150,6 +153,7 @@ export default function OrderList() {
         totalRevenue: fetchMoreResult.listAllOrder.totalRevenue,
         allOrderCounter: fetchMoreResult.listAllOrder.allOrderCounter,
         creatNewOrderCounter: fetchMoreResult.listAllOrder.creatNewOrderCounter,
+        createExportOrderCounter: fetchMoreResult.listAllOrder.createExportOrderCounter,
         deliveryOrderCounter: fetchMoreResult.listAllOrder.deliveryOrderCounter,
         successDeliveryOrderCounter: fetchMoreResult.listAllOrder.successDeliveryOrderCounter,
         paymentConfirmationOrderCounter: fetchMoreResult.listAllOrder.paymentConfirmationOrderCounter,
@@ -165,6 +169,7 @@ export default function OrderList() {
       setCountOrder({
         allOrderCounter: parseInt(allOrder?.listAllOrder.allOrderCounter, 10),
         creatNewOrderCounter: parseInt(allOrder?.listAllOrder.creatNewOrderCounter, 10),
+        createExportOrderCounter: parseInt(allOrder?.listAllOrder.createExportOrderCounter, 10),
         deliveryOrderCounter: parseInt(allOrder?.listAllOrder.deliveryOrderCounter, 10),
         successDeliveryOrderCounter: parseInt(allOrder?.listAllOrder.successDeliveryOrderCounter, 10),
         paymentConfirmationOrderCounter: parseInt(allOrder?.listAllOrder.paymentConfirmationOrderCounter, 10),
@@ -176,6 +181,7 @@ export default function OrderList() {
       setTotalCompleted(allOrder.listAllOrder.totalCompleted);
       setTotalPaid(allOrder.listAllOrder.totalPaid);
       setTotalDeliver(allOrder.listAllOrder.totalDeliver);
+      setTotalCount(allOrder.listAllOrder.orders.totalCount);
     }
   }, [allOrder]);
 
@@ -246,6 +252,12 @@ export default function OrderList() {
       label: 'Mới',
       color: 'success',
       count: countOrder.creatNewOrderCounter,
+    },
+    {
+      value: OrderStatus.new,
+      label: 'Chốt đơn - tạo lệnh xuất hàng',
+      color: 'success',
+      count: countOrder.createExportOrderCounter,
     },
     {
       value: OrderStatus.inProgress,
@@ -350,7 +362,10 @@ export default function OrderList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onFilterStatus}
+            onChange={(event, value) => {
+              setPage(0);
+              onFilterStatus(event, value);
+            }}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {TABS.map((tab, idx) => (
@@ -449,7 +464,10 @@ export default function OrderList() {
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, tableData.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -461,7 +479,7 @@ export default function OrderList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={tableData.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -482,4 +500,8 @@ export default function OrderList() {
       </Container>
     </Page>
   );
+}
+
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

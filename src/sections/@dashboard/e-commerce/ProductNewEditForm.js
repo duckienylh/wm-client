@@ -13,6 +13,7 @@ import { Card, Grid, InputAdornment, Stack, Typography } from '@mui/material';
 // routes
 import { loader } from 'graphql.macro';
 import { useMutation, useQuery } from '@apollo/client';
+import isString from 'lodash/isString';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import { FormProvider, RHFEditor, RHFSelect, RHFTextField, RHFUploadMultiFile } from '../../../components/hook-form';
@@ -48,22 +49,22 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
   const NewProductSchema = Yup.object().shape({
     name: Yup.string().required('Tên sản phẩm cần được nhập'),
     code: Yup.string().required('Mã sản phẩm cần được nhập'),
-    // images: Yup.array().min(1, 'Ảnh cần được thêm'),
     price: Yup.number().moreThan(0, 'Giá không được là 0.00 VNĐ'),
-    weight: Yup.number().moreThan(0, 'weight không được là 0.00 Tấn'),
+    inventory: Yup.number().moreThan(0, 'Khối lượng không được là 0.00 Kg'),
   });
 
   const defaultValues = useMemo(
     () => ({
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
-      images: currentProduct?.images || [],
+      images: currentProduct?.image ? [currentProduct?.image] : [],
       code: currentProduct?.code || '',
       price: currentProduct?.price || 0,
       category: currentProduct?.category?.id || '',
       weight: currentProduct?.weight || 0,
       height: currentProduct?.height || 0,
-      width: currentProduct?.width || 0,
+      inventory: currentProduct?.inventory || 0,
+      age: currentProduct?.age || 0,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentProduct]
@@ -113,13 +114,12 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               categoryId: Number(values.category),
               code: values.code,
               price: Number(values.price),
-              // quantity: Number(values.quantity),
               height: Number(values.height),
               width: Number(values.width),
-              weight: Number(values.weight),
+              inventory: Number(values.inventory),
+              age: Number(values.age),
               description: values.description,
-              // TODO: xu ly lai anh san pham
-              image: null,
+              image: values.images[0],
             },
           },
         });
@@ -135,10 +135,10 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               quantity: values.quantity === currentProduct?.quantity ? null : values.quantity,
               height: values.height === currentProduct?.height ? null : values.height,
               width: values.width === currentProduct?.width ? null : values.width,
-              weight: values.weight === currentProduct?.weight ? null : values.weight,
+              inventory: values.inventory === currentProduct?.inventory ? null : values.inventory,
+              age: values.age === currentProduct?.age ? null : values.age,
               description: values.description === currentProduct?.description ? null : values.description,
-              // TODO: xu ly lai anh san pham
-              image: null,
+              image: isString(values.images[0]) ? values.images[0] : null,
             },
           },
         });
@@ -243,12 +243,24 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
                 />
 
                 <RHFNumberField
-                  name="weight"
-                  label="Cân nặng"
+                  name="age"
+                  label="Tuổi"
                   placeholder="0.00"
-                  value={fVietNamCurrency(values.weight)}
+                  value={fVietNamCurrency(values.age)}
                   InputProps={{
-                    endAdornment: <InputAdornment position="start">TẤN</InputAdornment>,
+                    endAdornment: <InputAdornment position="start">Năm</InputAdornment>,
+                  }}
+                  setValue={setValue}
+                  InputLabelProps={{ shrink: true }}
+                />
+
+                <RHFNumberField
+                  name="inventory"
+                  label="Khối lượng"
+                  placeholder="0.00"
+                  value={fVietNamCurrency(values.inventory)}
+                  InputProps={{
+                    endAdornment: <InputAdornment position="start">Kg</InputAdornment>,
                   }}
                   setValue={setValue}
                   InputLabelProps={{ shrink: true }}

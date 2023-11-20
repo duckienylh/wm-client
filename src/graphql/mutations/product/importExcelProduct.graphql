@@ -1,0 +1,22 @@
+mutation ImportExcelProduct($input: ImportExcelProductInput!) {
+    importExcelProduct(input: $input) {
+        id
+        name
+        category {
+            id
+            name
+        }
+        code
+        price
+        quantity
+        inventory
+        age
+        height
+        width
+        weight
+        image
+        description
+        createdAt
+        updatedAt
+    }
+}

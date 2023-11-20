@@ -21,7 +21,7 @@ ProductTableRow.propTypes = {
 };
 
 export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { name, code, height, image, weight, width, price } = row;
+  const { name, code, height, image, inventory, width, price } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -59,9 +59,9 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
       {/* </TableCell> */}
 
       <TableCell align="left">{code}</TableCell>
-      <TableCell align="right">{height}</TableCell>
-      <TableCell align="right">{width}</TableCell>
-      <TableCell align="right">{weight}</TableCell>
+      <TableCell align="right">{fVietNamCurrency(height)}</TableCell>
+      <TableCell align="right">{fVietNamCurrency(width)}</TableCell>
+      <TableCell align="right">{fVietNamCurrency(inventory)}</TableCell>
 
       <TableCell align="right">{`${fVietNamCurrency(price)} VNĐ`}</TableCell>
 

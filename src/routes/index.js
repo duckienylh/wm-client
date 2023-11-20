@@ -57,6 +57,20 @@ export default function Router() {
         { path: SINGLE_KEY_PATH.userAccount, element: <UserAccount /> },
 
         {
+          path: SINGLE_KEY_PATH.categoryList,
+          children: [
+            {
+              element: (
+                <Navigate to={`/${SINGLE_KEY_PATH.dashboard}/${SINGLE_KEY_PATH.categoryList}/danh-sach`} replace />
+              ),
+              index: true,
+            },
+            { path: 'danh-sach', element: <CategoryList /> },
+            { path: 'danh-sach-go/:id', element: <CategoryListProduct /> },
+          ],
+        },
+
+        {
           path: SINGLE_KEY_PATH.product,
           children: [
             {
@@ -81,8 +95,6 @@ export default function Router() {
             },
             { path: 'tao-moi', element: <UserCreate /> },
             { path: 'danh-sach', element: <UserList /> },
-            { path: 'cards', element: <UserCards /> },
-            { path: 'profile', element: <UserProfile /> },
             { path: ':id/chinh-sua', element: <UserCreate /> },
           ],
         },
@@ -214,6 +226,9 @@ const EcommerceProductDetails = Loadable(lazy(() => import('../pages/dashboard/P
 const EcommerceProductList = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductList')));
 const EcommerceProductCreate = Loadable(lazy(() => import('../pages/dashboard/EcommerceProductCreate')));
 const EcommerceCheckout = Loadable(lazy(() => import('../pages/dashboard/EcommerceCheckout')));
+// ----------------
+const CategoryList = Loadable(lazy(() => import('../pages/dashboard/CategoryList')));
+const CategoryListProduct = Loadable(lazy(() => import('../sections/@dashboard/category-product/CategoryListProduct')));
 
 // INVOICE
 const OrderList = Loadable(lazy(() => import('../pages/dashboard/OrderList')));
@@ -231,8 +246,6 @@ const BlogPost = Loadable(lazy(() => import('../pages/dashboard/BlogPost')));
 const BlogNewPost = Loadable(lazy(() => import('../pages/dashboard/BlogNewPost')));
 
 // USER
-const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
-const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
 const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));

@@ -1,44 +1,25 @@
 // noinspection JSValidateTypes
 
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { alpha, styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
-import { Box, Card, CardContent, Grid, Link, Stack, Typography } from '@mui/material';
-import Slider from 'react-slick';
+import { Card, Grid, InputAdornment, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
-import { m } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
-import { FormProvider, RHFUploadMultiFile } from '../../../../../components/hook-form';
-import { orderPropTypes, Role } from '../../../../../constant';
+import { loader } from 'graphql.macro';
+import { useMutation } from '@apollo/client';
+import { FormProvider, RHFTextField } from '../../../../../components/hook-form';
+import { Role } from '../../../../../constant';
 import useAuth from '../../../../../hooks/useAuth';
-import Image from '../../../../../components/Image';
-import { CarouselArrows, CarouselDots } from '../../../../../components/carousel';
-import { MotionContainer, varFade } from '../../../../../components/animate';
+import RHFDatePicker from '../../../../../components/hook-form/RHFDatePicker';
+import { fVietNamCurrency } from '../../../../../utils/formatNumber';
 
 // ----------------------------------------------------------------------
-
-const LabelStyle = styled(Typography)(({ theme }) => ({
-  ...theme.typography.subtitle2,
-  color: theme.palette.text.secondary,
-  marginBottom: theme.spacing(1),
-}));
-
-const OverlayStyle = styled('div')(({ theme }) => ({
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  zIndex: 8,
-  position: 'absolute',
-  backgroundColor: alpha(theme.palette.grey[900], 0.64),
-}));
-
+const CREATE_DELIVER_ORDER = loader('../../../../../graphql/mutations/deliverOrder/createDeliverOrder.graphql');
 // ----------------------------------------------------------------------
 
 DocumentDeliveryOrder.propTypes = {
-  currentOrder: orderPropTypes().isRequired,
+  currentOrder: PropTypes.object.isRequired,
 };
 
 export default function DocumentDeliveryOrder({ currentOrder }) {
@@ -47,8 +28,9 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
 
   const defaultValues = useMemo(
     () => ({
-      deliverOrder: currentOrder?.deliverOrder || null,
-      updateDocumentFiles: [],
+      deliveryPayable: currentOrder?.freightPrice || '',
+      deliveryDate: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.deliveryDate : null,
+      receivingNote: '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentOrder]
@@ -61,7 +43,6 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
   const {
     reset,
     watch,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -75,118 +56,84 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrder]);
 
+  const [createDeliverOrder] = useMutation(CREATE_DELIVER_ORDER, {
+    onCompleted: async (res) => {
+      if (res) {
+        enqueueSnackbar('Tạo ệnh xuất hàng thành công!', { variant: 'success' });
+        return res;
+      }
+      return null;
+    },
+  });
+
   const onSubmit = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      enqueueSnackbar('Cập nhật thành công!', { variant: 'success' });
+      await createDeliverOrder({
+        variables: {
+          input: {
+            createdBy: Number(user?.id),
+            orderId: Number(currentOrder?.id),
+            customerId: Number(currentOrder?.customer.id),
+            deliveryDate: values.deliveryDate,
+            receivingNote: values.receivingNote,
+          },
+        },
+        onError(err) {
+          console.error(err);
+          enqueueSnackbar('Tạo lệnh xuất hàng không thành công', {
+            variant: 'error',
+          });
+        },
+      });
+      reset();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      setValue(
-        'updateDocumentFiles',
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          })
-        )
-      );
-    },
-    [setValue]
-  );
+  const isPermission = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
 
-  const handleRemoveAll = () => {
-    setValue('updateDocumentFiles', []);
-  };
-
-  const handleRemove = (file) => {
-    const filteredItems = values.updateDocumentFiles?.filter((_file) => _file !== file);
-    setValue('updateDocumentFiles', filteredItems);
-  };
-
-  const isPermission = user.role === Role.driver && currentOrder?.driver && currentOrder?.driver?.id === user.id;
-
-  const carouselRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const settings = {
-    speed: 2000,
-    dots: true,
-    arrows: false,
-    autoplay: true,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    rtl: false,
-    beforeChange: (current, next) => setCurrentIndex(next),
-    ...CarouselDots({
-      zIndex: 9,
-      top: 24,
-      left: 24,
-      position: 'absolute',
-    }),
-  };
-
-  const handlePrevious = () => {
-    carouselRef.current.slickPrev();
-  };
-
-  const handleNext = () => {
-    carouselRef.current.slickNext();
-  };
+  const isDisabled = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-      {currentOrder?.deliverOrder?.papers && currentOrder?.deliverOrder?.papers.length > 0 && (
-        <Card sx={{ marginX: { xs: 0, md: 30 }, mb: 3 }}>
-          <Slider ref={carouselRef} {...settings}>
-            {currentOrder?.deliverOrder?.papers.map((app, index) => (
-              <CarouselItem key={app.id} item={app} isActive={index === currentIndex} />
-            ))}
-          </Slider>
-
-          <CarouselArrows
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-            spacing={0}
-            sx={{
-              top: 16,
-              right: 16,
-              position: 'absolute',
-              '& .arrow': {
-                p: 0,
-                width: 32,
-                height: 32,
-                opacity: 0.48,
-                color: 'common.white',
-                '&:hover': { color: 'common.white', opacity: 1 },
-              },
-            }}
-          />
-        </Card>
-      )}
-
       <Grid container spacing={3}>
         <Grid item xs={12} md={12}>
           <Card sx={{ p: 3 }}>
-            <Stack spacing={3}>
-              <div>
-                <LabelStyle>Thêm Ảnh hóa đơn/hợp đồng</LabelStyle>
-                <RHFUploadMultiFile
-                  name="updateDocumentFiles"
-                  showPreview
-                  disabled={!isPermission}
-                  accept="image/*"
-                  maxSize={31457280}
-                  onDrop={handleDrop}
-                  onRemove={handleRemove}
-                  onRemoveAll={handleRemoveAll}
+            <Grid container spacing={2}>
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  disabled
+                  name="deliveryPayable"
+                  value={fVietNamCurrency(values.deliveryPayable)}
+                  label="Cước vận chuyển phải thu"
+                  InputProps={{
+                    endAdornment: <InputAdornment position="start">VNĐ</InputAdornment>,
+                  }}
                 />
-              </div>
-            </Stack>
-            {isPermission && (
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <RHFDatePicker
+                  disabled={isDisabled}
+                  name="deliveryDate"
+                  label="Ngày hẹn khách giao"
+                  // sx={{ maxWidth: 150, my: 0 }}
+                  sx={{ mt: 0, minWidth: { md: 200 } }}
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <RHFTextField
+                  disabled={isDisabled}
+                  name="receivingNote"
+                  label="Dặn dò khác"
+                  sx={{ minWidth: { md: 200 } }}
+                />
+              </Grid>
+            </Grid>
+            {!isPermission && (
               <Stack spacing={3} sx={{ justifyContent: 'flex-end', pt: 2, alignSelf: 'flex-end', minWidth: 300 }}>
                 <LoadingButton
                   sx={{ minWidth: 300, alignSelf: 'flex-end' }}
@@ -195,7 +142,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
                   size="large"
                   loading={isSubmitting}
                 >
-                  Cập nhật giao hàng thành công
+                  Tạo lệnh xuất hàng
                 </LoadingButton>
               </Stack>
             )}
@@ -203,51 +150,5 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
         </Grid>
       </Grid>
     </FormProvider>
-  );
-}
-
-CarouselItem.propTypes = {
-  isActive: PropTypes.bool,
-  item: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    file: PropTypes.string,
-  }),
-};
-
-function CarouselItem({ item, isActive }) {
-  const { name, file } = item;
-
-  return (
-    <Box sx={{ position: 'relative' }}>
-      <CardContent
-        component={MotionContainer}
-        animate={isActive}
-        action
-        sx={{
-          bottom: 0,
-          width: 1,
-          zIndex: 9,
-          textAlign: 'left',
-          position: 'absolute',
-          color: 'common.white',
-        }}
-      >
-        <m.div variants={varFade().inRight}>
-          <Typography variant="h5" component="div" sx={{ mb: 1, opacity: 0.48 }}>
-            Hóa đơn/Giấy xác nhận đã cập nhật
-          </Typography>
-        </m.div>
-        <m.div variants={varFade().inRight}>
-          <Link component={RouterLink} to="#" color="inherit" underline="none">
-            <Typography variant="h5" gutterBottom noWrap>
-              {name}
-            </Typography>
-          </Link>
-        </m.div>
-      </CardContent>
-      <OverlayStyle />
-      <Image alt={name} src={file} ratio={'1/1'} sx={{ height: { xs: 280, md: 320 } }} />
-    </Box>
   );
 }

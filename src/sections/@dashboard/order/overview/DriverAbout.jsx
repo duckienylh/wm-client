@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
-import { Card, CardHeader, Link, Stack, Typography } from '@mui/material';
+import { Card, CardHeader, Stack, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 import Iconify from '../../../../components/Iconify';
-import { driverPropTypes } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ const IconStyle = styled(Iconify)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DriverAbout.propTypes = {
-  driver: driverPropTypes(),
+  driver: PropTypes.object,
 };
 
 export default function DriverAbout({ driver }) {
@@ -27,7 +27,7 @@ export default function DriverAbout({ driver }) {
       </Card>
     );
   }
-  const { displayName, phone } = driver;
+  const { fullName, phoneNumber } = driver;
 
   return (
     <Card sx={{ minHeight: 242 }}>
@@ -35,16 +35,14 @@ export default function DriverAbout({ driver }) {
       <Stack spacing={2} sx={{ p: 3 }}>
         <Stack direction="row">
           <IconStyle icon={'healthicons:truck-driver'} />
-          <Typography variant="body2">
-            <Link component="span" variant="h6" color="text.primary">
-              {displayName}
-            </Link>
+          <Typography variant="h6" color="text.primary">
+            {fullName}
           </Typography>
         </Stack>
 
         <Stack direction="row">
           <IconStyle icon={'wpf:iphone'} />
-          <Typography variant="body2">{phone}</Typography>
+          <Typography variant="body2">{phoneNumber}</Typography>
         </Stack>
       </Stack>
     </Card>

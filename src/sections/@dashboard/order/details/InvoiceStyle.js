@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   tableWithBorder: { display: 'flex', width: 'auto' },
   tableHeader: {},
   tableHeaderRow: {
-    backgroundColor: '#AAF27F',
+    backgroundColor: '#a1dcf3',
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -122,13 +122,13 @@ const styles = StyleSheet.create({
     width: '3%',
   },
   bodyCell1WithBorder: {
-    width: '2.85%',
+    width: '3%',
   },
   cell2WithBorder: {
     width: '30%',
   },
   bodyCell2WithBorder: {
-    width: '28.58%',
+    width: '30%',
   },
   cell3WithBorder: {
     width: '6%',
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     width: '8%',
   },
   bodyCell4WithBorder: {
-    width: '7.62%',
+    width: '8%',
   },
   cell5WithBorder: {
     width: '11%',
@@ -152,26 +152,26 @@ const styles = StyleSheet.create({
     width: '10%',
   },
   bodyCell6WithBorder: {
-    width: '9.52%',
+    width: '10%',
   },
   cell7WithBorder: {
     width: '14%',
   },
   bodyCell7WithBorder: {
-    width: '13.32%',
+    width: '14%',
   },
   cell8WithBorder: {
     width: '15%',
   },
   bodyCell8WithBorder: {
-    width: '14.32%',
+    width: '15%',
   },
   cell9WithBorder: {
     width: '8%',
   },
-  bodyCell2FreightPriceWithBorder: {
-    width: '52.4%',
-  },
+  // bodyCell2FreightPriceWithBorder: {
+  //   width: '52.4%',
+  // },
 });
 
 export default styles;

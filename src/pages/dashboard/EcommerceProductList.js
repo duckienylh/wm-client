@@ -41,16 +41,21 @@ import { ProductTableRow, ProductTableToolbar } from '../../sections/@dashboard/
 
 // ----------------------------------------------------------------------
 const LIST_PRODUCT = loader('../../graphql/queries/product/listAllProduct.graphql');
+const LIST_CATEGORY_PRODUCT = loader('../../graphql/queries/category/listAllCategory.graphql');
 const DELETE_PRODUCT = loader('../../graphql/mutations/product/deleteProduct.graphql');
 // ----------------------------------------------------------------------
+export const DEFAULT_CATEGORY = {
+  id: 0,
+  name: 'Chọn danh mục',
+};
 
 const TABLE_HEAD = [
   { id: 'stt', label: 'STT', align: 'right' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
-  { id: 'height', label: 'Chiều dài', align: 'right' },
-  { id: 'width', label: 'Chiều rộng', align: 'right' },
-  { id: 'weight', label: 'Tồn kho', align: 'right' },
+  { id: 'height', label: 'Chiều dài (m)', align: 'right' },
+  { id: 'width', label: 'Chiều rộng (m)', align: 'right' },
+  { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
   // { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
@@ -76,15 +81,17 @@ export default function EcommerceProductList() {
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
-  } = useTable({
-    defaultOrderBy: 'createdAt',
-  });
+  } = useTable();
 
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
+
+  const [listCategory, setListCategory] = useState([]);
+
+  const [filterCategory, setFilterCategory] = useState(DEFAULT_CATEGORY);
 
   const [totalCount, setTotalCount] = useState(0);
 
@@ -101,7 +108,7 @@ export default function EcommerceProductList() {
       input: {
         stringQuery: filterName,
         checkInventory: null,
-        categoryId: null,
+        categoryId: filterCategory.id === 0 ? undefined : filterCategory.id,
         args: {
           first: rowsPerPage,
           after: 0,
@@ -109,6 +116,12 @@ export default function EcommerceProductList() {
       },
     },
   });
+
+  const { data: allCategory } = useQuery(LIST_CATEGORY_PRODUCT);
+
+  useEffect(() => {
+    if (allCategory) setListCategory(allCategory.listAllCategory);
+  }, [allCategory]);
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
     onCompleted: () => {
@@ -149,6 +162,7 @@ export default function EcommerceProductList() {
       variables: {
         input: {
           stringQuery: filterName,
+          categoryId: filterCategory.id === 0 ? undefined : filterCategory.id,
           args: {
             first: rowsPerPage,
             after: page * rowsPerPage,
@@ -157,8 +171,14 @@ export default function EcommerceProductList() {
       },
       updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
     }).then((res) => res);
-  }, [refetch, rowsPerPage, page, fetchMore, filterName]);
+  }, [refetch, rowsPerPage, page, fetchMore, filterName, filterCategory]);
 
+  const handleFilterCategory = (event) => {
+    if (event?.target?.value) {
+      setFilterCategory(event?.target?.value);
+      setPage(0);
+    }
+  };
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
@@ -215,7 +235,13 @@ export default function EcommerceProductList() {
         />
 
         <Card>
-          <ProductTableToolbar filterName={filterName} onFilterName={handleFilterName} />
+          <ProductTableToolbar
+            filterName={filterName}
+            onFilterName={handleFilterName}
+            categories={listCategory}
+            filterCategory={filterCategory}
+            onFilterCategory={handleFilterCategory}
+          />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>

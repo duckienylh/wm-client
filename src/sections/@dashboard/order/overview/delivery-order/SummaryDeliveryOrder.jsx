@@ -1,14 +1,15 @@
 // noinspection DuplicatedCode
 
-import { Card, Grid, Stack, Typography } from '@mui/material';
-import { orderPropTypes } from '../../../../../constant';
+import { Grid, Stack } from '@mui/material';
+import PropTypes from 'prop-types';
 import { CustomerAbout, DriverAbout } from '../index';
 import { DocumentDeliveryOrder } from './index';
+import SaleAbout from '../SaleAbout';
 
 // ----------------------------------------------------------------------
 
 SummaryDeliveryOrder.propTypes = {
-  order: orderPropTypes().isRequired,
+  order: PropTypes.object.isRequired,
 };
 
 export default function SummaryDeliveryOrder({ order }) {
@@ -16,27 +17,25 @@ export default function SummaryDeliveryOrder({ order }) {
     return null;
   }
 
-  const { deliverOrder, customer, driver } = order;
-  if (!deliverOrder) {
-    return (
-      <Card sx={{ pt: 3, px: 5, minHeight: 100 }}>
-        <Typography textAlign={'center'} variant="h6">
-          Chưa có lệnh xuất hàng
-        </Typography>
-      </Card>
-    );
-  }
+  const { customer, driver, sale } = order;
+
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={4}>
         <Stack spacing={3}>
           <CustomerAbout customer={customer} />
         </Stack>
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      <Grid item xs={12} md={4}>
         <Stack spacing={3}>
           <DriverAbout driver={driver} />
+        </Stack>
+      </Grid>
+
+      <Grid item xs={12} md={4}>
+        <Stack spacing={3}>
+          <SaleAbout sale={sale} />
         </Stack>
       </Grid>
 

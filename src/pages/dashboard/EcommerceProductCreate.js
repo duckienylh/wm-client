@@ -44,7 +44,7 @@ export default function EcommerceProductCreate() {
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             {
               name: 'Danh sách sản phẩm',
-              href: PATH_DASHBOARD.product.root,
+              href: PATH_DASHBOARD.categoryList.root,
             },
             { name: 'Cập nhật sản phẩm' },
           ]}

@@ -1,23 +1,48 @@
 import PropTypes from 'prop-types';
 import { Button, Dialog, ListItemButton, Stack, Typography } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
 import Iconify from '../../../../components/Iconify';
 import Scrollbar from '../../../../components/Scrollbar';
-import { _customerList } from '../../../../_mock';
+import CustomerTableToolbar from '../../customer/list/CustomerTableToolbar';
 
+// ----------------------------------------------------------------------
+const LIST_CUSTOMER = loader('../../../../graphql/queries/customer/listAllCustomer.graphql');
 // ----------------------------------------------------------------------
 
 CustomerListDialog.propTypes = {
   onClose: PropTypes.func,
   onSelect: PropTypes.func,
+  onOpenNewCustomer: PropTypes.func,
   open: PropTypes.bool,
-  selected: PropTypes.func,
 };
 
-export default function CustomerListDialog({ open, selected, onClose, onSelect }) {
+export default function CustomerListDialog({ open, onClose, onSelect, onOpenNewCustomer }) {
+  const [customers, setCustomers] = useState([]);
+
+  const [filterName, setFilterName] = useState('');
   const handleSelect = (customer) => {
     onSelect(customer);
     onClose();
   };
+
+  const { data: allCustomer } = useQuery(LIST_CUSTOMER, {
+    variables: {
+      input: {
+        searchQuery: filterName,
+        // args: {
+        //     first: rowsPerPage,
+        //     after: 0,
+        // },
+      },
+    },
+  });
+  useEffect(() => {
+    if (allCustomer) {
+      setCustomers(allCustomer.listAllCustomer.edges.map((edge) => edge.node));
+    }
+  }, [allCustomer]);
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
@@ -29,16 +54,21 @@ export default function CustomerListDialog({ open, selected, onClose, onSelect }
           variant="outlined"
           startIcon={<Iconify icon="eva:plus-fill" />}
           sx={{ alignSelf: 'flex-end' }}
+          onClick={() => {
+            onOpenNewCustomer();
+            onClose();
+          }}
         >
           Tạo khách hàng mới
         </Button>
       </Stack>
 
-      <Scrollbar sx={{ p: 1.5, pt: 0, maxHeight: 80 * 8 }}>
-        {_customerList.map((customer, index) => (
+      <CustomerTableToolbar filterName={filterName} onFilterName={(name) => setFilterName(name)} />
+
+      <Scrollbar sx={{ p: 1.5, pt: 0, maxHeight: 80 * 5 }}>
+        {customers.map((customer, index) => (
           <ListItemButton
             key={index}
-            selected={selected(customer?.id)}
             onClick={() => handleSelect(customer)}
             sx={{
               p: 1.5,
@@ -50,11 +80,11 @@ export default function CustomerListDialog({ open, selected, onClose, onSelect }
             <Typography variant="subtitle2">{customer?.name}</Typography>
 
             <Typography variant="caption" sx={{ color: 'primary.main', my: 0.5, fontWeight: 'fontWeightMedium' }}>
-              {customer?.company?.companyName}
+              {customer?.companyName}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {customer?.company?.address}
+              {customer?.address}
             </Typography>
           </ListItemButton>
         ))}

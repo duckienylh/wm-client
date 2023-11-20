@@ -3,7 +3,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## 1.Install
 
 ### npm
-
+(This project is built at node version: 16.17.1).
 ```
 npm i
 or

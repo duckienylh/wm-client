@@ -18,6 +18,7 @@ export const SINGLE_KEY_PATH = {
   transportation: 'xe-phuong-tien',
   driver: 'lai-phu-xe',
   deliveryOrder: 'lenh-xuat-hang',
+  categoryList: 'loai-san-pham',
 };
 
 function path(root, subLink) {
@@ -64,8 +65,6 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}`),
     new: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/tao-moi`),
     list: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/danh-sach`),
-    cards: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/cards`),
-    profile: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/profile`),
     edit: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/${id}/chinh-sua`),
     demoEdit: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.user}/reece-chung/chinh-sua`),
   },
@@ -109,15 +108,12 @@ export const PATH_DASHBOARD = {
     new: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/tao-moi`),
     view: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/${id}`),
     edit: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/${id}/cap-nhat`),
-    demoEdit: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b1/cap-nhat`),
-    demoView: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.sale}/e99f09a7-dd88-49d5-b1c8-1daf80c2d7b5`),
   },
   customer: {
     root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}`),
     list: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/danh-sach`),
     new: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/tao-moi`),
     edit: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/${id}/cap-nhat`),
-    demoEdit: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.customer}/reece-chung/cap-nhat`),
   },
   blog: {
     root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.blog}`),
@@ -128,6 +124,10 @@ export const PATH_DASHBOARD = {
       ROOTS_DASHBOARD,
       `/${SINGLE_KEY_PATH.blog}/bai-viet/apply-these-7-secret-techniques-to-improve-event`
     ),
+  },
+  categoryList: {
+    root: path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.categoryList}/danh-sach`),
+    categoryListProduct: (id) => path(ROOTS_DASHBOARD, `/${SINGLE_KEY_PATH.categoryList}/danh-sach-go/${id}`),
   },
 };
 

@@ -1,18 +1,20 @@
 import { useParams } from 'react-router-dom';
 import { Box, Card, Container, Tab, Tabs } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { _orders } from '../../_mock';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
 import useSettings from '../../hooks/useSettings';
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
 import useTabs from '../../hooks/useTabs';
-import PersonInChargeProfile from '../../sections/@dashboard/order/overview/PersonInChargeProfile';
 import { Overview } from '../../sections/@dashboard/order/overview';
-import { QuotationInfo } from '../../sections/@dashboard/order/overview/quotation';
-import { SummaryDeliveryOrder } from '../../sections/@dashboard/order/overview/delivery-order';
 import { Role } from '../../constant';
 import useAuth from '../../hooks/useAuth';
+import SummaryDeliveryOrder from '../../sections/@dashboard/order/overview/delivery-order/SummaryDeliveryOrder';
 
+// ----------------------------------------------------------------------
+const ORDER_BY_ID = loader('../../graphql/queries/order/getOrderById.graphql');
 // ----------------------------------------------------------------------
 const TabsWrapperStyle = styled('div')(({ theme }) => ({
   zIndex: 9,
@@ -23,10 +25,6 @@ const TabsWrapperStyle = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   [theme.breakpoints.up('sm')]: {
     justifyContent: 'center',
-  },
-  [theme.breakpoints.up('md')]: {
-    justifyContent: 'flex-end',
-    paddingRight: theme.spacing(3),
   },
 }));
 // ----------------------------------------------------------------------
@@ -46,7 +44,7 @@ const quotationTab = (order) => ({
   value: 'quotation',
   label: quotationTabLabel,
   icon: <Iconify icon={'icon-park-outline:transaction-order'} width={20} height={20} />,
-  component: <QuotationInfo order={order} />,
+  // component: <QuotationInfo order={order} />,
 });
 const deliveryOrderTab = (order) => ({
   value: 'deliveryOrder',
@@ -58,20 +56,16 @@ const deliveryOrderTab = (order) => ({
 const ORDER_INFO_TABS = (order, userRole) => {
   switch (userRole) {
     case Role.admin:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.manager:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.director:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.accountant:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order), deliveryOrderTab(order)];
     case Role.sales:
       return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
     case Role.driver:
-      return [commonTab(order), deliveryOrderTab(order)];
-    case Role.transporterManager:
-      return [commonTab(order), deliveryOrderTab(order)];
-    case Role.assistantDriver:
       return [commonTab(order), deliveryOrderTab(order)];
     default:
       return [];
@@ -86,7 +80,17 @@ export default function OrderDetails() {
 
   const { id } = useParams();
 
-  const order = _orders.find((order) => order.id === id);
+  const [order, setOrder] = useState({});
+
+  const { data: orderById } = useQuery(ORDER_BY_ID, {
+    variables: {
+      orderId: Number(id),
+    },
+  });
+
+  useEffect(() => {
+    if (orderById) setOrder(orderById.getOrderById);
+  }, [orderById]);
 
   return (
     <Page title="Thông tin đơn hàng">
@@ -94,11 +98,11 @@ export default function OrderDetails() {
         <Card
           sx={{
             mb: 3,
-            height: 230,
+            height: 50,
             position: 'relative',
           }}
         >
-          <PersonInChargeProfile sale={order.sale} />
+          {/* <PersonInChargeProfile sale={order.sale} /> */}
 
           <TabsWrapperStyle>
             <Tabs

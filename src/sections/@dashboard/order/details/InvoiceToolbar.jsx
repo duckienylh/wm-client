@@ -1,18 +1,18 @@
 // noinspection JSValidateTypes
 
 import { useNavigate } from 'react-router-dom';
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
-import { Box, CircularProgress, Dialog, DialogActions, IconButton, Stack, Tooltip } from '@mui/material';
+import { PDFViewer } from '@react-pdf/renderer';
+import { Box, Dialog, DialogActions, IconButton, Stack, Tooltip } from '@mui/material';
+import PropTypes from 'prop-types';
 import useToggle from '../../../../hooks/useToggle';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 import Iconify from '../../../../components/Iconify';
 import InvoicePDF from './InvoicePDF';
-import { orderPropTypes } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 
 InvoiceToolbar.propTypes = {
-  invoice: orderPropTypes().isRequired,
+  invoice: PropTypes.object.isRequired,
 };
 
 export default function InvoiceToolbar({ invoice }) {
@@ -46,19 +46,19 @@ export default function InvoiceToolbar({ invoice }) {
             </IconButton>
           </Tooltip>
 
-          <PDFDownloadLink
-            document={<InvoicePDF invoice={invoice} />}
-            fileName={invoice.invoiceNumber}
-            style={{ textDecoration: 'none' }}
-          >
-            {({ loading }) => (
-              <Tooltip title="Tải báo giá">
-                <IconButton>
-                  {loading ? <CircularProgress size={24} color="inherit" /> : <Iconify icon={'eva:download-fill'} />}
-                </IconButton>
-              </Tooltip>
-            )}
-          </PDFDownloadLink>
+          {/* <PDFDownloadLink */}
+          {/*  document={<InvoicePDF invoice={invoice} />} */}
+          {/*  fileName={invoice.invoiceNumber} */}
+          {/*  style={{ textDecoration: 'none' }} */}
+          {/* > */}
+          {/*  {({ loading }) => ( */}
+          {/*    <Tooltip title="Tải báo giá"> */}
+          {/*      <IconButton> */}
+          {/*        {loading ? <CircularProgress size={24} color="inherit" /> : <Iconify icon={'eva:download-fill'} />} */}
+          {/*      </IconButton> */}
+          {/*    </Tooltip> */}
+          {/*  )} */}
+          {/* </PDFDownloadLink> */}
 
           <Tooltip title="In">
             <IconButton>
