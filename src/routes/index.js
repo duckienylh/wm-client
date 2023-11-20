@@ -95,8 +95,6 @@ export default function Router() {
             },
             { path: 'tao-moi', element: <UserCreate /> },
             { path: 'danh-sach', element: <UserList /> },
-            { path: 'cards', element: <UserCards /> },
-            { path: 'profile', element: <UserProfile /> },
             { path: ':id/chinh-sua', element: <UserCreate /> },
           ],
         },
@@ -248,8 +246,6 @@ const BlogPost = Loadable(lazy(() => import('../pages/dashboard/BlogPost')));
 const BlogNewPost = Loadable(lazy(() => import('../pages/dashboard/BlogNewPost')));
 
 // USER
-const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
-const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
 const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));

@@ -39,6 +39,8 @@ import {
   TableSkeleton,
 } from '../../../components/table';
 import useResponsive from '../../../hooks/useResponsive';
+import { Role } from '../../../constant';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +48,7 @@ const LIST_PRODUCT = loader('../../../graphql/queries/product/listAllProduct.gra
 const DELETE_PRODUCT = loader('../../../graphql/mutations/product/deleteProduct.graphql');
 const GET_CATEGORY = loader('../../../graphql/queries/category/getCategoryById.graphql');
 const IMPORT_EXCEL_PRODUCT = loader('../../../graphql/mutations/product/importExcelProduct.graphql');
+const UPDATE_CATEGORY = loader('../../../graphql/mutations/category/updateCategory.graphql');
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -82,6 +85,8 @@ export default function CategoryListProduct() {
     onChangeRowsPerPage,
   } = useTable();
 
+  const { user } = useAuth();
+
   const { themeStretch } = useSettings();
 
   const { id } = useParams();
@@ -90,7 +95,7 @@ export default function CategoryListProduct() {
 
   const [tableData, setTableData] = useState([]);
 
-  const [category, setCategory] = useState([]);
+  const [category, setCategory] = useState({});
 
   const [totalCount, setTotalCount] = useState(0);
 
@@ -105,6 +110,10 @@ export default function CategoryListProduct() {
   const [exportData, setExportData] = useState([]);
 
   const [convertData, setConvertData] = useState([]);
+
+  const [isEditCategory, setIsEditCategory] = useState(false);
+
+  const [nameCategory, setNameCategory] = useState('');
 
   const {
     data: allProduct,
@@ -124,14 +133,17 @@ export default function CategoryListProduct() {
     },
   });
 
-  const { data: getCategory } = useQuery(GET_CATEGORY, {
+  const { data: getCategory, refetch: refetchCategory } = useQuery(GET_CATEGORY, {
     variables: {
       id: Number(id),
     },
   });
 
   useEffect(() => {
-    if (getCategory) setCategory(getCategory.getCategoryById);
+    if (getCategory) {
+      setCategory(getCategory.getCategoryById);
+      setNameCategory(getCategory.getCategoryById?.name);
+    }
   }, [getCategory]);
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
@@ -333,12 +345,81 @@ export default function CategoryListProduct() {
 
   const isDesktop = useResponsive('up', 'md');
 
+  const [updateCategoryFn] = useMutation(UPDATE_CATEGORY, {
+    onCompleted: async (res) => {
+      if (res) {
+        enqueueSnackbar('Cập nhật tên danh mục sản phẩm thành công', {
+          variant: 'success',
+        });
+        return res;
+      }
+      return null;
+    },
+  });
+
+  const handleInputChange = (e) => {
+    let name = nameCategory;
+    if (e?.target?.value !== undefined) {
+      name = e?.target?.value;
+    }
+    setNameCategory(name);
+  };
+
+  const handleEditCategory = () => {
+    setIsEditCategory(true);
+  };
+
+  const handleCancelEditCategory = () => {
+    setIsEditCategory(false);
+    setNameCategory(category?.name);
+  };
+
+  const onSubmitEditCategory = async () => {
+    setIsEditCategory(false);
+    await updateCategoryFn({
+      variables: {
+        input: {
+          id: Number(id),
+          name: nameCategory,
+        },
+      },
+    });
+    await refetchCategory();
+  };
+
   return (
     <Page title="Danh sách sản phẩm">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <Stack direction={isDesktop ? 'row' : 'column'} justifyContent="space-between">
           <HeaderBreadcrumbs
-            heading={category?.name ? category?.name : ''}
+            mb={0}
+            heading={
+              <Stack direction="row">
+                {!isEditCategory ? (
+                  <Typography variant="h6">{`${nameCategory} (${totalCount || 0} sản phẩm) `}</Typography>
+                ) : (
+                  <Input name="name" onChange={handleInputChange} type="text" value={`${nameCategory}`} />
+                )}
+
+                {(user.role === Role.admin || user.role === Role.director) &&
+                  (!isEditCategory ? (
+                    <>
+                      <Button size={'small'} onClick={handleEditCategory}>
+                        <Iconify icon={'material-symbols:edit'} width={20} height={20} />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button size={'small'} onClick={onSubmitEditCategory}>
+                        <Iconify icon={'material-symbols:check'} width={20} height={20} />
+                      </Button>
+                      <Button size={'small'} onClick={handleCancelEditCategory}>
+                        <Iconify icon={'material-symbols:close'} width={20} height={20} />
+                      </Button>
+                    </>
+                  ))}
+              </Stack>
+            }
             links={[
               { name: 'Dashboard', href: PATH_DASHBOARD.root },
               { name: 'Danh sách sản phẩm', href: PATH_DASHBOARD.categoryList.root },
