@@ -17,7 +17,7 @@ export default function SummaryDeliveryOrder({ order }) {
     return null;
   }
 
-  const { customer, driver, sale } = order;
+  const { customer, deliverOrderList, sale } = order;
 
   return (
     <Grid container spacing={3}>
@@ -29,7 +29,7 @@ export default function SummaryDeliveryOrder({ order }) {
 
       <Grid item xs={12} md={4}>
         <Stack spacing={3}>
-          <DriverAbout driver={driver} />
+          <DriverAbout deliverOrder={deliverOrderList[0]} />
         </Stack>
       </Grid>
 

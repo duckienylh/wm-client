@@ -70,11 +70,14 @@ query ListAllDeliverOrder($input: ListAllDeliverOrderInput!) {
                     deliveryDate
                     receivingNote
                     description
+                    createdAt
+                    updatedAt
                 }
             }
             totalCount
         }
         allOrderCounter
+        createExportOrderCounter
         doneOrderCounter
         inProcessingCounter
     }

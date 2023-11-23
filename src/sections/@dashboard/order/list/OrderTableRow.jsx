@@ -83,13 +83,12 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
             color={
               (formatStatus(status) === OrderStatus.new && 'info') ||
-              (formatStatus(status) === OrderStatus.quotationAndDeal && 'info') ||
               (formatStatus(status) === OrderStatus.newDeliverExport && 'success') ||
               (formatStatus(status) === OrderStatus.inProgress && 'info') ||
               (formatStatus(status) === OrderStatus.deliverSuccess && 'info') ||
               (formatStatus(status) === OrderStatus.paid && 'info') ||
               (formatStatus(status) === OrderStatus.confirmByAccProcessing && 'warning') ||
-              (formatStatus(status) === OrderStatus.completed && 'success') ||
+              (formatStatus(status) === OrderStatus.done && 'success') ||
               'default'
             }
             sx={{ textTransform: 'capitalize' }}

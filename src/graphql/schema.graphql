@@ -66,6 +66,7 @@ type DeliverOrderEdge {
 
 type ListAllDeliverOrderResponse {
     allOrderCounter: Int!
+    createExportOrderCounter: Int!
     deliverOrder: DeliverOrderConnection
     doneOrderCounter: Int!
     inProcessingCounter: Int!
@@ -398,6 +399,7 @@ input ListAllCustomerInput {
 
 input ListAllDeliverOrderInput {
     args: PaginationInput
+    createAt: filterDate
     driverId: Int
     queryString: String
     saleId: Int

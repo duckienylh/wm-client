@@ -254,7 +254,7 @@ export default function OrderList() {
       count: countOrder.creatNewOrderCounter,
     },
     {
-      value: OrderStatus.new,
+      value: OrderStatus.newDeliverExport,
       label: 'Chốt đơn - tạo lệnh xuất hàng',
       color: 'success',
       count: countOrder.createExportOrderCounter,
@@ -284,7 +284,7 @@ export default function OrderList() {
       count: countOrder.paymentConfirmationOrderCounter,
     },
     {
-      value: OrderStatus.completed,
+      value: OrderStatus.done,
       label: 'Hoàn thành',
       color: 'success',
       count: countOrder.doneOrderCounter,

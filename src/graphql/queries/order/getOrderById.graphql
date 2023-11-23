@@ -40,6 +40,19 @@ query GetOrderById($orderId: Int!) {
         }
         deliverOrderList{
             id
+            driver{
+                id
+                email
+                userName
+                phoneNumber
+                firstName
+                lastName
+                fullName
+                address
+                avatarURL
+                isActive
+                role
+            }
             customer{
                 id
                 name

@@ -29,7 +29,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
   const defaultValues = useMemo(
     () => ({
       deliveryPayable: currentOrder?.freightPrice || '',
-      deliveryDate: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.deliveryDate : null,
+      deliveryDate: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.deliveryDate : new Date(),
       receivingNote: '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,7 +59,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
   const [createDeliverOrder] = useMutation(CREATE_DELIVER_ORDER, {
     onCompleted: async (res) => {
       if (res) {
-        enqueueSnackbar('Tạo ệnh xuất hàng thành công!', { variant: 'success' });
+        enqueueSnackbar('Tạo lệnh xuất hàng thành công!', { variant: 'success' });
         return res;
       }
       return null;
@@ -91,7 +91,11 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
     }
   };
 
-  const isPermission = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
+  const isPermission =
+    user.role === Role.sales &&
+    currentOrder?.sale &&
+    currentOrder?.sale?.id === user.id &&
+    currentOrder.deliverOrderList?.length < 1;
 
   const isDisabled = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
 
@@ -115,7 +119,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
 
               <Grid item xs={12} md={6}>
                 <RHFDatePicker
-                  disabled={isDisabled}
+                  // disabled={isDisabled}
                   name="deliveryDate"
                   label="Ngày hẹn khách giao"
                   // sx={{ maxWidth: 150, my: 0 }}
@@ -133,7 +137,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
                 />
               </Grid>
             </Grid>
-            {!isPermission && (
+            {isPermission && (
               <Stack spacing={3} sx={{ justifyContent: 'flex-end', pt: 2, alignSelf: 'flex-end', minWidth: 300 }}>
                 <LoadingButton
                   sx={{ minWidth: 300, alignSelf: 'flex-end' }}
