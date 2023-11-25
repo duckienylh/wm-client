@@ -1,10 +1,9 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   Badge,
   Box,
-  Button,
   Divider,
   List,
   ListItemAvatar,
@@ -14,21 +13,57 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import { useMutation, useQuery } from '@apollo/client';
+import { loader } from 'graphql.macro';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import { fToNow } from '../../../utils/formatTime';
-import { _notifications } from '../../../_mock';
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
+import useAuth from '../../../hooks/useAuth';
+import { PATH_DASHBOARD } from '../../../routes/paths';
 
+// ----------------------------------------------------------------------
+const LIST_NOTIFICATION = loader('../../../graphql/queries/userNotification/listArrayUserNotification.graphql');
+const UPDATE_NOTIFICATION = loader('../../../graphql/mutations/userNotification/updateStatusUserNotification.graphql');
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(_notifications);
+  const { user } = useAuth();
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const navigate = useNavigate();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [notifications, setNotifications] = useState([]);
 
   const [open, setOpen] = useState(null);
+
+  const { data: listNotification, refetch } = useQuery(LIST_NOTIFICATION, {
+    variables: {
+      input: {
+        userId: Number(user?.id),
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (listNotification) {
+      setNotifications(listNotification.listArrayUserNotification);
+    }
+  }, [listNotification]);
+
+  const [updateNoti] = useMutation(UPDATE_NOTIFICATION, {
+    onError: (error) => {
+      enqueueSnackbar(`error-${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
+
+  const totalUnRead = notifications.filter((item) => item.isRead === false).length;
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -38,13 +73,33 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false,
-      }))
-    );
+  const handleMarkAllAsRead = async () => {
+    const totalUnRead = notifications.filter((item) => item.isRead === false).map((e) => e.id);
+    if (totalUnRead.length > 0) {
+      await updateNoti({
+        variables: {
+          input: {
+            userNotificationIds: totalUnRead,
+            isRead: true,
+          },
+        },
+      });
+      await refetch();
+    }
+  };
+
+  const handleUpdateNotification = async (id, orderId, isRead) => {
+    if (isRead) {
+      await updateNoti({
+        variables: { input: { userNotificationIds: Number(id), isRead } },
+      });
+      await refetch();
+    }
+
+    if (orderId) {
+      navigate(PATH_DASHBOARD.saleAndMarketing.view(orderId), { replace: true });
+    }
+    setOpen(null);
   };
 
   return (
@@ -80,7 +135,7 @@ export default function NotificationsPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
+        <Scrollbar sx={{ height: { xs: 320, sm: 'auto' }, maxHeight: 80 * 8 }}>
           <List
             disablePadding
             subheader={
@@ -89,32 +144,19 @@ export default function NotificationsPopover() {
               </ListSubheader>
             }
           >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </List>
-
-          <List
-            disablePadding
-            subheader={
-              <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                Thông báo cũ
-              </ListSubheader>
-            }
-          >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            {notifications.map((notification, idx) => (
+              <NotificationItem
+                key={idx}
+                notification={notification}
+                onUpdate={() =>
+                  handleUpdateNotification(notification.id, notification.notification?.order?.id, !notification.isRead)
+                }
+              />
             ))}
           </List>
         </Scrollbar>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <Box sx={{ p: 1 }}>
-          <Button fullWidth disableRipple>
-            Xem tất cả thông báo
-          </Button>
-        </Box>
+        <Box sx={{ p: 1 }} />
       </MenuPopover>
     </>
   );
@@ -123,18 +165,11 @@ export default function NotificationsPopover() {
 // ----------------------------------------------------------------------
 
 NotificationItem.propTypes = {
-  notification: PropTypes.shape({
-    createdAt: PropTypes.instanceOf(Date),
-    id: PropTypes.string,
-    isUnRead: PropTypes.bool,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    avatar: PropTypes.any,
-  }),
+  notification: PropTypes.object,
+  onUpdate: PropTypes.func,
 };
 
-function NotificationItem({ notification }) {
+function NotificationItem({ notification, onUpdate }) {
   const { avatar, title } = renderContent(notification);
 
   return (
@@ -143,10 +178,11 @@ function NotificationItem({ notification }) {
         py: 1.5,
         px: 2.5,
         mt: '1px',
-        ...(notification.isUnRead && {
+        ...(!notification.isRead && {
           bgcolor: 'action.selected',
         }),
       }}
+      onClick={onUpdate}
     >
       <ListItemAvatar>
         <Avatar sx={{ bgcolor: 'background.neutral' }}>{avatar}</Avatar>
@@ -176,15 +212,12 @@ function NotificationItem({ notification }) {
 
 function renderContent(notification) {
   const title = (
-    <Typography variant="subtitle2">
-      {notification.title}
-      <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {notification.description}
-      </Typography>
+    <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
+      {notification.notification.content}
     </Typography>
   );
 
-  if (notification.type === 'order_placed') {
+  if (notification.notification?.event === 'NewOrder') {
     return {
       avatar: (
         <img
@@ -195,7 +228,7 @@ function renderContent(notification) {
       title,
     };
   }
-  if (notification.type === 'order_shipped') {
+  if (notification.notification?.event === 'UpdateOrder') {
     return {
       avatar: (
         <img
@@ -206,30 +239,21 @@ function renderContent(notification) {
       title,
     };
   }
-  if (notification.type === 'mail') {
+  if (notification.notification?.event === 'ProductUpdated') {
     return {
       avatar: (
-        <img
-          alt={notification.title}
-          src="https://minimal-assets-api.vercel.app/assets/icons/ic_notification_mail.svg"
-        />
+        <img alt={notification.title} src="/static/icons/ic_dropbox.svg" style={{ height: '24px', width: '24px' }} />
       ),
-      title,
-    };
-  }
-  if (notification.type === 'chat_message') {
-    return {
-      avatar: (
-        <img
-          alt={notification.title}
-          src="https://minimal-assets-api.vercel.app/assets/icons/ic_notification_chat.svg"
-        />
-      ),
-      title,
     };
   }
   return {
-    avatar: notification.avatar ? <img alt={notification.title} src={notification.avatar} /> : null,
+    avatar: notification.notification?.event ? (
+      <img
+        alt={notification.title}
+        src="/static/icons/ic_notification_mail.svg"
+        style={{ height: '24px', width: '24px' }}
+      />
+    ) : null,
     title,
   };
 }

@@ -104,15 +104,16 @@ type Mutation {
     updateDeliverOrder(input: UpdateDeliverOrderInput!): SuccessResponse!
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
+    updateStatusUserNotification(input: UpdateStatusUserNotificationInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
 }
 
 type Notification {
-    Order: Order
     content: String!
     createdAt: Date!
     event: NotificationEvent!
     id: Int!
+    order: Order
     updatedAt: Date!
 }
 
@@ -218,6 +219,7 @@ type Query {
     listAllDeliverOrder(input: ListAllDeliverOrderInput!): ListAllDeliverOrderResponse!
     listAllOrder(input: ListAllOrderInput!): ListAllOrderResponse!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
+    listArrayUserNotification(input: ListArrayUserNotificationInput!): [UserNotification]!
     listInformationOrder(orderId: Int!): [OrderProcess]!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
@@ -272,11 +274,20 @@ type UserLoginResponse {
     user: User!
 }
 
+type UserNotification {
+    createdAt: Date
+    id: Int!
+    isRead: Boolean!
+    notification: Notification!
+    updatedAt: Date
+    user: User!
+}
+
 enum NotificationEvent {
     Common
     NewMessage
     NewOrder
-    updateOrder
+    UpdateOrder
 }
 
 enum Role {
@@ -422,6 +433,11 @@ input ListAllProductInput {
     stringQuery: String
 }
 
+input ListArrayUserNotificationInput {
+    event: NotificationEvent
+    userId: Int!
+}
+
 input PaginationInput {
     after: Cursor
     before: Cursor
@@ -507,6 +523,11 @@ input UpdateProductOrderInput {
     priceProduct: Float
     productId: Int!
     quantity: Int
+}
+
+input UpdateStatusUserNotificationInput {
+    isRead: Boolean!
+    userNotificationIds: [Int!]!
 }
 
 input UpdateUserInput {
