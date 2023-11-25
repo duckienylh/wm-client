@@ -8,6 +8,7 @@ import {
   List,
   ListItemAvatar,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
   Tooltip,
@@ -17,6 +18,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { loader } from 'graphql.macro';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { useTheme } from '@mui/material/styles';
 import { fToNow } from '../../../utils/formatTime';
 import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
@@ -171,6 +173,7 @@ NotificationItem.propTypes = {
 
 function NotificationItem({ notification, onUpdate }) {
   const { avatar, title } = renderContent(notification);
+  const theme = useTheme();
 
   return (
     <ListItemButton
@@ -204,6 +207,11 @@ function NotificationItem({ notification, onUpdate }) {
           </Typography>
         }
       />
+      {!notification.isRead && (
+        <ListItemIcon>
+          <Iconify icon="carbon:dot-mark" sx={{ width: 20, height: 20, color: theme.palette.info.main }} />
+        </ListItemIcon>
+      )}
     </ListItemButton>
   );
 }
