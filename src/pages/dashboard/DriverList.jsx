@@ -1,5 +1,4 @@
-import { paramCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import {
@@ -20,13 +19,15 @@ import {
   Tooltip,
 } from '@mui/material';
 // routes
+import { loader } from 'graphql.macro';
+import { useMutation, useQuery } from '@apollo/client';
+import { useSnackbar } from 'notistack';
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
+import useTable from '../../hooks/useTable';
 // _mock_
-import { users } from '../../_apis_/account';
 // components
 import Page from '../../components/Page';
 import Iconify from '../../components/Iconify';
@@ -36,14 +37,19 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 // sections
 import { DriverTableRow, DriverTableToolbar } from '../../sections/@dashboard/driver/list';
 // constant
-import { RoleArr } from '../../constant';
+import { Role } from '../../constant';
 
+// ----------------------------------------------------------------------
+const LIST_USERS = loader('../../graphql/queries/user/users.graphql');
+const DELETE_USER = loader('../../graphql/mutations/user/deleteUser.graphql');
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
 
 const TABLE_HEAD = [
+  { id: 'STT', label: 'STT', align: 'center' },
   { id: 'name', label: 'Tên người dùng', align: 'left' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
   { id: 'role', label: 'Chức vụ', align: 'left' },
   { id: 'status', label: 'Trạng thái', align: 'left' },
   { id: '' },
@@ -75,62 +81,130 @@ export default function DriverList() {
 
   const navigate = useNavigate();
 
-  const [tableData, setTableData] = useState(users.filter((e) => e.role === 'driver' || e.role === 'assistant driver'));
+  const [tableData, setTableData] = useState([]);
 
   const [filterName, setFilterName] = useState('');
 
-  const [filterRole, setFilterRole] = useState('Tất cả');
-
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('Tất cả');
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const [totalCount, setTotalCount] = useState(0);
+
+  const {
+    data: allDriver,
+    refetch,
+    fetchMore,
+  } = useQuery(LIST_USERS, {
+    variables: {
+      input: {
+        role: Role.driver,
+        isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
+        searchQuery: filterName,
+        args: {
+          first: rowsPerPage,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  const updateQuery = (previousResult, { fetchMoreResult }) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      users: {
+        ...previousResult.users,
+        edges: [...fetchMoreResult.users.edges],
+        pageInfo: fetchMoreResult.users.pageInfo,
+        totalCount: fetchMoreResult.users.totalCount,
+      },
+    };
+  };
+
+  useEffect(() => {
+    if (allDriver?.users) {
+      setTableData(allDriver?.users.edges.map((edge) => edge.node));
+      setTotalCount(allDriver?.users.totalCount);
+    }
+  }, [allDriver]);
+
+  useEffect(() => {
+    fetchMore({
+      variables: {
+        input: {
+          role: Role.driver,
+          isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
+          searchQuery: filterName,
+          args: {
+            first: rowsPerPage,
+            after: page * rowsPerPage,
+          },
+        },
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
+    }).then((res) => res);
+  }, [refetch, rowsPerPage, page, fetchMore, filterStatus, filterName]);
+
+  const [deleteUser] = useMutation(DELETE_USER, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa người dùng thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa người dùng không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
   };
 
-  const handleFilterRole = (event) => {
-    setFilterRole(event.target.value);
+  const handleDeleteRow = async (id) => {
+    await deleteUser({
+      variables: {
+        input: {
+          ids: id,
+        },
+      },
+    });
+    setSelected([]);
+    await refetch();
   };
 
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+  const handleDeleteRows = async (selected) => {
+    await deleteUser({
+      variables: {
+        input: {
+          ids: selected,
+        },
+      },
+    });
     setSelected([]);
-    setTableData(deleteRow);
-  };
-
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
+    await refetch();
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.driver.edit(paramCase(id)));
+    navigate(PATH_DASHBOARD.driver.edit(id));
   };
-
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    filterRole,
-    filterStatus,
-  });
 
   const denseHeight = dense ? 52 : 72;
 
-  const isNotFound =
-    (!dataFiltered.length && !!filterName) ||
-    (!dataFiltered.length && !!filterRole) ||
-    (!dataFiltered.length && !!filterStatus);
+  const isNotFound = !tableData.length;
 
   return (
-    <Page title="Lái-phụ xe: Danh sách Lái-phụ xe">
+    <Page title="Lái xe: Danh sách Lái xe">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Danh sách Lái-phụ xe"
           links={[
-            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
-            { name: 'Lái-phụ xe', href: PATH_DASHBOARD.driver.root },
+            { name: 'DashBoard', href: PATH_DASHBOARD.root },
+            { name: 'Lái xe', href: PATH_DASHBOARD.driver.root },
             { name: 'Danh sách' },
           ]}
           action={
@@ -151,7 +225,10 @@ export default function DriverList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onChangeFilterStatus}
+            onChange={(event, value) => {
+              setPage(0);
+              onChangeFilterStatus(event, value);
+            }}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {STATUS_OPTIONS.map((tab) => (
@@ -161,13 +238,7 @@ export default function DriverList() {
 
           <Divider />
 
-          <DriverTableToolbar
-            filterName={filterName}
-            filterRole={filterRole}
-            onFilterName={handleFilterName}
-            onFilterRole={handleFilterRole}
-            optionsRole={RoleArr}
-          />
+          <DriverTableToolbar filterName={filterName} onFilterName={handleFilterName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
@@ -209,9 +280,10 @@ export default function DriverList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {tableData.map((row, idx) => (
                     <DriverTableRow
-                      key={row.id}
+                      key={idx}
+                      idx={idx + 1}
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
@@ -220,7 +292,10 @@ export default function DriverList() {
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, tableData.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -232,7 +307,7 @@ export default function DriverList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -256,29 +331,6 @@ export default function DriverList() {
 }
 
 // ----------------------------------------------------------------------
-
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterRole }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  tableData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    tableData = tableData.filter((item) => item.displayName.toLowerCase().indexOf(filterName.toLowerCase()) !== -1);
-  }
-
-  if (filterStatus !== 'Tất cả') {
-    tableData = tableData.filter((item) => item.status === filterStatus);
-  }
-
-  if (filterRole !== 'Tất cả') {
-    tableData = tableData.filter((item) => item.role === filterRole);
-  }
-
-  return tableData;
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

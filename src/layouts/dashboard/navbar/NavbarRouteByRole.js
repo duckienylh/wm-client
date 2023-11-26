@@ -95,10 +95,6 @@ export const adminNavConfig = [
         title: 'Lệnh xuất hàng',
         path: PATH_DASHBOARD.deliveryOrder.root,
         icon: ICONS.cart,
-        children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.deliveryOrder.list },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.deliveryOrder.demoEdit },
-        ],
       },
       {
         title: 'Xe, Phương tiện',

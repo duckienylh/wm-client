@@ -10,60 +10,76 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { LoadingButton } from '@mui/lab';
 import { Box, Card, FormControlLabel, Grid, Stack, Switch, Typography } from '@mui/material';
 // utils
+import { useMutation } from '@apollo/client';
+import { loader } from 'graphql.macro';
 import { fData } from '../../../utils/formatNumber';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
 // _mock
 // components
 import Label from '../../../components/Label';
-import { FormProvider, RHFSwitch, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
+import { FormProvider, RHFSelect, RHFTextField, RHFUploadAvatar } from '../../../components/hook-form';
+import { RolesSelect } from '../../../constant';
 
+// ----------------------------------------------------------------------
+const CREATE = loader('../../../graphql/mutations/user/createUser.graphql');
+const UPDATE = loader('../../../graphql/mutations/user/updateUser.graphql');
 // ----------------------------------------------------------------------
 
 DriverNewEditForm.propTypes = {
   isEdit: PropTypes.bool,
-  currentDriver: PropTypes.object,
+  currentUser: PropTypes.object,
 };
 
-export default function DriverNewEditForm({ isEdit, currentDriver }) {
+export default function DriverNewEditForm({ isEdit, currentUser }) {
   const navigate = useNavigate();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email(),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role Number is required'),
-    avatarUrl: Yup.mixed().test('required', 'Avatar is required', (value) => value !== ''),
+    userName: Yup.string().min(2, 'Tên đăng nhập quá ngắn!').required('Bạn hãy điền tên đăng nhập'),
+    password: Yup.string().min(6, 'Mật khẩu quá ngắn!').required('Bạn hãy nhập mật khẩu'),
+    firstName: Yup.string().required('Bạn hãy nhập tên'),
+    lastName: Yup.string().required('Bạn hãy nhập họ'),
+    email: Yup.string().email('Hãy nhập tên đăng nhập là 1 email'),
+    phoneNumber: Yup.string()
+      .required('Hãy nhập số điện thoại')
+      .matches(/([+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/, 'Không đúng định dạng số điện thoại')
+      .max(12, 'Số điện thoại chỉ có tối đa 10 số'),
+    role: Yup.string().required('Bạn hãy chọn chức vụ'),
+  });
+
+  const UpdateUserSchema = Yup.object().shape({
+    userName: Yup.string().min(2, 'Tên đăng nhập quá ngắn!').required('Bạn hãy điền tên đăng nhập'),
+    email: Yup.string().email('Hãy nhập tên đăng nhập là 1 email'),
+    phoneNumber: Yup.string()
+      .required('Hãy nhập số điện thoại')
+      .matches(/([+84|84|0]+(3|5|7|8|9|1[2|6|8|9]))+([0-9]{8})\b/, 'Không đúng định dạng số điện thoại')
+      .max(12, 'Số điện thoại chỉ có tối đa 10 số'),
+    firstName: Yup.string().required('Bạn hãy nhập họ'),
+    lastName: Yup.string().required('Bạn hãy nhập tên'),
+    role: Yup.string().required('Bạn hãy nhập chức vụ'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentDriver?.displayName || '',
-      email: currentDriver?.email || '',
-      phoneNumber: currentDriver?.phoneNumber || '',
-      address: currentDriver?.address || '',
-      country: currentDriver?.country || '',
-      state: currentDriver?.state || '',
-      city: currentDriver?.city || '',
-      zipCode: currentDriver?.zipCode || '',
-      avatarUrl: currentDriver?.photoURL || '',
-      isVerified: currentDriver?.isVerified || true,
-      status: currentDriver?.status,
-      role: currentDriver?.role || '',
+      userName: currentUser?.userName || '',
+      password: currentUser?.password || '',
+      firstName: currentUser?.firstName || '',
+      lastName: currentUser?.lastName || '',
+      email: currentUser?.email || '',
+      phoneNumber: currentUser?.phoneNumber || '',
+      address: currentUser?.address || '',
+      avatarUrl: currentUser?.avatarURL || null,
+      status: currentUser?.isActive,
+      role: RolesSelect[5].name,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentDriver]
+    [currentUser]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: !isEdit ? yupResolver(NewUserSchema) : yupResolver(UpdateUserSchema),
     defaultValues,
   });
 
@@ -79,21 +95,123 @@ export default function DriverNewEditForm({ isEdit, currentDriver }) {
   const values = watch();
 
   useEffect(() => {
-    if (isEdit && currentDriver) {
+    if (isEdit && currentUser) {
       reset(defaultValues);
     }
     if (!isEdit) {
       reset(defaultValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEdit, currentDriver]);
+  }, [isEdit, currentUser]);
+
+  const [createFn] = useMutation(CREATE, {
+    onCompleted: async (res) => {
+      if (res) {
+        return res;
+      }
+      return null;
+    },
+  });
+
+  const [updateFn] = useMutation(UPDATE, {
+    onCompleted: async (res) => {
+      if (res) {
+        return res;
+      }
+      return null;
+    },
+  });
+
+  const create = async (avatar, email, userName, phoneNumber, role, password, firstName, lastName, address) => {
+    const response = await createFn({
+      variables: {
+        input: {
+          avatar,
+          email,
+          userName,
+          phoneNumber,
+          role,
+          password,
+          firstName,
+          lastName,
+          address,
+        },
+      },
+
+      onError(error) {
+        enqueueSnackbar(`Tạo người dùng không thành công. Nguyên nhân: ${error.message}`, {
+          variant: 'warning',
+        });
+      },
+    });
+    if (!response.errors) {
+      enqueueSnackbar('Tạo người dùng thành công', {
+        variant: 'success',
+      });
+      navigate(PATH_DASHBOARD.driver.list);
+    }
+  };
+
+  const update = async (id, userName, firstName, lastName, phoneNumber, address, role, email, status, avatar) => {
+    const response = await updateFn({
+      variables: {
+        input: {
+          id,
+          userName,
+          role,
+          avatarURL: avatar,
+          firstName,
+          lastName,
+          phoneNumber,
+          address,
+          email,
+          isActive: status,
+        },
+      },
+      onError(error) {
+        enqueueSnackbar(`Cập nhật người dùng không thành công. Nguyên nhân: ${error.message}`, {
+          variant: 'warning',
+        });
+      },
+    });
+
+    if (!response.errors) {
+      enqueueSnackbar('Cập nhật người dùng thành công', {
+        variant: 'success',
+      });
+      navigate(PATH_DASHBOARD.driver.list);
+    }
+  };
 
   const onSubmit = async () => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (isEdit) {
+        await update(
+          Number(currentUser?.id),
+          values.userName,
+          values.firstName,
+          values.lastName,
+          values.phoneNumber,
+          values.address,
+          values.role,
+          values.email,
+          values.status,
+          values.avatarUrl
+        );
+      } else {
+        await create(
+          values.avatarUrl,
+          values.email,
+          values.userName,
+          values.phoneNumber,
+          values.role,
+          values.password,
+          values.firstName,
+          values.lastName,
+          values.address
+        );
+      }
       reset();
-      enqueueSnackbar(!isEdit ? 'Tạo thành công!' : 'Cập nhật thành công!');
-      navigate(PATH_DASHBOARD.driver.list);
     } catch (error) {
       console.error(error);
     }
@@ -119,13 +237,13 @@ export default function DriverNewEditForm({ isEdit, currentDriver }) {
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <Card sx={{ py: 10, px: 3 }}>
+          <Card sx={{ py: 5, px: 3, pt: 10 }}>
             {isEdit && (
               <Label
-                color={values.status !== 'Đang hoạt động' ? 'error' : 'success'}
+                color={!values.status ? 'error' : 'success'}
                 sx={{ textTransform: 'uppercase', position: 'absolute', top: 24, right: 24 }}
               >
-                {values.status}
+                {values.status ? 'Đang hoạt động' : 'Ngừng hoạt động'}
               </Label>
             )}
 
@@ -163,10 +281,8 @@ export default function DriverNewEditForm({ isEdit, currentDriver }) {
                     render={({ field }) => (
                       <Switch
                         {...field}
-                        checked={field.value !== 'Đang hoạt động'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'Ngừng hoạt động' : 'Đang hoạt động')
-                        }
+                        checked={!field.value}
+                        onChange={(event) => field.onChange(!event.target.checked)}
                       />
                     )}
                   />
@@ -181,25 +297,9 @@ export default function DriverNewEditForm({ isEdit, currentDriver }) {
                     </Typography>
                   </>
                 }
-                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
+                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
               />
             )}
-
-            <RHFSwitch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Xác thực Email
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Tắt để tự động gửi Email xác minh cho người dùng
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
           </Card>
         </Grid>
 
@@ -213,18 +313,27 @@ export default function DriverNewEditForm({ isEdit, currentDriver }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="name" label="Tên Lái-Phụ Xe" />
+              {!isEdit && (
+                <>
+                  <RHFTextField name="userName" label="Tên tài khoản" />
+                  <RHFTextField name="password" label="Mật khẩu" type="password" />
+                </>
+              )}
+              <RHFTextField name="firstName" label="Tên Người Dùng" />
+              <RHFTextField name="lastName" label="Họ Người Dùng" />
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="phoneNumber" label="Số điện thoại" />
-
-              <RHFTextField name="city" label="Thành Phố" />
               <RHFTextField name="address" label="Địa Chỉ" />
-              <RHFTextField name="role" label="Chức vụ" />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <RHFSelect name="role" label="Chức vụ" disabled>
+                  <option value={RolesSelect[5].name}>{RolesSelect[5].label}</option>
+                </RHFSelect>
+              </Stack>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!isEdit ? 'Tạo lái-phụ xe' : 'Lưu thay đổi'}
+                {!isEdit ? 'Tạo lái xe' : 'Lưu thay đổi'}
               </LoadingButton>
             </Stack>
           </Card>
