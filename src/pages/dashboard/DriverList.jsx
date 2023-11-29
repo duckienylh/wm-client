@@ -203,7 +203,7 @@ export default function DriverList() {
         <HeaderBreadcrumbs
           heading="Danh sách Lái-phụ xe"
           links={[
-            { name: 'DashBoard', href: PATH_DASHBOARD.root },
+            { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Lái xe', href: PATH_DASHBOARD.driver.root },
             { name: 'Danh sách' },
           ]}

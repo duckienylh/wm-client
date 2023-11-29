@@ -1,0 +1,16 @@
+subscription Notifications {
+    subscribeNotifications(input: { userId: 1 }) {
+        message
+        notification {
+            id
+            event
+            content
+            order {
+                id
+                invoiceNo
+            }
+            createdAt
+            updatedAt
+        }
+    }
+}

@@ -93,9 +93,11 @@ type Mutation {
     createCustomer(input: CreateCustomerInput!): Customer!
     createDeliverOrder(input: CreateDeliverOrderInput!): DeliverOrder!
     createOrder(input: CreateOrderInput!): Order!
+    createPaymentInfo(input: CreatePaymentInfoInput!): SuccessResponse!
     createProduct(input: CreateProductInput!): Product!
     createUser(input: CreateUserInput!): User!
     deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
+    deletePaymentInfo(input: DeletePaymentInfoInput!): SuccessResponse!
     deleteProduct(input: DeleteProductInput!): SuccessResponse!
     deleteUser(input: DeleteUserInput!): SuccessResponse!
     importExcelProduct(input: ImportExcelProductInput!): [Product]!
@@ -103,6 +105,7 @@ type Mutation {
     updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
     updateDeliverOrder(input: UpdateDeliverOrderInput!): SuccessResponse!
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
+    updatePaymentInfo(input: UpdatePaymentInfoInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
     updateStatusUserNotification(input: UpdateStatusUserNotificationInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
@@ -133,6 +136,8 @@ type Order {
     id: Int!
     invoiceNo: String!
     orderItemList: [OrderItem]
+    paymentList: [PaymentInfor]
+    remainingPaymentMoney: Float
     sale: User!
     status: StatusOrder!
     totalMoney: Float
@@ -176,6 +181,16 @@ type OrderProcess {
 type PageInfo {
     endCursor: Cursor
     hasNextPage: Boolean!
+}
+
+type PaymentInfor {
+    createdAt: Date
+    customer: Customer!
+    description: String
+    id: Int!
+    money: Float
+    order: Order!
+    updatedAt: Date
 }
 
 type Product {
@@ -285,20 +300,21 @@ type UserNotification {
 
 enum NotificationEvent {
     Common
+    NewDeliverOrder
     NewMessage
     NewOrder
+    NewPayment
     UpdateOrder
+    UpdatedDeliverOrder
 }
 
 enum Role {
     Accountant
     Admin
-    AssistantDriver
     Director
     Driver
     Manager
     Sales
-    TransporterManager
 }
 
 enum StatusOrder {
@@ -360,6 +376,14 @@ input CreateOrderInput {
     saleId: Int!
 }
 
+input CreatePaymentInfoInput {
+    createById: Int!
+    customerId: Int!
+    description: String
+    money: Float!
+    orderId: Int!
+}
+
 input CreateProductInput {
     age: Int
     categoryId: Int!
@@ -388,6 +412,11 @@ input CreateUserInput {
 }
 
 input DeleteCustomerInput {
+    ids: [Int!]!
+}
+
+input DeletePaymentInfoInput {
+    deleteBy: Int!
     ids: [Int!]!
 }
 
@@ -499,6 +528,15 @@ input UpdateOrderInput {
     product: [UpdateProductOrderInput!]
     saleId: Int!
     status: StatusOrder
+}
+
+input UpdatePaymentInfoInput {
+    customerId: Int
+    description: String
+    id: Int!
+    money: Float
+    orderId: Int
+    userId: Int!
 }
 
 input UpdateProductInput {

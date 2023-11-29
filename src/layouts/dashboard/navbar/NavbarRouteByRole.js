@@ -113,7 +113,6 @@ export const adminNavConfig = [
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.driver.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.driver.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.driver.demoEdit },
         ],
       },
       { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },

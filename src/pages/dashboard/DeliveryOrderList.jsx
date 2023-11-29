@@ -106,7 +106,7 @@ export default function DeliveryOrderList() {
     variables: {
       input: {
         driverId: user?.role === Role.driver ? Number(user?.id) : null,
-        saleId: selectedSaleId,
+        saleId: user?.role === Role.sales ? Number(user?.id) : selectedSaleId,
         queryString: filterName,
         status: filterStatus === 'Tất cả' ? null : filterStatus,
         createAt:
@@ -160,7 +160,7 @@ export default function DeliveryOrderList() {
       variables: {
         input: {
           driverId: user?.role === Role.driver ? Number(user?.id) : null,
-          saleId: selectedSaleId,
+          saleId: user?.role === Role.sales ? Number(user?.id) : selectedSaleId,
           queryString: filterName,
           status: filterStatus === 'Tất cả' ? null : filterStatus,
           createAt:
@@ -179,8 +179,6 @@ export default function DeliveryOrderList() {
       updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
     }).then((res) => res);
   }, [fetchMore, filterEndDate, filterName, filterStartDate, filterStatus, page, rowsPerPage, selectedSaleId, user]);
-
-  console.log('allDeliverOrder', allDeliverOrder);
 
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
@@ -306,18 +304,6 @@ export default function DeliveryOrderList() {
                   }
                   actions={
                     <Stack spacing={1} direction="row">
-                      <Tooltip title="Tải về máy">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:download-outline'} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="In">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:printer-fill'} />
-                        </IconButton>
-                      </Tooltip>
-
                       <Tooltip title="Xóa">
                         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
                           <Iconify icon={'eva:trash-2-outline'} />
@@ -351,7 +337,7 @@ export default function DeliveryOrderList() {
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
+                      onViewRow={() => handleViewRow(row.order.id)}
                       onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}

@@ -14,7 +14,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { loader } from 'graphql.macro';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
@@ -28,6 +28,7 @@ import useAuth from '../../../hooks/useAuth';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 
 // ----------------------------------------------------------------------
+const SUBSCRIPTION = loader('../../../graphql/subscription/getMessage.graphql');
 const LIST_NOTIFICATION = loader('../../../graphql/queries/userNotification/listArrayUserNotification.graphql');
 const UPDATE_NOTIFICATION = loader('../../../graphql/mutations/userNotification/updateStatusUserNotification.graphql');
 // ----------------------------------------------------------------------
@@ -42,6 +43,19 @@ export default function NotificationsPopover() {
   const [notifications, setNotifications] = useState([]);
 
   const [open, setOpen] = useState(null);
+
+  const { data, loading } = useSubscription(SUBSCRIPTION, {
+    variables: { input: { userId: Number(user.id) } },
+  });
+
+  useEffect(() => {
+    if (!loading && data) {
+      enqueueSnackbar(`${data.subscribeNotifications?.message}`, {
+        variant: 'success',
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, data]);
 
   const { data: listNotification, refetch } = useQuery(LIST_NOTIFICATION, {
     variables: {

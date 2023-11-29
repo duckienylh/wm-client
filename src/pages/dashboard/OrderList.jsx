@@ -238,7 +238,7 @@ export default function OrderList() {
 
   const isNotFound = !tableData.length;
 
-  const getPercentByStatus = (statusCount) => (statusCount / tableData.length) * 100;
+  const getPercentByStatus = (statusCount) => (statusCount / countOrder.allOrderCounter) * 100;
 
   const TABS = [
     {
@@ -415,12 +415,6 @@ export default function OrderList() {
                       <Tooltip title="Tải về máy">
                         <IconButton color="primary">
                           <Iconify icon={'eva:download-outline'} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="In">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:printer-fill'} />
                         </IconButton>
                       </Tooltip>
 

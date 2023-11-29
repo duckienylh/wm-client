@@ -29,7 +29,7 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
 
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
 
-  const { invoiceNo, createdAt, status, customer, totalMoney } = row;
+  const { invoiceNo, createdAt, status, customer, totalMoney, deliverOrderList } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -72,8 +72,7 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
         <TableCell align="left">{fddMMYYYYWithSlash(createdAt)}</TableCell>
 
         <TableCell align="left">
-          {/* {deliverOrder?.deliveryDate ? fddMMYYYYWithSlash(deliverOrder?.deliveryDate) : 'Chưa có'} */}
-          {'Chưa có'}
+          {deliverOrderList.length > 0 ? fddMMYYYYWithSlash(deliverOrderList[0]?.deliveryDate) : 'Chưa có'}
         </TableCell>
 
         <TableCell align="left">{`${fVietNamCurrency(totalMoney)} VNĐ`}</TableCell>
@@ -84,7 +83,7 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
             color={
               (formatStatus(status) === OrderStatus.new && 'info') ||
               (formatStatus(status) === OrderStatus.newDeliverExport && 'success') ||
-              (formatStatus(status) === OrderStatus.inProgress && 'info') ||
+              (formatStatus(status) === OrderStatus.inProgress && 'warning') ||
               (formatStatus(status) === OrderStatus.deliverSuccess && 'info') ||
               (formatStatus(status) === OrderStatus.paid && 'info') ||
               (formatStatus(status) === OrderStatus.confirmByAccProcessing && 'warning') ||

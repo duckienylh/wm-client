@@ -40,7 +40,7 @@ export default function SummaryDeliveryOrder({ order }) {
       </Grid>
 
       <Grid item xs={12}>
-        <DocumentDeliveryOrder currentOrder={order} />
+        <DocumentDeliveryOrder currentOrder={order} deliverOrder={deliverOrderList} />
       </Grid>
     </Grid>
   );

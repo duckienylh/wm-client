@@ -8,29 +8,35 @@ import { Card, Grid, InputAdornment, Stack } from '@mui/material';
 import PropTypes from 'prop-types';
 import { loader } from 'graphql.macro';
 import { useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 import { FormProvider, RHFTextField } from '../../../../../components/hook-form';
 import { Role } from '../../../../../constant';
 import useAuth from '../../../../../hooks/useAuth';
 import RHFDatePicker from '../../../../../components/hook-form/RHFDatePicker';
 import { fVietNamCurrency } from '../../../../../utils/formatNumber';
+import { PATH_DASHBOARD } from '../../../../../routes/paths';
+import CommonBackdrop from '../../../../../components/CommonBackdrop';
 
 // ----------------------------------------------------------------------
 const CREATE_DELIVER_ORDER = loader('../../../../../graphql/mutations/deliverOrder/createDeliverOrder.graphql');
+const UPDATE_DELIVER_ORDER = loader('../../../../../graphql/mutations/deliverOrder/updateDeliverOrder.graphql');
 // ----------------------------------------------------------------------
 
 DocumentDeliveryOrder.propTypes = {
   currentOrder: PropTypes.object.isRequired,
+  deliverOrder: PropTypes.array,
 };
 
-export default function DocumentDeliveryOrder({ currentOrder }) {
+export default function DocumentDeliveryOrder({ currentOrder, deliverOrder }) {
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const defaultValues = useMemo(
     () => ({
       deliveryPayable: currentOrder?.freightPrice || '',
       deliveryDate: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.deliveryDate : new Date(),
-      receivingNote: '',
+      receivingNote: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.receivingNote : '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentOrder]
@@ -56,7 +62,7 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentOrder]);
 
-  const [createDeliverOrder] = useMutation(CREATE_DELIVER_ORDER, {
+  const [createDeliverOrder, { loading: loadingCreate }] = useMutation(CREATE_DELIVER_ORDER, {
     onCompleted: async (res) => {
       if (res) {
         enqueueSnackbar('Tạo lệnh xuất hàng thành công!', { variant: 'success' });
@@ -66,38 +72,62 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
     },
   });
 
+  const [updateDeliverOrder, { loading: loadingUpdate }] = useMutation(UPDATE_DELIVER_ORDER, {
+    onCompleted: async (res) => {
+      if (res) {
+        enqueueSnackbar('Cập nhật lệnh xuất hàng thành công!', { variant: 'success' });
+        return res;
+      }
+      return null;
+    },
+  });
+
   const onSubmit = async () => {
     try {
-      await createDeliverOrder({
-        variables: {
-          input: {
-            createdBy: Number(user?.id),
-            orderId: Number(currentOrder?.id),
-            customerId: Number(currentOrder?.customer.id),
-            deliveryDate: values.deliveryDate,
-            receivingNote: values.receivingNote,
+      if (isPermission && deliverOrder.length === 0) {
+        await createDeliverOrder({
+          variables: {
+            input: {
+              createdBy: Number(user?.id),
+              orderId: Number(currentOrder?.id),
+              customerId: Number(currentOrder?.customer.id),
+              deliveryDate: values.deliveryDate,
+              receivingNote: values.receivingNote,
+            },
           },
-        },
-        onError(err) {
-          console.error(err);
-          enqueueSnackbar('Tạo lệnh xuất hàng không thành công', {
-            variant: 'error',
-          });
-        },
-      });
+          onError(err) {
+            console.error(err);
+            enqueueSnackbar('Tạo lệnh xuất hàng không thành công', {
+              variant: 'error',
+            });
+          },
+        });
+      } else {
+        await updateDeliverOrder({
+          variables: {
+            input: {
+              id: deliverOrder[0].id,
+              deliveryDate: values.deliveryDate,
+              receivingNote: values.receivingNote,
+            },
+          },
+          onError(err) {
+            console.error(err);
+            enqueueSnackbar('Cập nhật lệnh xuất hàng không thành công', {
+              variant: 'error',
+            });
+          },
+        });
+      }
+
       reset();
+      navigate(PATH_DASHBOARD.deliveryOrder.list);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const isPermission =
-    user.role === Role.sales &&
-    currentOrder?.sale &&
-    currentOrder?.sale?.id === user.id &&
-    currentOrder.deliverOrderList?.length < 1;
-
-  const isDisabled = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
+  const isPermission = user.role === Role.sales && currentOrder?.sale && currentOrder?.sale?.id === user.id;
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -119,25 +149,18 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
 
               <Grid item xs={12} md={6}>
                 <RHFDatePicker
-                  // disabled={isDisabled}
                   name="deliveryDate"
                   label="Ngày hẹn khách giao"
-                  // sx={{ maxWidth: 150, my: 0 }}
                   sx={{ mt: 0, minWidth: { md: 200 } }}
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <RHFTextField
-                  disabled={isDisabled}
-                  name="receivingNote"
-                  label="Dặn dò khác"
-                  sx={{ minWidth: { md: 200 } }}
-                />
+                <RHFTextField name="receivingNote" label="Dặn dò khác" sx={{ minWidth: { md: 200 } }} />
               </Grid>
             </Grid>
-            {isPermission && (
+            {isPermission && deliverOrder.length === 0 && (
               <Stack spacing={3} sx={{ justifyContent: 'flex-end', pt: 2, alignSelf: 'flex-end', minWidth: 300 }}>
                 <LoadingButton
                   sx={{ minWidth: 300, alignSelf: 'flex-end' }}
@@ -150,9 +173,24 @@ export default function DocumentDeliveryOrder({ currentOrder }) {
                 </LoadingButton>
               </Stack>
             )}
+
+            {isPermission && deliverOrder.length > 0 && (
+              <Stack spacing={3} sx={{ justifyContent: 'flex-end', pt: 2, alignSelf: 'flex-end', minWidth: 300 }}>
+                <LoadingButton
+                  sx={{ minWidth: 300, alignSelf: 'flex-end' }}
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  loading={isSubmitting}
+                >
+                  Cập nhật
+                </LoadingButton>
+              </Stack>
+            )}
           </Card>
         </Grid>
       </Grid>
+      <CommonBackdrop loading={loadingUpdate || loadingCreate} />
     </FormProvider>
   );
 }

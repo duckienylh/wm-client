@@ -68,6 +68,26 @@ query GetOrderById($orderId: Int!) {
             receivingNote
             description
         }
+        paymentList{
+            id
+            customer{
+                id
+                name
+                phoneNumber
+                email
+                address
+                companyName
+            }
+            order{
+                id
+                invoiceNo
+            }
+            money
+            description
+            createdAt
+            updatedAt
+        }
+        remainingPaymentMoney
         freightPrice
         deliverAddress
         invoiceNo

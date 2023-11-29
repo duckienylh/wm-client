@@ -4,13 +4,12 @@ import { loader } from 'graphql.macro';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useSnackbar } from 'notistack';
-import { Role, StatusOrderEnum } from '../../../constant';
+import { Role } from '../../../constant';
 import Scrollbar from '../../../components/Scrollbar';
 
 // ----------------------------------------------------------------------
 const DRIVER = loader('../../../graphql/queries/user/users.graphql');
 const UPDATE_DELIVER_ORDER = loader('../../../graphql/mutations/deliverOrder/updateDeliverOrder.graphql');
-const UPDATE_ORDER = loader('../../../graphql/mutations/order/updateOrder.graphql');
 const LIST_ALL_DELIVER_ORDER = loader('../../../graphql/queries/deliverOrder/listAllDeliverOrder.graphql');
 
 // ----------------------------------------------------------------------
@@ -84,41 +83,9 @@ export default function DriverListDialog({ open, selected, onClose, onSelect, de
     }
   };
 
-  const [updateOrderFn] = useMutation(UPDATE_ORDER, {
-    onCompleted: async (res) => {
-      if (res) {
-        return res;
-      }
-      return null;
-    },
-  });
-
-  const updateOrder = async () => {
-    const response = await updateOrderFn({
-      variables: {
-        input: {
-          id: deliverOrder?.order?.id,
-          saleId: 4,
-          status: StatusOrderEnum.delivering,
-        },
-      },
-      onError(err) {
-        enqueueSnackbar(err.message, {
-          variant: 'warning',
-        });
-      },
-    });
-
-    if (!response.errors) {
-      enqueueSnackbar('Cập nhật lái xe thành công', {
-        variant: 'success',
-      });
-    }
-  };
-
   const onSubmit = async (driverId) => {
     try {
-      await Promise.all[(updateDeliverOrder(driverId, deliverOrder.id), updateOrder())];
+      await updateDeliverOrder(driverId, deliverOrder.id);
     } catch (error) {
       console.log(error);
     }
