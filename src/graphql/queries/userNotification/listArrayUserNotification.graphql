@@ -1,0 +1,89 @@
+query ListArrayUserNotification($input: ListArrayUserNotificationInput!) {
+    listArrayUserNotification(input: $input){
+        id
+        user {
+            id
+            email
+            userName
+            phoneNumber
+            firstName
+            lastName
+            fullName
+            address
+            avatarURL
+            isActive
+            role
+        }
+        notification {
+            id
+            event
+            content
+            order {
+                id
+                sale {
+                    id
+                    email
+                    userName
+                    phoneNumber
+                    firstName
+                    lastName
+                    fullName
+                    address
+                    avatarURL
+                    isActive
+                    role
+                }
+                customer {
+                    id
+                    name
+                    phoneNumber
+                    email
+                    address
+                    companyName
+                }
+                orderItemList {
+                    id
+                    product {
+                        id
+                        name
+                        code
+                        price
+                        image
+                        description
+                        quantity
+                    }
+                    quantity
+                    unitPrice
+                    note
+                    weight
+                }
+                deliverOrderList{
+                    id
+                    customer{
+                        id
+                        name
+                        phoneNumber
+                        email
+                        address
+                        companyName
+                    }
+                    order{
+                        id
+                    }
+                    deliveryDate
+                    receivingNote
+                    description
+                }
+                invoiceNo
+                VAT
+                totalMoney
+                status
+                createdAt
+                updatedAt
+            }
+        }
+        isRead
+        createdAt
+        updatedAt
+    }
+}

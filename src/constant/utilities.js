@@ -8,15 +8,24 @@ export const OrderStatusArr = [
   'Đơn hàng hoàn thành',
 ];
 
+export const StatusOrderEnum = {
+  creatNew: 'creatNew',
+  createExportOrder: 'createExportOrder',
+  delivering: 'delivering',
+  done: 'done',
+  paid: 'paid',
+  paymentConfirmation: 'paymentConfirmation',
+  successDelivery: 'successDelivery',
+};
+
 export const OrderStatus = {
   new: OrderStatusArr[0],
-  quotationAndDeal: OrderStatusArr[1],
-  newDeliverExport: OrderStatusArr[2],
-  inProgress: OrderStatusArr[3],
-  deliverSuccess: OrderStatusArr[4],
-  confirmByAccProcessing: OrderStatusArr[5],
-  paid: OrderStatusArr[6],
-  completed: OrderStatusArr[7],
+  newDeliverExport: OrderStatusArr[1],
+  inProgress: OrderStatusArr[2],
+  deliverSuccess: OrderStatusArr[3],
+  confirmByAccProcessing: OrderStatusArr[4],
+  paid: OrderStatusArr[5],
+  done: OrderStatusArr[6],
 };
 
 export const DeliveryStatus = {

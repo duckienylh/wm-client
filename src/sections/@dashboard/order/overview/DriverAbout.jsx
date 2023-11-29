@@ -16,17 +16,20 @@ const IconStyle = styled(Iconify)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 DriverAbout.propTypes = {
-  driver: PropTypes.object,
+  deliverOrder: PropTypes.object,
 };
 
-export default function DriverAbout({ driver }) {
-  if (!driver) {
+export default function DriverAbout({ deliverOrder }) {
+  if (!deliverOrder || !deliverOrder?.driver) {
     return (
       <Card sx={{ pt: 3, px: 5, minHeight: 242 }}>
         <Typography variant="h6">Chưa có thông tin lái xe</Typography>
       </Card>
     );
   }
+
+  const { driver } = deliverOrder;
+
   const { fullName, phoneNumber } = driver;
 
   return (

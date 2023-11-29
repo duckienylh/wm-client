@@ -13,9 +13,10 @@ import InvoicePDF from './InvoicePDF';
 
 InvoiceToolbar.propTypes = {
   invoice: PropTypes.object.isRequired,
+  onPay: PropTypes.func,
 };
 
-export default function InvoiceToolbar({ invoice }) {
+export default function InvoiceToolbar({ invoice, onPay }) {
   const navigate = useNavigate();
 
   const { toggle: open, onOpen, onClose } = useToggle();
@@ -60,15 +61,9 @@ export default function InvoiceToolbar({ invoice }) {
           {/*  )} */}
           {/* </PDFDownloadLink> */}
 
-          <Tooltip title="In">
-            <IconButton>
-              <Iconify icon={'eva:printer-fill'} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Chia sẻ">
-            <IconButton>
-              <Iconify icon={'eva:share-fill'} />
+          <Tooltip title="Thêm thanh toán">
+            <IconButton onClick={onPay}>
+              <Iconify icon={'tdesign:money'} />
             </IconButton>
           </Tooltip>
         </Stack>

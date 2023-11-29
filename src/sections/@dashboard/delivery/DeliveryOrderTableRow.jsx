@@ -2,20 +2,22 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Button, Checkbox, MenuItem, TableCell, TableRow, Typography } from '@mui/material';
+import { Button, Checkbox, MenuItem, Stack, TableCell, TableRow, Tooltip, Typography } from '@mui/material';
 import { fddMMYYYYWithSlash } from '../../../utils/formatTime';
 import Label from '../../../components/Label';
 import Iconify from '../../../components/Iconify';
 import { TableMoreMenu } from '../../../components/table';
-import { orderPropTypes, OrderStatus } from '../../../constant';
+import { OrderStatus, Role } from '../../../constant';
 import useToggle from '../../../hooks/useToggle';
 import CustomerInfoPopup from '../order/list/CustomerInfoPopup';
 import DriverListDialog from './DriverListDialog';
+import { formatStatus } from '../../../utils/getOrderFormat';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 DeliveryOrderTableRow.propTypes = {
-  row: orderPropTypes().isRequired,
+  row: PropTypes.object,
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
@@ -24,11 +26,13 @@ DeliveryOrderTableRow.propTypes = {
 export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onViewRow }) {
   const theme = useTheme();
 
+  const { user } = useAuth();
+
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
 
   const { toggle: openDriverDialog, onOpen: onOpenDriverDialog, onClose: onCloseDriverDialog } = useToggle();
 
-  const { invoiceNumber, createDate, status, customer, deliverOrder, driver } = row;
+  const { order, customer, driver, deliveryDate, createdAt } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -51,7 +55,7 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
 
         <TableCell align="left">
           <Typography variant="subtitle2" sx={{ cursor: 'pointer' }} noWrap onClick={onViewRow}>
-            {invoiceNumber}
+            {order.invoiceNo}
           </Typography>
         </TableCell>
 
@@ -69,38 +73,50 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
         </TableCell>
 
         <TableCell align="left">
-          {driver?.id ? (
-            driver.displayName
-          ) : chosenDriver?.displayName ? (
-            chosenDriver?.displayName
-          ) : (
-            <Button size="small" startIcon={<Iconify icon={'eva:edit-fill'} />} onClick={onOpenDriverDialog}>
-              Chọn lái xe
-            </Button>
-          )}
+          <Stack direction="row">
+            <Stack sx={{ my: 'auto' }}>
+              {driver?.id ? (
+                driver?.fullName
+              ) : chosenDriver?.fullName ? (
+                chosenDriver?.fullName
+              ) : (
+                <>
+                  {user.role === Role.admin || user.role === Role.director ? (
+                    <Button size="small" startIcon={<Iconify icon={'eva:edit-fill'} />} onClick={onOpenDriverDialog}>
+                      Chọn lái xe
+                    </Button>
+                  ) : null}
+                </>
+              )}
+            </Stack>
+
+            {driver?.id && (user.role === Role.admin || user.role === Role.director) ? (
+              <Tooltip title="Thay đổi lái xe">
+                <Button size="small" startIcon={<Iconify icon={'eva:edit-fill'} />} onClick={onOpenDriverDialog} />
+              </Tooltip>
+            ) : null}
+          </Stack>
         </TableCell>
 
-        <TableCell align="left">{fddMMYYYYWithSlash(createDate)}</TableCell>
+        <TableCell align="left">{fddMMYYYYWithSlash(createdAt)}</TableCell>
 
-        <TableCell align="left">
-          {deliverOrder?.deliveryDate ? fddMMYYYYWithSlash(deliverOrder?.deliveryDate) : 'Chưa có'}
-        </TableCell>
+        <TableCell align="left">{deliveryDate ? fddMMYYYYWithSlash(deliveryDate) : 'Chưa có'}</TableCell>
 
         <TableCell align="left">
           <Label
             variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
             color={
-              (status === OrderStatus.newDeliverExport && 'info') ||
-              (status === OrderStatus.inProgress && 'warning') ||
-              (status === OrderStatus.deliverSuccess && 'warning') ||
-              (status === OrderStatus.paid && 'warning') ||
-              (status === OrderStatus.confirmByAccProcessing && 'warning') ||
-              (status === OrderStatus.completed && 'success') ||
+              (formatStatus(order.status) === OrderStatus.newDeliverExport && 'info') ||
+              (formatStatus(order.status) === OrderStatus.inProgress && 'warning') ||
+              (formatStatus(order.status) === OrderStatus.deliverSuccess && 'warning') ||
+              (formatStatus(order.status) === OrderStatus.paid && 'warning') ||
+              (formatStatus(order.status) === OrderStatus.confirmByAccProcessing && 'warning') ||
+              (formatStatus(order.status) === OrderStatus.done && 'success') ||
               'default'
             }
             sx={{ textTransform: 'capitalize' }}
           >
-            {status}
+            {formatStatus(order.status)}
           </Label>
         </TableCell>
 
@@ -154,6 +170,7 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
         onClose={onCloseDriverDialog}
         selected={(selectedId) => driver?.id === selectedId}
         onSelect={(sale) => setChosenDriver(sale)}
+        deliverOrder={row}
       />
     </>
   );

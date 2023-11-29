@@ -322,7 +322,6 @@ export default function UserNewEditForm({ isEdit, currentUser }) {
               <RHFTextField name="lastName" label="Họ Người Dùng" />
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="phoneNumber" label="Số điện thoại" />
-
               <RHFTextField name="address" label="Địa Chỉ" />
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <RHFSelect

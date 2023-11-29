@@ -32,6 +32,56 @@ query ListAllOrder($input: ListAllOrderInput!) {
                         createdAt
                         updatedAt
                     }
+                    deliverOrderList{
+                        id
+                        driver{
+                            id
+                            email
+                            userName
+                            phoneNumber
+                            firstName
+                            lastName
+                            fullName
+                            address
+                            avatarURL
+                            isActive
+                            role
+                        }
+                        customer{
+                            id
+                            name
+                            phoneNumber
+                            email
+                            address
+                            companyName
+                        }
+                        order{
+                            id
+                        }
+                        deliveryDate
+                        receivingNote
+                        description
+                    }
+                    paymentList{
+                        id
+                        customer{
+                            id
+                            name
+                            phoneNumber
+                            email
+                            address
+                            companyName
+                        }
+                        order{
+                            id
+                            invoiceNo
+                        }
+                        money
+                        description
+                        createdAt
+                        updatedAt
+                    }
+                    remainingPaymentMoney
                     freightPrice
                     deliverAddress
                     invoiceNo

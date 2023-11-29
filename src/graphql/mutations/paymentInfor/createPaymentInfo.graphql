@@ -1,0 +1,3 @@
+mutation CreatePaymentInfo($input: CreatePaymentInfoInput!) {
+    createPaymentInfo(input: $input)
+}

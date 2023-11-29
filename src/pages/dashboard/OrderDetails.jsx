@@ -30,21 +30,13 @@ const TabsWrapperStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 const commonTabLabel = 'Thông tin chung';
-const quotationTabLabel = 'Báo giá';
 const deliveryOrderTabLabel = 'Lệnh xuất hàng';
 
-const commonTab = (order) => ({
+const commonTab = (order, refetch) => ({
   value: 'common',
   label: commonTabLabel,
   icon: <Iconify icon={'clarity:details-solid'} width={20} height={20} />,
-  component: <Overview order={order} />,
-});
-
-const quotationTab = (order) => ({
-  value: 'quotation',
-  label: quotationTabLabel,
-  icon: <Iconify icon={'icon-park-outline:transaction-order'} width={20} height={20} />,
-  // component: <QuotationInfo order={order} />,
+  component: <Overview order={order} refetchData={refetch} />,
 });
 const deliveryOrderTab = (order) => ({
   value: 'deliveryOrder',
@@ -53,20 +45,20 @@ const deliveryOrderTab = (order) => ({
   component: <SummaryDeliveryOrder order={order} />,
 });
 
-const ORDER_INFO_TABS = (order, userRole) => {
+const ORDER_INFO_TABS = (order, refetch, userRole) => {
   switch (userRole) {
     case Role.admin:
-      return [commonTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     case Role.manager:
-      return [commonTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     case Role.director:
-      return [commonTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     case Role.accountant:
-      return [commonTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     case Role.sales:
-      return [commonTab(order), quotationTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     case Role.driver:
-      return [commonTab(order), deliveryOrderTab(order)];
+      return [commonTab(order, refetch), deliveryOrderTab(order)];
     default:
       return [];
   }
@@ -82,7 +74,7 @@ export default function OrderDetails() {
 
   const [order, setOrder] = useState({});
 
-  const { data: orderById } = useQuery(ORDER_BY_ID, {
+  const { data: orderById, refetch } = useQuery(ORDER_BY_ID, {
     variables: {
       orderId: Number(id),
     },
@@ -102,8 +94,6 @@ export default function OrderDetails() {
             position: 'relative',
           }}
         >
-          {/* <PersonInChargeProfile sale={order.sale} /> */}
-
           <TabsWrapperStyle>
             <Tabs
               allowScrollButtonsMobile
@@ -112,14 +102,14 @@ export default function OrderDetails() {
               value={currentTab}
               onChange={onChangeTab}
             >
-              {ORDER_INFO_TABS(order, user.role).map((tab) => (
+              {ORDER_INFO_TABS(order, refetch, user.role).map((tab) => (
                 <Tab disableRipple key={tab.value} value={tab.value} icon={tab.icon} label={tab.label} />
               ))}
             </Tabs>
           </TabsWrapperStyle>
         </Card>
 
-        {ORDER_INFO_TABS(order, user.role).map((tab) => {
+        {ORDER_INFO_TABS(order, refetch, user.role).map((tab) => {
           const isMatched = tab.value === currentTab;
           return isMatched && <Box key={tab.value}>{tab.component}</Box>;
         })}

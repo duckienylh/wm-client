@@ -1,0 +1,3 @@
+mutation UpdatePaymentInfo($input: UpdatePaymentInfoInput!) {
+    updatePaymentInfo(input: $input)
+}

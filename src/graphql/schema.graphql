@@ -66,6 +66,7 @@ type DeliverOrderEdge {
 
 type ListAllDeliverOrderResponse {
     allOrderCounter: Int!
+    createExportOrderCounter: Int!
     deliverOrder: DeliverOrderConnection
     doneOrderCounter: Int!
     inProcessingCounter: Int!
@@ -92,9 +93,11 @@ type Mutation {
     createCustomer(input: CreateCustomerInput!): Customer!
     createDeliverOrder(input: CreateDeliverOrderInput!): DeliverOrder!
     createOrder(input: CreateOrderInput!): Order!
+    createPaymentInfo(input: CreatePaymentInfoInput!): SuccessResponse!
     createProduct(input: CreateProductInput!): Product!
     createUser(input: CreateUserInput!): User!
     deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
+    deletePaymentInfo(input: DeletePaymentInfoInput!): SuccessResponse!
     deleteProduct(input: DeleteProductInput!): SuccessResponse!
     deleteUser(input: DeleteUserInput!): SuccessResponse!
     importExcelProduct(input: ImportExcelProductInput!): [Product]!
@@ -102,16 +105,18 @@ type Mutation {
     updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
     updateDeliverOrder(input: UpdateDeliverOrderInput!): SuccessResponse!
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
+    updatePaymentInfo(input: UpdatePaymentInfoInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
+    updateStatusUserNotification(input: UpdateStatusUserNotificationInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
 }
 
 type Notification {
-    Order: Order
     content: String!
     createdAt: Date!
     event: NotificationEvent!
     id: Int!
+    order: Order
     updatedAt: Date!
 }
 
@@ -131,6 +136,8 @@ type Order {
     id: Int!
     invoiceNo: String!
     orderItemList: [OrderItem]
+    paymentList: [PaymentInfor]
+    remainingPaymentMoney: Float
     sale: User!
     status: StatusOrder!
     totalMoney: Float
@@ -176,6 +183,16 @@ type PageInfo {
     hasNextPage: Boolean!
 }
 
+type PaymentInfor {
+    createdAt: Date
+    customer: Customer!
+    description: String
+    id: Int!
+    money: Float
+    order: Order!
+    updatedAt: Date
+}
+
 type Product {
     age: Int
     category: Category!
@@ -217,6 +234,7 @@ type Query {
     listAllDeliverOrder(input: ListAllDeliverOrderInput!): ListAllDeliverOrderResponse!
     listAllOrder(input: ListAllOrderInput!): ListAllOrderResponse!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
+    listArrayUserNotification(input: ListArrayUserNotificationInput!): [UserNotification]!
     listInformationOrder(orderId: Int!): [OrderProcess]!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
@@ -271,22 +289,32 @@ type UserLoginResponse {
     user: User!
 }
 
+type UserNotification {
+    createdAt: Date
+    id: Int!
+    isRead: Boolean!
+    notification: Notification!
+    updatedAt: Date
+    user: User!
+}
+
 enum NotificationEvent {
     Common
+    NewDeliverOrder
     NewMessage
     NewOrder
-    updateOrder
+    NewPayment
+    UpdateOrder
+    UpdatedDeliverOrder
 }
 
 enum Role {
     Accountant
     Admin
-    AssistantDriver
     Director
     Driver
     Manager
     Sales
-    TransporterManager
 }
 
 enum StatusOrder {
@@ -348,6 +376,14 @@ input CreateOrderInput {
     saleId: Int!
 }
 
+input CreatePaymentInfoInput {
+    createById: Int!
+    customerId: Int!
+    description: String
+    money: Float!
+    orderId: Int!
+}
+
 input CreateProductInput {
     age: Int
     categoryId: Int!
@@ -379,6 +415,11 @@ input DeleteCustomerInput {
     ids: [Int!]!
 }
 
+input DeletePaymentInfoInput {
+    deleteBy: Int!
+    ids: [Int!]!
+}
+
 input DeleteProductInput {
     ids: [Int!]!
 }
@@ -398,6 +439,7 @@ input ListAllCustomerInput {
 
 input ListAllDeliverOrderInput {
     args: PaginationInput
+    createAt: filterDate
     driverId: Int
     queryString: String
     saleId: Int
@@ -418,6 +460,11 @@ input ListAllProductInput {
     categoryId: Int
     checkInventory: Boolean
     stringQuery: String
+}
+
+input ListArrayUserNotificationInput {
+    event: NotificationEvent
+    userId: Int!
 }
 
 input PaginationInput {
@@ -483,6 +530,15 @@ input UpdateOrderInput {
     status: StatusOrder
 }
 
+input UpdatePaymentInfoInput {
+    customerId: Int
+    description: String
+    id: Int!
+    money: Float
+    orderId: Int
+    userId: Int!
+}
+
 input UpdateProductInput {
     age: Int
     categoryId: Int
@@ -505,6 +561,11 @@ input UpdateProductOrderInput {
     priceProduct: Float
     productId: Int!
     quantity: Int
+}
+
+input UpdateStatusUserNotificationInput {
+    isRead: Boolean!
+    userNotificationIds: [Int!]!
 }
 
 input UpdateUserInput {

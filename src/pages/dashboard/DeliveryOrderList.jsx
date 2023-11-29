@@ -1,6 +1,6 @@
 // noinspection JSValidateTypes,DuplicatedCode
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -19,42 +19,27 @@ import {
   Tabs,
   Tooltip,
 } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
-import useTable, { emptyRows, getComparator } from '../../hooks/useTable';
-import { _orders } from '../../_mock';
+import useTable from '../../hooks/useTable';
 import Page from '../../components/Page';
 import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
-import { OrderTableToolbar } from '../../sections/@dashboard/order/list';
 import { AllLabel, OrderStatus, Role } from '../../constant';
 import useAuth from '../../hooks/useAuth';
 import { DeliveryOrderTableRow } from '../../sections/@dashboard/delivery';
+import DeliverOrderTableToolbar from '../../sections/@dashboard/delivery/DeliveryOrderToolbar';
 
 // ----------------------------------------------------------------------
-const filterDeliveryOrderFromOrder = (user, orders) => {
-  if (
-    user.role === Role.admin ||
-    user.role === Role.manager ||
-    user.role === Role.director ||
-    user.role === Role.transporterManager ||
-    user.role === Role.accountant
-  ) {
-    return orders.filter((ord) => ord.deliverOrder?.id);
-  }
-  if (user.role === Role.sales) {
-    return orders.filter((ord) => ord.deliverOrder?.id).filter((x) => x.sale.id === user.id);
-  }
-  if (user.role === Role.driver) {
-    return orders.filter((ord) => ord.driver && ord.driver?.id === user.id);
-  }
-  return [];
-};
+const LIST_DELIVER_ORDER = loader('../../graphql/queries/deliverOrder/listAllDeliverOrder.graphql');
 // ----------------------------------------------------------------------
+
 const TABLE_HEAD = [
   { id: 'invoiceNumber', label: 'Mã đơn hàng', align: 'left' },
   { id: 'customer', label: 'Khách hàng', align: 'left' },
@@ -91,9 +76,11 @@ export default function DeliveryOrderList() {
     onChangeDense,
     onChangePage,
     onChangeRowsPerPage,
-  } = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 10 });
+  } = useTable({ defaultOrderBy: 'createDate', defaultRowsPerPage: 5 });
 
-  const [tableData, setTableData] = useState(filterDeliveryOrderFromOrder(user, _orders));
+  const [deliverOrder, setDeliverOrder] = useState([]);
+
+  const [totalCount, setTotalCount] = useState(0);
 
   const [filterName, setFilterName] = useState('');
 
@@ -103,69 +90,146 @@ export default function DeliveryOrderList() {
 
   const { currentTab: filterStatus, onChangeTab: onFilterStatus } = useTabs('Tất cả');
 
+  const [allOrderCounter, setAllOrderCounter] = useState(0);
+
+  const [createExportOrderCounter, setCreateExportOrderCounter] = useState(0);
+
+  const [doneOrderCounter, setDoneOrderCounter] = useState(0);
+
+  const [inProcessingCounter, setInProcessingCounter] = useState(0);
+
+  const [filterSales, setFilterSales] = useState('Tất cả');
+
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
+
+  const { data: allDeliverOrder, fetchMore } = useQuery(LIST_DELIVER_ORDER, {
+    variables: {
+      input: {
+        driverId: user?.role === Role.driver ? Number(user?.id) : null,
+        saleId: user?.role === Role.sales ? Number(user?.id) : selectedSaleId,
+        queryString: filterName,
+        status: filterStatus === 'Tất cả' ? null : filterStatus,
+        createAt:
+          filterStartDate && filterEndDate
+            ? {
+                startAt: filterStartDate,
+                endAt: filterEndDate,
+              }
+            : null,
+        args: {
+          first: rowsPerPage,
+          after: 0,
+        },
+      },
+    },
+  });
+
+  const updateQuery = (previousResult, { fetchMoreResult }) => {
+    if (!fetchMoreResult) return previousResult;
+    return {
+      ...previousResult,
+      listAllDeliverOrder: {
+        ...previousResult.listAllDeliverOrder,
+        deliverOrder: {
+          ...previousResult.listAllDeliverOrder.deliverOrder,
+          edges: [...fetchMoreResult.listAllDeliverOrder.deliverOrder.edges],
+          pageInfo: fetchMoreResult.listAllDeliverOrder.deliverOrder.pageInfo,
+          totalCount: fetchMoreResult.listAllDeliverOrder.deliverOrder.totalCount,
+        },
+        allOrderCounter: fetchMoreResult.listAllDeliverOrder.allOrderCounter,
+        createExportOrderCounter: fetchMoreResult.listAllDeliverOrder.createExportOrderCounter,
+        inProcessingCounter: fetchMoreResult.listAllDeliverOrder.inProcessingCounter,
+        doneOrderCounter: fetchMoreResult.listAllDeliverOrder.doneOrderCounter,
+      },
+    };
+  };
+
+  useEffect(() => {
+    if (allDeliverOrder) {
+      setDeliverOrder(allDeliverOrder.listAllDeliverOrder?.deliverOrder?.edges.map((edge) => edge.node));
+      setAllOrderCounter(allDeliverOrder.listAllDeliverOrder?.allOrderCounter);
+      setCreateExportOrderCounter(allDeliverOrder.listAllDeliverOrder?.createExportOrderCounter);
+      setDoneOrderCounter(allDeliverOrder.listAllDeliverOrder?.doneOrderCounter);
+      setInProcessingCounter(allDeliverOrder.listAllDeliverOrder?.inProcessingCounter);
+      setTotalCount(allDeliverOrder.listAllDeliverOrder?.deliverOrder?.totalCount);
+    }
+  }, [allDeliverOrder]);
+
+  useEffect(() => {
+    fetchMore({
+      variables: {
+        input: {
+          driverId: user?.role === Role.driver ? Number(user?.id) : null,
+          saleId: user?.role === Role.sales ? Number(user?.id) : selectedSaleId,
+          queryString: filterName,
+          status: filterStatus === 'Tất cả' ? null : filterStatus,
+          createAt:
+            filterStartDate && filterEndDate
+              ? {
+                  startAt: filterStartDate,
+                  endAt: filterEndDate,
+                }
+              : null,
+          args: {
+            first: rowsPerPage,
+            after: page * rowsPerPage,
+          },
+        },
+      },
+      updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
+    }).then((res) => res);
+  }, [fetchMore, filterEndDate, filterName, filterStartDate, filterStatus, page, rowsPerPage, selectedSaleId, user]);
+
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
   };
 
   const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
+    console.log('id', id);
     setSelected([]);
-    setTableData(deleteRow);
   };
 
   const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
+    console.log('selected', selected);
     setSelected([]);
-    setTableData(deleteRows);
   };
 
   const handleViewRow = (id) => {
     navigate(PATH_DASHBOARD.saleAndMarketing.view(id));
   };
 
-  const dataFiltered = applySortFilter({
-    tableData,
-    comparator: getComparator(order, orderBy),
-    filterName,
-    filterStatus,
-    filterStartDate,
-    filterEndDate,
-  });
+  const handleFilterSale = (event) => {
+    setFilterSales(event.target.value);
+  };
+
+  const handleGetSaleId = (event) => {
+    setSelectedSaleId(event);
+  };
 
   const denseHeight = dense ? 56 : 76;
 
-  const isNotFound =
-    (!dataFiltered.length && !!filterName) ||
-    (!dataFiltered.length && !!filterStatus) ||
-    (!dataFiltered.length && !!filterEndDate) ||
-    (!dataFiltered.length && !!filterStartDate);
-
-  const getLengthByStatus = (status) => tableData.filter((item) => item.status === status).length;
+  const isNotFound = !deliverOrder.length;
 
   const TABS = [
-    { value: AllLabel, label: AllLabel, color: 'info', count: tableData.length },
+    { value: AllLabel, label: AllLabel, color: 'info', count: allOrderCounter },
     {
       value: OrderStatus.newDeliverExport,
-      label: 'Mới',
+      label: 'Chốt đơn - tạo lệnh xuất hàng',
       color: 'info',
-      count: getLengthByStatus(OrderStatus.newDeliverExport),
+      count: createExportOrderCounter,
     },
     {
       value: OrderStatus.inProgress,
       label: 'Đang thực hiện',
       color: 'warning',
-      count:
-        getLengthByStatus(OrderStatus.inProgress) +
-        getLengthByStatus(OrderStatus.deliverSuccess) +
-        getLengthByStatus(OrderStatus.paid) +
-        getLengthByStatus(OrderStatus.confirmByAccProcessing),
+      count: inProcessingCounter,
     },
     {
-      value: OrderStatus.completed,
+      value: OrderStatus.done,
       label: 'Hoàn thành',
       color: 'success',
-      count: getLengthByStatus(OrderStatus.completed),
+      count: doneOrderCounter,
     },
   ];
 
@@ -186,7 +250,10 @@ export default function DeliveryOrderList() {
             variant="scrollable"
             scrollButtons="auto"
             value={filterStatus}
-            onChange={onFilterStatus}
+            onChange={(event, value) => {
+              setPage(0);
+              onFilterStatus(event, value);
+            }}
             sx={{ px: 2, bgcolor: 'background.neutral' }}
           >
             {TABS.map((tab, idx) => (
@@ -205,11 +272,14 @@ export default function DeliveryOrderList() {
 
           <Divider />
 
-          <OrderTableToolbar
+          <DeliverOrderTableToolbar
             filterName={filterName}
             filterStartDate={filterStartDate}
             filterEndDate={filterEndDate}
             onFilterName={handleFilterName}
+            filterSales={filterSales}
+            onFilterSales={handleFilterSale}
+            handleGetSaleId={handleGetSaleId}
             onFilterStartDate={(newValue) => {
               setFilterStartDate(newValue);
             }}
@@ -225,27 +295,15 @@ export default function DeliveryOrderList() {
                 <TableSelectedActions
                   dense={dense}
                   numSelected={selected.length}
-                  rowCount={tableData.length}
+                  rowCount={deliverOrder.length}
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      deliverOrder.map((row) => row.id)
                     )
                   }
                   actions={
                     <Stack spacing={1} direction="row">
-                      <Tooltip title="Tải về máy">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:download-outline'} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="In">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:printer-fill'} />
-                        </IconButton>
-                      </Tooltip>
-
                       <Tooltip title="Xóa">
                         <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
                           <Iconify icon={'eva:trash-2-outline'} />
@@ -261,30 +319,33 @@ export default function DeliveryOrderList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
+                  rowCount={deliverOrder.length}
                   numSelected={selected.length}
                   onSort={onSort}
                   onSelectAllRows={(checked) =>
                     onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      deliverOrder.map((row) => row.id)
                     )
                   }
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  {deliverOrder.map((row, idx) => (
                     <DeliveryOrderTableRow
-                      key={row.id}
+                      key={idx}
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
+                      onViewRow={() => handleViewRow(row.order.id)}
                       onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={tableEmptyRows(page, rowsPerPage, deliverOrder.length)}
+                  />
 
                   <TableNoData isNotFound={isNotFound} />
                 </TableBody>
@@ -296,7 +357,7 @@ export default function DeliveryOrderList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={totalCount}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
@@ -321,45 +382,6 @@ export default function DeliveryOrderList() {
 
 // ----------------------------------------------------------------------
 
-function applySortFilter({ tableData, comparator, filterName, filterStatus, filterStartDate, filterEndDate }) {
-  const stabilizedThis = tableData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  tableData = stabilizedThis.map((el) => el[0]);
-
-  if (filterName) {
-    tableData = tableData.filter(
-      (item) =>
-        item.invoiceNumber.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
-        item.customer.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
-  }
-
-  if (filterStatus !== AllLabel) {
-    if (filterStatus === OrderStatus.inProgress) {
-      tableData = tableData.filter(
-        (item) =>
-          item.status === OrderStatus.inProgress ||
-          item.status === OrderStatus.paid ||
-          item.status === OrderStatus.confirmByAccProcessing ||
-          item.status === OrderStatus.deliverSuccess
-      );
-    } else {
-      tableData = tableData.filter((item) => item.status === filterStatus);
-    }
-  }
-
-  if (filterStartDate && filterEndDate) {
-    tableData = tableData.filter(
-      (item) =>
-        item.createDate.getTime() >= filterStartDate.getTime() && item.createDate.getTime() <= filterEndDate.getTime()
-    );
-  }
-
-  return tableData;
+function tableEmptyRows(page, rowsPerPage, arrayLength) {
+  return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }

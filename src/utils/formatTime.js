@@ -1,6 +1,7 @@
 // noinspection JSCheckFunctionSignatures
 
 import { format, getTime, formatDistanceToNow } from 'date-fns';
+import vi from 'date-fns/locale/vi';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ export function fDateTimeSuffix(date) {
 export function fToNow(date) {
   return formatDistanceToNow(new Date(date), {
     addSuffix: true,
+    locale: vi,
   });
 }
 

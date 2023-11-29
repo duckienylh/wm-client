@@ -1,7 +1,16 @@
 import PropTypes from 'prop-types';
 import { Avatar, Dialog, ListItemButton, Stack, Typography } from '@mui/material';
+import { loader } from 'graphql.macro';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import { useSnackbar } from 'notistack';
+import { Role } from '../../../constant';
 import Scrollbar from '../../../components/Scrollbar';
-import { onlyDriverUserList } from '../../../constant';
+
+// ----------------------------------------------------------------------
+const DRIVER = loader('../../../graphql/queries/user/users.graphql');
+const UPDATE_DELIVER_ORDER = loader('../../../graphql/mutations/deliverOrder/updateDeliverOrder.graphql');
+const LIST_ALL_DELIVER_ORDER = loader('../../../graphql/queries/deliverOrder/listAllDeliverOrder.graphql');
 
 // ----------------------------------------------------------------------
 
@@ -10,12 +19,76 @@ DriverListDialog.propTypes = {
   onSelect: PropTypes.func,
   open: PropTypes.bool,
   selected: PropTypes.func,
+  deliverOrder: PropTypes.object,
 };
 
-export default function DriverListDialog({ open, selected, onClose, onSelect }) {
+export default function DriverListDialog({ open, selected, onClose, onSelect, deliverOrder }) {
+  const [arrDriver, setArrDriver] = useState([]);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { data: drivers } = useQuery(DRIVER, {
+    variables: {
+      input: {
+        role: Role.driver,
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (drivers) setArrDriver(drivers.users?.edges?.map((edge) => edge.node));
+  }, [drivers]);
+
   const handleSelect = (driver) => {
     onSelect(driver);
     onClose();
+  };
+
+  const [updateDeliverOrderFn] = useMutation(UPDATE_DELIVER_ORDER, {
+    onCompleted: async (res) => {
+      if (res) {
+        return res;
+      }
+      return null;
+    },
+    refetchQueries: () => [
+      {
+        query: LIST_ALL_DELIVER_ORDER,
+        variables: {
+          input: {},
+        },
+      },
+    ],
+  });
+
+  const updateDeliverOrder = async (driverId, deliverOrderId) => {
+    const response = await updateDeliverOrderFn({
+      variables: {
+        input: {
+          id: deliverOrderId,
+          driverId,
+        },
+      },
+      onError(err) {
+        enqueueSnackbar(err.message, {
+          variant: 'warning',
+        });
+      },
+    });
+
+    if (!response.errors) {
+      enqueueSnackbar('Cập nhật lái xe thành công', {
+        variant: 'success',
+      });
+    }
+  };
+
+  const onSubmit = async (driverId) => {
+    try {
+      await updateDeliverOrder(driverId, deliverOrder.id);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -25,11 +98,14 @@ export default function DriverListDialog({ open, selected, onClose, onSelect }) 
       </Stack>
 
       <Scrollbar sx={{ p: 1.5, pt: 0, maxHeight: 80 * 8 }}>
-        {onlyDriverUserList.map((driver, index) => (
+        {arrDriver.map((driver, index) => (
           <ListItemButton
             key={index}
             selected={selected(driver?.id)}
-            onClick={() => handleSelect(driver)}
+            onClick={() => {
+              handleSelect(driver);
+              onSubmit(driver?.id);
+            }}
             sx={{
               p: 1.5,
               borderRadius: 1,
@@ -38,12 +114,12 @@ export default function DriverListDialog({ open, selected, onClose, onSelect }) 
             }}
           >
             <Stack direction="row" spacing={3} alignItems="center" justifyContent="flex-start" sx={{ mb: 1 }}>
-              <Avatar src={driver?.photoURL} sx={{ width: 60, height: 60 }} />
+              <Avatar src={driver?.avatarURL} sx={{ width: 60, height: 60 }} />
               <Stack>
-                <Typography variant="subtitle2">{driver?.displayName}</Typography>
+                <Typography variant="subtitle2">{driver?.fullName}</Typography>
 
                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {driver?.phone}
+                  {driver?.phoneNumber}
                 </Typography>
               </Stack>
             </Stack>

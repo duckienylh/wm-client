@@ -238,7 +238,7 @@ export default function OrderList() {
 
   const isNotFound = !tableData.length;
 
-  const getPercentByStatus = (statusCount) => (statusCount / tableData.length) * 100;
+  const getPercentByStatus = (statusCount) => (statusCount / countOrder.allOrderCounter) * 100;
 
   const TABS = [
     {
@@ -254,7 +254,7 @@ export default function OrderList() {
       count: countOrder.creatNewOrderCounter,
     },
     {
-      value: OrderStatus.new,
+      value: OrderStatus.newDeliverExport,
       label: 'Chốt đơn - tạo lệnh xuất hàng',
       color: 'success',
       count: countOrder.createExportOrderCounter,
@@ -284,7 +284,7 @@ export default function OrderList() {
       count: countOrder.paymentConfirmationOrderCounter,
     },
     {
-      value: OrderStatus.completed,
+      value: OrderStatus.done,
       label: 'Hoàn thành',
       color: 'success',
       count: countOrder.doneOrderCounter,
@@ -415,12 +415,6 @@ export default function OrderList() {
                       <Tooltip title="Tải về máy">
                         <IconButton color="primary">
                           <Iconify icon={'eva:download-outline'} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="In">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:printer-fill'} />
                         </IconButton>
                       </Tooltip>
 

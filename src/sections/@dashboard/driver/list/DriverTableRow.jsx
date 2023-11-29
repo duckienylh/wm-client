@@ -7,10 +7,12 @@ import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mu
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
+import { roleTypeToVietnameseRoleName } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 
 DriverTableRow.propTypes = {
+  idx: PropTypes.number,
   row: PropTypes.object,
   selected: PropTypes.bool,
   onEditRow: PropTypes.func,
@@ -18,10 +20,10 @@ DriverTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
-export default function DriverTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function DriverTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { displayName, photoURL, role, status } = row;
+  const { fullName, avatarURL, role, isActive, phoneNumber } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -39,24 +41,28 @@ export default function DriverTableRow({ row, selected, onEditRow, onSelectRow, 
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
 
+      <TableCell align="center">{idx}</TableCell>
+
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar alt={displayName} src={photoURL} sx={{ mr: 2 }} />
+        <Avatar alt={fullName} src={avatarURL} sx={{ mr: 2 }} />
         <Typography variant="subtitle2" noWrap>
-          {displayName}
+          {fullName}
         </Typography>
       </TableCell>
 
+      <TableCell align="center">{phoneNumber}</TableCell>
+
       <TableCell align="left" sx={{ textTransform: 'capitalize' }}>
-        {role}
+        {roleTypeToVietnameseRoleName(role)}
       </TableCell>
 
       <TableCell align="left">
         <Label
           variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={(status === 'Ngừng hoạt động' && 'error') || 'success'}
+          color={(!isActive && 'error') || 'success'}
           sx={{ textTransform: 'capitalize' }}
         >
-          {status}
+          {isActive ? 'Đang hoạt động' : 'Ngừng hoạt động'}
         </Label>
       </TableCell>
 
