@@ -5,6 +5,7 @@ import { Box, Link, Typography } from '@mui/material';
 import useAuth from '../../../hooks/useAuth';
 import { PATH_DASHBOARD } from '../../../routes/paths';
 import MyAvatar from '../../../components/MyAvatar';
+import { formatRole } from '../../../utils/formatRole';
 
 // ----------------------------------------------------------------------
 
@@ -56,7 +57,7 @@ export default function NavbarAccount({ isCollapse }) {
             {user?.fullName}
           </Typography>
           <Typography variant="body2" noWrap sx={{ color: 'text.secondary' }}>
-            {user?.role}
+            {formatRole(user?.role)}
           </Typography>
         </Box>
       </RootStyle>

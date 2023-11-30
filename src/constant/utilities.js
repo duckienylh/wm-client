@@ -4,7 +4,7 @@ export const OrderStatusArr = [
   'Đang giao hàng',
   'Giao hàng thành công',
   'Xác nhận thanh toán và hồ sơ',
-  'Đã thanh toán',
+  'Đang thanh toán',
   'Đơn hàng hoàn thành',
 ];
 
