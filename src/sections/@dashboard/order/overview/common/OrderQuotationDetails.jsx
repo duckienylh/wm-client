@@ -267,86 +267,88 @@ export default function OrderQuotationDetails({ order, isPay, closePayment, refe
                             </TableCell>
                           </TableRow>
                         ))}
+                    </>
+                  )}
 
-                      {isPay && (
-                        <TableRow
-                          sx={{
-                            borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
-                          }}
-                        >
-                          <TableCell />
-                          <TableCell align="left" colSpan={3}>
-                            <RHFTextField
-                              size="small"
-                              name="description"
-                              InputLabelProps={{ shrink: true }}
-                              label="Nội dung thanh toán"
-                              multiline
-                            />
-                          </TableCell>
+                  {isPay && (
+                    <>
+                      <TableRow
+                        sx={{
+                          borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
+                        }}
+                      >
+                        <TableCell />
+                        <TableCell align="left" colSpan={3}>
+                          <RHFTextField
+                            size="small"
+                            name="description"
+                            InputLabelProps={{ shrink: true }}
+                            label="Nội dung thanh toán"
+                            multiline
+                          />
+                        </TableCell>
 
-                          <TableCell align="right" colSpan={2}>
-                            <RHFNumberField
-                              size="small"
-                              name="money"
-                              label="Tiền thanh toán"
-                              value={fVietNamCurrency(values.money)}
-                              placeholder="0"
-                              setValue={setValue}
-                              InputProps={{
-                                endAdornment: <InputAdornment position="start">VNĐ</InputAdornment>,
-                              }}
-                              InputLabelProps={{ shrink: true }}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      )}
-
-                      {paymentList && paymentList?.length > 0 && (
-                        <>
-                          <TableRow
-                            sx={{
-                              borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
+                        <TableCell align="right" colSpan={2}>
+                          <RHFNumberField
+                            size="small"
+                            name="money"
+                            label="Tiền thanh toán"
+                            value={fVietNamCurrency(values.money)}
+                            placeholder="0"
+                            setValue={setValue}
+                            InputProps={{
+                              endAdornment: <InputAdornment position="start">VNĐ</InputAdornment>,
                             }}
-                          >
-                            <TableCell />
-                            <TableCell />
-                            <TableCell align="center">
-                              <Box sx={{ maxWidth: 560 }}>
-                                <Typography variant="subtitle2">{'Tổng thanh toán'}</Typography>
-                              </Box>
-                            </TableCell>
-                            <TableCell align="center">
-                              <Typography variant="subtitle2">{fVietNamCurrency(totalPayment)}</Typography>
-                            </TableCell>
-                            <TableCell align="center" />
-                          </TableRow>
+                            InputLabelProps={{ shrink: true }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </>
+                  )}
 
-                          <TableRow
-                            sx={{
-                              borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
-                            }}
-                          >
-                            <TableCell />
-                            <TableCell />
-                            <TableCell align="center">
-                              <Box sx={{ maxWidth: 560 }}>
-                                <Typography variant="subtitle2">
-                                  {Number(remainingPaymentMoney) < 0 ? 'Thừa của khách' : 'Còn lại'}
-                                </Typography>
-                              </Box>
-                            </TableCell>
-                            <TableCell align="center">
-                              <Typography variant="subtitle2">
-                                {remainingPaymentMoney > 0
-                                  ? fVietNamCurrency(remainingPaymentMoney)
-                                  : fVietNamCurrency(-remainingPaymentMoney)}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="right" />
-                          </TableRow>
-                        </>
-                      )}
+                  {paymentList && paymentList?.length > 0 && (
+                    <>
+                      <TableRow
+                        sx={{
+                          borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
+                        }}
+                      >
+                        <TableCell />
+                        <TableCell />
+                        <TableCell align="center">
+                          <Box sx={{ maxWidth: 560 }}>
+                            <Typography variant="subtitle2">{'Tổng thanh toán'}</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Typography variant="subtitle2">{fVietNamCurrency(totalPayment)}</Typography>
+                        </TableCell>
+                        <TableCell align="center" />
+                      </TableRow>
+
+                      <TableRow
+                        sx={{
+                          borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
+                        }}
+                      >
+                        <TableCell />
+                        <TableCell />
+                        <TableCell align="center">
+                          <Box sx={{ maxWidth: 560 }}>
+                            <Typography variant="subtitle2">
+                              {Number(remainingPaymentMoney) < 0 ? 'Thừa của khách' : 'Còn lại'}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Typography variant="subtitle2">
+                            {remainingPaymentMoney > 0
+                              ? fVietNamCurrency(remainingPaymentMoney)
+                              : fVietNamCurrency(-remainingPaymentMoney)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right" />
+                      </TableRow>
                     </>
                   )}
                 </TableBody>

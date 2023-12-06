@@ -58,6 +58,21 @@ query ListAllDeliverOrder($input: ListAllDeliverOrderInput!) {
                             description
                             createdAt
                         }
+                        orderDocumentList{
+                            id
+                            file{
+                                id
+                                fileName
+                                uploadBy{
+                                    id
+                                    fullName
+                                }
+                                mimeType
+                                keyPath
+                                url
+                                encoding
+                            }
+                        }
                         deliverAddress
                         invoiceNo
                         VAT

@@ -64,6 +64,18 @@ type DeliverOrderEdge {
     node: DeliverOrder
 }
 
+type File {
+    createdAt: Date
+    encoding: String
+    fileName: String!
+    id: Int!
+    keyPath: String!
+    mimeType: String
+    updatedAt: Date
+    uploadBy: User
+    url: String!
+}
+
 type ListAllDeliverOrderResponse {
     allOrderCounter: Int!
     createExportOrderCounter: Int!
@@ -107,6 +119,7 @@ type Mutation {
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
     updatePaymentInfo(input: UpdatePaymentInfoInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
+    updateStatusOrder(input: UpdateStatusOrderInput!): SuccessResponse!
     updateStatusUserNotification(input: UpdateStatusUserNotificationInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
 }
@@ -135,6 +148,7 @@ type Order {
     freightPrice: Float
     id: Int!
     invoiceNo: String!
+    orderDocumentList: [OrderDocument]
     orderItemList: [OrderItem]
     paymentList: [PaymentInfor]
     remainingPaymentMoney: Float
@@ -148,6 +162,14 @@ type OrderConnection {
     edges: [OrderEdge]
     pageInfo: PageInfo!
     totalCount: Int!
+}
+
+type OrderDocument {
+    createdAt: Date
+    file: File!
+    id: Int!
+    order: Order!
+    updatedAt: Date
 }
 
 type OrderEdge {
@@ -561,6 +583,14 @@ input UpdateProductOrderInput {
     priceProduct: Float
     productId: Int!
     quantity: Int
+}
+
+input UpdateStatusOrderInput {
+    newFiles: [Upload!]
+    orderId: Int!
+    removeFiles: [Int!]
+    statusOrder: StatusOrder!
+    userId: Int!
 }
 
 input UpdateStatusUserNotificationInput {

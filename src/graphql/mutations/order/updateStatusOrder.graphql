@@ -1,0 +1,3 @@
+mutation UpdateStatusOrder($input: UpdateStatusOrderInput!) {
+    updateStatusOrder(input: $input)
+}

@@ -87,6 +87,24 @@ query GetOrderById($orderId: Int!) {
             createdAt
             updatedAt
         }
+        orderDocumentList{
+            id
+            order{
+                id
+            }
+            file{
+                id
+                fileName
+                uploadBy{
+                    id
+                    fullName
+                }
+                mimeType
+                keyPath
+                url
+                encoding
+            }
+        }
         remainingPaymentMoney
         freightPrice
         deliverAddress

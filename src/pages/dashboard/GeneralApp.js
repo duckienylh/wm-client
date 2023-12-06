@@ -131,7 +131,7 @@ export default function GeneralApp() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <AppWelcome displayName={user?.displayName} />
+            <AppWelcome displayName={user?.fullName} />
           </Grid>
 
           {(user.role === Role.director || user.role === Role.admin) && (
