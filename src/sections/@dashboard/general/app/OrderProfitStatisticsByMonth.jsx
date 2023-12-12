@@ -1,46 +1,36 @@
-// noinspection DuplicatedCode
-
 import merge from 'lodash/merge';
-import { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 // @mui
 import { Box, Button, Card, CardHeader, MenuItem, Stack, TextField, Typography } from '@mui/material';
-// components
+//
+import { Icon } from '@iconify/react';
+import { useEffect, useState } from 'react';
 import { loader } from 'graphql.macro';
 import { useQuery } from '@apollo/client';
-import { Icon } from '@iconify/react';
 import { BaseOptionChart } from '../../../../components/chart';
 import useAuth from '../../../../hooks/useAuth';
-import { Role } from '../../../../constant';
 import useSettings from '../../../../hooks/useSettings';
+import { fNumber } from '../../../../utils/formatNumber';
+import { Role } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_MONTH = loader('../../../../graphql/queries/user/salesReportRevenueByMonth.graphql');
 const GET_ALL_SALE = loader('../../../../graphql/queries/user/users.graphql');
 // ----------------------------------------------------------------------
 
-export default function AppAreaInstalled() {
-  const { user } = useAuth();
-
+export default function OrderProfitStatisticsByMonth() {
   const { themeMode } = useSettings();
-
   const isLight = themeMode === 'light';
-
+  const { user } = useAuth();
   const currentYear = new Date().getFullYear();
 
   const [year, setYear] = useState(currentYear);
 
+  const [labelYears, setLabelYears] = useState([]);
+
   const [chartData, setChartData] = useState([]);
 
-  const [listSales, setListSales] = useState([]);
-
-  const [filterSales, setFilterSales] = useState('');
-
-  const [selectedSaleId, setSelectedSaleId] = useState(null);
-
-  const [selectedSaleFullName, setSelectedSaleFullName] = useState(null);
-
-  const [chartDataOptions, setChartDataOptions] = useState([]);
+  const [totalProfit, setTotalProfit] = useState([]);
 
   const { data: getAllSales } = useQuery(GET_ALL_SALE, {
     variables: {
@@ -49,6 +39,11 @@ export default function AppAreaInstalled() {
       },
     },
   });
+
+  const [listSales, setListSales] = useState([]);
+  const [filterSales, setFilterSales] = useState('');
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
+  const [chartDataOptions, setChartDataOptions] = useState([]);
 
   useEffect(() => {
     if (getAllSales) {
@@ -69,13 +64,58 @@ export default function AppAreaInstalled() {
   useEffect(() => {
     if (salesReportByMonth) {
       setChartData(salesReportByMonth.salesReportRevenueByMonth?.map((e) => (e?.totalRevenue).toFixed(2)));
+      setTotalProfit(salesReportByMonth.salesReportRevenueByMonth?.map((e) => (e?.totalProfit).toFixed(2)));
+      setLabelYears(salesReportByMonth.salesReportRevenueByMonth?.map((e) => `${e?.month + 1}/${year}`));
     }
-  }, [salesReportByMonth]);
+  }, [salesReportByMonth, year]);
 
-  const addYear = () => {
+  useEffect(() => {
+    setChartDataOptions([
+      {
+        name: 'Doanh thu',
+        type: 'column',
+        data: chartData,
+      },
+      {
+        name: 'Lợi nhuận',
+        type: 'column',
+        data: totalProfit,
+      },
+    ]);
+  }, [chartData, totalProfit]);
+
+  const chartOptions = merge(BaseOptionChart(), {
+    stroke: { width: [0, 2, 3] },
+    xaxis: {
+      categories: labelYears,
+    },
+    chart: {
+      foreColor: isLight ? '#000' : '#fff',
+    },
+    yaxis: {
+      labels: {
+        formatter: (seriesName) => `${fNumber(seriesName)}`,
+        title: {
+          formatter: (seriesName) => `${seriesName}:`,
+        },
+      },
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (seriesName) => `${fNumber(seriesName)} VND`,
+        title: {
+          formatter: (seriesName) => `${seriesName}:`,
+        },
+      },
+    },
+  });
+
+  const addWeek = () => {
     setYear(year + 1);
   };
-  const subYear = () => {
+  const subWeek = () => {
     setYear(year - 1);
   };
 
@@ -83,41 +123,9 @@ export default function AppAreaInstalled() {
     setFilterSales(event.target.value);
   };
 
-  const handleGetSaleId = (id, name) => {
+  const handleGetSaleId = (id) => {
     setSelectedSaleId(id);
-    setSelectedSaleFullName(name);
   };
-
-  useEffect(() => {
-    setChartDataOptions([
-      {
-        name: 'Doanh thu',
-        data: chartData,
-      },
-    ]);
-  }, [chartData, selectedSaleFullName]);
-
-  const chartOptions = merge(BaseOptionChart(), {
-    chart: {
-      foreColor: isLight ? '#000' : '#fff',
-    },
-    xaxis: {
-      categories: [
-        'Tháng 01',
-        'Tháng 02',
-        'Tháng 03',
-        'Tháng 04',
-        'Tháng 05',
-        'Tháng 06',
-        'Tháng 07',
-        'Tháng 08',
-        'Tháng 09',
-        'Tháng 10',
-        'Tháng 11',
-        'Tháng 12',
-      ],
-    },
-  });
 
   return (
     <Card>
@@ -126,7 +134,7 @@ export default function AppAreaInstalled() {
         direction={{ xs: 'column', sm: 'row' }}
         sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
       >
-        <CardHeader title="Biều đồ doanh thu hàng tháng" sx={{ mt: -3 }} />
+        <CardHeader title="Biều đồ lợi nhuận hàng tháng" sx={{ mt: -3 }} />
         {(user.role === Role.admin || user.role === Role.director) && (
           <TextField
             fullWidth
@@ -145,12 +153,12 @@ export default function AppAreaInstalled() {
               textTransform: 'capitalize',
             }}
           >
-            <MenuItem value="Tất cả" defaultValue onClick={() => handleGetSaleId(null, null)} />
+            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
             {listSales?.map((option) => (
               <MenuItem
                 key={option.id}
                 value={option.fullName}
-                onClick={() => handleGetSaleId(option.id, option.fullName)}
+                onClick={() => handleGetSaleId(option.id)}
                 sx={{
                   mx: 1,
                   my: 0.5,
@@ -165,21 +173,21 @@ export default function AppAreaInstalled() {
           </TextField>
         )}
         <Stack direction="row" spacing={3}>
-          <Button variant="text" onClick={subYear} startIcon={<Icon icon="carbon:previous-filled" />} />
+          <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
           <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
             {`Năm ${year}`}
           </Typography>
           <Button
             variant="text"
             disabled={year >= currentYear}
-            onClick={addYear}
+            onClick={addWeek}
             startIcon={<Icon icon="carbon:next-filled" />}
           />
         </Stack>
       </Stack>
 
-      <Box sx={{ mt: 3, mx: 3 }} dir="ltr">
-        <ReactApexChart type="area" series={chartDataOptions} options={chartOptions} height={364} />
+      <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+        <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
       </Box>
     </Card>
   );

@@ -192,6 +192,14 @@ export default function OrderNewEditForm() {
                       InputLabelProps={{ shrink: true }}
                     />
 
+                    <RHFTextField
+                      name={`products[${index}].category.name`}
+                      label="Danh mục"
+                      disable
+                      onChange={() => console.log('Không được sửa')}
+                      InputLabelProps={{ shrink: true }}
+                    />
+
                     <RHFNumberField
                       name={`products[${index}].quantity`}
                       label="Số lượng (Kg)"

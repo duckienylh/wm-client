@@ -1,6 +1,7 @@
 query SalesReportRevenueByMonth($input: SalesReportRevenueByMonthInput!) {
     salesReportRevenueByMonth(input: $input) {
         month
+        totalProfit
         totalRevenue
     }
 }

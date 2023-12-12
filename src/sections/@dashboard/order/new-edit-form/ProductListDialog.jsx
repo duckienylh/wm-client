@@ -44,10 +44,9 @@ const TABLE_HEAD = [
   { id: 'stt', label: 'STT', align: 'right' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
-  { id: 'height', label: 'Chiều dài (m)', align: 'right' },
-  { id: 'width', label: 'Chiều rộng (m)', align: 'right' },
   { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
+  { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
 ];
 // ----------------------------------------------------------------------
