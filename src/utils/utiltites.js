@@ -34,3 +34,13 @@ export const getMonth = (date) => {
   const prefixes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   return prefixes[adjustedDate];
 };
+
+export const filterImgData = (img, type) => {
+  if (type.includes('image')) {
+    return img;
+  }
+  if (type.includes('pdf')) {
+    return '/assets/icons/files/ic_pdf.svg';
+  }
+  return '/assets/icons/files/ic_video.svg';
+};

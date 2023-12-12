@@ -64,6 +64,27 @@ type DeliverOrderEdge {
     node: DeliverOrder
 }
 
+type File {
+    createdAt: Date
+    encoding: String
+    fileName: String!
+    id: Int!
+    keyPath: String!
+    mimeType: String
+    updatedAt: Date
+    uploadBy: User
+    url: String!
+}
+
+type ImageOfVehicle {
+    createdAt: Date
+    file: File!
+    id: Int!
+    type: TypeImageOfVehicle!
+    updatedAt: Date
+    vehicle: Vehicle!
+}
+
 type ListAllDeliverOrderResponse {
     allOrderCounter: Int!
     createExportOrderCounter: Int!
@@ -96,10 +117,12 @@ type Mutation {
     createPaymentInfo(input: CreatePaymentInfoInput!): SuccessResponse!
     createProduct(input: CreateProductInput!): Product!
     createUser(input: CreateUserInput!): User!
+    createVehicle(input: CreateVehicleInput!): Vehicle!
     deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
     deletePaymentInfo(input: DeletePaymentInfoInput!): SuccessResponse!
     deleteProduct(input: DeleteProductInput!): SuccessResponse!
     deleteUser(input: DeleteUserInput!): SuccessResponse!
+    deleteVehicles(input: DeleteVehiclesInput!): SuccessResponse!
     importExcelProduct(input: ImportExcelProductInput!): [Product]!
     updateCategory(input: UpdateCategoryInput!): SuccessResponse!
     updateCustomer(input: UpdateCustomerInput!): SuccessResponse!
@@ -107,8 +130,10 @@ type Mutation {
     updateOrder(input: UpdateOrderInput!): SuccessResponse!
     updatePaymentInfo(input: UpdatePaymentInfoInput!): SuccessResponse!
     updateProduct(input: UpdateProductInput!): SuccessResponse!
+    updateStatusOrder(input: UpdateStatusOrderInput!): SuccessResponse!
     updateStatusUserNotification(input: UpdateStatusUserNotificationInput!): SuccessResponse!
     updateUser(input: UpdateUserInput!): SuccessResponse!
+    updateVehicle(input: UpdateVehicleInput!): SuccessResponse!
 }
 
 type Notification {
@@ -135,8 +160,10 @@ type Order {
     freightPrice: Float
     id: Int!
     invoiceNo: String!
+    orderDocumentList: [OrderDocument]
     orderItemList: [OrderItem]
     paymentList: [PaymentInfor]
+    profit: Float
     remainingPaymentMoney: Float
     sale: User!
     status: StatusOrder!
@@ -148,6 +175,14 @@ type OrderConnection {
     edges: [OrderEdge]
     pageInfo: PageInfo!
     totalCount: Int!
+}
+
+type OrderDocument {
+    createdAt: Date
+    file: File!
+    id: Int!
+    order: Order!
+    updatedAt: Date
 }
 
 type OrderEdge {
@@ -234,7 +269,9 @@ type Query {
     listAllDeliverOrder(input: ListAllDeliverOrderInput!): ListAllDeliverOrderResponse!
     listAllOrder(input: ListAllOrderInput!): ListAllOrderResponse!
     listAllProduct(input: ListAllProductInput!): ProductConnection!
+    listAllVehicle(input: ListAllVehicleInput!): VehicleConnection!
     listArrayUserNotification(input: ListArrayUserNotificationInput!): [UserNotification]!
+    listDriverUnselectedVehicle: [User]!
     listInformationOrder(orderId: Int!): [OrderProcess]!
     login(input: UserLoginInput!): UserLoginResponse!
     me: User!
@@ -245,11 +282,13 @@ type Query {
 
 type SalesReportRevenueByMonthResponse {
     month: Int!
+    totalProfit: Float!
     totalRevenue: Float!
 }
 
 type SalesReportRevenueByWeekResponse {
     date: Date!
+    totalProfit: Float!
     totalRevenue: Float!
 }
 
@@ -298,12 +337,40 @@ type UserNotification {
     user: User!
 }
 
+type Vehicle {
+    createdAt: Date
+    driver: User!
+    id: Int!
+    licenseImage: [ImageOfVehicle]
+    licensePlates: String!
+    note: String
+    registerDate: Date!
+    registrationImage: [ImageOfVehicle]
+    renewRegisterDate: Date!
+    typeVehicle: String
+    updatedAt: Date
+    vehicleImage: [ImageOfVehicle]
+    weight: Float!
+}
+
+type VehicleConnection {
+    edges: [VehicleEdge]
+    pageInfo: PageInfo!
+    totalCount: Int!
+}
+
+type VehicleEdge {
+    cursor: String!
+    node: Vehicle
+}
+
 enum NotificationEvent {
     Common
     NewDeliverOrder
     NewMessage
     NewOrder
     NewPayment
+    NewVehicle
     UpdateOrder
     UpdatedDeliverOrder
 }
@@ -329,6 +396,12 @@ enum StatusOrder {
 
 enum SuccessResponse {
     success
+}
+
+enum TypeImageOfVehicle {
+    licenseImage
+    registrationImage
+    vehicleImage
 }
 
 scalar Cursor
@@ -411,6 +484,20 @@ input CreateUserInput {
     userName: String!
 }
 
+input CreateVehicleInput {
+    createdById: Int!
+    driverId: Int!
+    licenseImage: [Upload]!
+    licensePlates: String!
+    note: String
+    registerDate: Date!
+    registrationImage: [Upload]!
+    renewRegisterDate: Date!
+    typeVehicle: String
+    vehicleImage: [Upload]!
+    weight: Float!
+}
+
 input DeleteCustomerInput {
     ids: [Int!]!
 }
@@ -425,6 +512,11 @@ input DeleteProductInput {
 }
 
 input DeleteUserInput {
+    ids: [Int!]!
+}
+
+input DeleteVehiclesInput {
+    deletedBy: Int!
     ids: [Int!]!
 }
 
@@ -460,6 +552,16 @@ input ListAllProductInput {
     categoryId: Int
     checkInventory: Boolean
     stringQuery: String
+}
+
+input ListAllVehicleInput {
+    args: PaginationInput
+    driverId: Int
+    isRegisterAlmostExpired: Boolean
+    isRegisterExpired: Boolean
+    repairDate: filterDate
+    stringQuery: String
+    typeVehicle: String
 }
 
 input ListArrayUserNotificationInput {
@@ -563,6 +665,14 @@ input UpdateProductOrderInput {
     quantity: Int
 }
 
+input UpdateStatusOrderInput {
+    newFiles: [Upload!]
+    orderId: Int!
+    removeFiles: [Int!]
+    statusOrder: StatusOrder
+    userId: Int!
+}
+
 input UpdateStatusUserNotificationInput {
     isRead: Boolean!
     userNotificationIds: [Int!]!
@@ -581,6 +691,24 @@ input UpdateUserInput {
     phoneNumber: String
     role: Role
     userName: String
+}
+
+input UpdateVehicleInput {
+    createdById: Int!
+    driverId: Int
+    licenseImageRemove: [Int!]
+    licenseImageUpload: [Upload]
+    licensePlates: String
+    note: String
+    registerDate: Date
+    registrationImageRemove: [Int!]
+    registrationImageUpload: [Upload]
+    renewRegisterDate: Date
+    typeVehicle: String
+    vehicleId: Int!
+    vehicleImageRemove: [Int!]
+    vehicleImageUpload: [Upload]
+    weight: Float
 }
 
 input UserLoginInput {

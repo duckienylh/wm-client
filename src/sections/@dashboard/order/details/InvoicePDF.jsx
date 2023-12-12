@@ -1,6 +1,6 @@
 // noinspection JSValidateTypes,DuplicatedCode
 
-import { Document, Page, Text, View } from '@react-pdf/renderer';
+import { Document, Page, Text, View, Image } from '@react-pdf/renderer';
 import PropTypes from 'prop-types';
 import { formatPhoneNumber, fVietNamCurrency } from '../../../../utils/formatNumber';
 import styles from './InvoiceStyle';
@@ -23,16 +23,24 @@ export default function InvoicePDF({ invoice }) {
         0
       )
     : 0;
-  // totalPrice = freightPrice ? totalPrice + freightPrice : totalPrice;
-
-  console.log('invoice', invoice);
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* <View style={[styles.header]}> */}
-        {/*  <Image source="/static/header-quotation.png" style={{ height: 'auto', marginTop: -20 }} /> */}
-        {/* </View> */}
+        <View style={[styles.mb15]}>
+          <View style={[styles.header]}>
+            {/* <Image source="/static/header-quotation.png" style={{ height: 'auto', marginTop: -20 }} /> */}
+            <Image source="/logo/logo_wood.png" style={{ height: '100px', width: '150px', marginTop: -20 }} />
+          </View>
+
+          <View style={[styles.nameHeader]}>
+            <View style={[styles.alignItemsFlexEnd]}>
+              <Text style={[styles.companyHeader, styles.mr10]}>Kho gỗ NDK</Text>
+              <Text style={[styles.alignItemsFlexEnd, styles.mr10]}>Địa chỉ: Đông Anh, Hà Nội</Text>
+              <Text style={[styles.alignItemsFlexEnd, styles.mr10]}>Di Động: 038 468 6888</Text>
+            </View>
+          </View>
+        </View>
 
         <View style={[styles.headlineContainer, styles.pt140]}>
           <Text style={[styles.h2]}>BÁO GIÁ</Text>

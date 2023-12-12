@@ -12,6 +12,8 @@ import AnalyticsCurrentVisits from '../../sections/@dashboard/general/analytics/
 import AppSaleRevenueByWeekChartLine from '../../sections/@dashboard/general/app/AppSaleRevenueByWeekChartLine';
 import { fDate } from '../../utils/formatTime';
 import { getDatesOfWeek } from '../../utils/utiltites';
+import OrderProfitStatisticsByWeek from '../../sections/@dashboard/general/app/OrderProfitStatisticsByWeek';
+import OrderProfitStatisticsByMonth from '../../sections/@dashboard/general/app/OrderProfitStatisticsByMonth';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_MONTH = loader('../../graphql/queries/user/salesReportRevenueByMonth.graphql');
@@ -131,7 +133,7 @@ export default function GeneralApp() {
       <Container maxWidth={themeStretch ? false : 'xl'}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <AppWelcome displayName={user?.displayName} />
+            <AppWelcome displayName={user?.fullName} />
           </Grid>
 
           {(user.role === Role.director || user.role === Role.admin) && (
@@ -190,6 +192,14 @@ export default function GeneralApp() {
 
           <Grid item xs={12} lg={4}>
             <AnalyticsCurrentVisits />
+          </Grid>
+
+          <Grid item xs={12}>
+            <OrderProfitStatisticsByMonth />
+          </Grid>
+
+          <Grid item xs={12}>
+            <OrderProfitStatisticsByWeek />
           </Grid>
         </Grid>
       </Container>

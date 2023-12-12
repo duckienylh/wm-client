@@ -52,6 +52,28 @@ query ListAllDeliverOrder($input: ListAllDeliverOrderInput!) {
                             note
                             weight
                         }
+                        paymentList {
+                            id
+                            money
+                            description
+                            createdAt
+                        }
+                        orderDocumentList{
+                            id
+                            file{
+                                id
+                                fileName
+                                uploadBy{
+                                    id
+                                    fullName
+                                }
+                                mimeType
+                                keyPath
+                                url
+                                encoding
+                            }
+                        }
+                        deliverAddress
                         invoiceNo
                         VAT
                         totalMoney

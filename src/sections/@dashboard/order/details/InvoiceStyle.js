@@ -172,6 +172,17 @@ const styles = StyleSheet.create({
   // bodyCell2FreightPriceWithBorder: {
   //   width: '52.4%',
   // },
+  companyHeader: { fontFamily: 'Roboto', fontSize: 12, alignItems: 'flex-end' },
+  alignItemsFlexEnd: { alignItems: 'flex-end' },
+  nameHeader: {
+    left: 0,
+    right: 0,
+    top: 15,
+    position: 'absolute',
+  },
+  directRow: { flexDirection: 'row' },
+  mr10: { marginRight: 15 },
+  mb15: { marginBottom: -15 },
 });
 
 export default styles;

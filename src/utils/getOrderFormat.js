@@ -31,7 +31,7 @@ export const reformatStatus = (status) => {
       return 'successDelivery';
     case 'Xác nhận thanh toán và hồ sơ':
       return 'paymentConfirmation';
-    case 'Đã thanh toán':
+    case 'Đang thanh toán':
       return 'paid';
     case 'Đơn hàng hoàn thành':
       return 'done';

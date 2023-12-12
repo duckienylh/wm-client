@@ -1,60 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
 import merge from 'lodash/merge';
-import { Box, Button, Card, CardHeader, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { Icon } from '@iconify/react';
+import { useEffect, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+// @mui
+import { Box, Button, Card, CardHeader, MenuItem, Stack, TextField, Typography } from '@mui/material';
+//
+import { Icon } from '@iconify/react';
 import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 import { BaseOptionChart } from '../../../../components/chart';
-import { Role } from '../../../../constant';
 import useAuth from '../../../../hooks/useAuth';
-import { fDate, fDateToDay, fddMMYYYYWithSlash } from '../../../../utils/formatTime';
 import { getDatesOfWeek } from '../../../../utils/utiltites';
+import { fDate, fDateToDay, fddMMYYYYWithSlash } from '../../../../utils/formatTime';
+import { fNumber } from '../../../../utils/formatNumber';
 import useSettings from '../../../../hooks/useSettings';
+import { Role } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_WEEK = loader('../../../../graphql/queries/user/salesReportRevenueByWeek.graphql');
 const GET_ALL_SALE = loader('../../../../graphql/queries/user/users.graphql');
 // ----------------------------------------------------------------------
 
-export default function AppSaleRevenueByWeekChartLine() {
+export default function OrderProfitStatisticsByWeek() {
   const { user } = useAuth();
-
   const { themeMode } = useSettings();
-
   const isLight = themeMode === 'light';
-
   const currentDate = new Date();
-
   const date = currentDate.getDate();
-
   const day = currentDate.getDay();
-
   const currentWeekOfMonth = Math.ceil((date - 1 - day) / 7 + 1);
-
   const currentMonth = currentDate.getMonth() + 1;
-
   const currentYear = new Date().getFullYear();
 
   const [start, setStart] = useState(getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[0]);
-
   const [end, setEnd] = useState(getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[6]);
-
   const [count, setCount] = useState(currentWeekOfMonth);
-
-  const [chartData, setChartData] = useState([]);
-
-  const [listSales, setListSales] = useState([]);
-
-  const [filterSales, setFilterSales] = useState('');
-
-  const [selectedSaleId, setSelectedSaleId] = useState(null);
-
-  const [selectedSaleFullName, setSelectedSaleFullName] = useState(null);
-
-  const [chartDataOptions, setChartDataOptions] = useState([]);
-
   const [labelDays, setLabelDays] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState([]);
+  const [totalProfit, setTotalProfit] = useState([]);
 
   const { data: getAllSales } = useQuery(GET_ALL_SALE, {
     variables: {
@@ -63,6 +45,10 @@ export default function AppSaleRevenueByWeekChartLine() {
       },
     },
   });
+  const [listSales, setListSales] = useState([]);
+  const [filterSales, setFilterSales] = useState('');
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
+  const [chartDataOptions, setChartDataOptions] = useState([]);
 
   useEffect(() => {
     if (getAllSales) {
@@ -82,10 +68,53 @@ export default function AppSaleRevenueByWeekChartLine() {
 
   useEffect(() => {
     if (salesReportByWeek) {
-      setChartData(salesReportByWeek.salesReportRevenueByWeek?.map((e) => (e?.totalRevenue).toFixed(2)));
+      setTotalRevenue(salesReportByWeek.salesReportRevenueByWeek?.map((e) => (e?.totalRevenue).toFixed(2)));
+      setTotalProfit(salesReportByWeek.salesReportRevenueByWeek?.map((e) => (e?.totalProfit).toFixed(2)));
       setLabelDays(salesReportByWeek.salesReportRevenueByWeek?.map((e) => fddMMYYYYWithSlash(e?.date)));
     }
   }, [salesReportByWeek]);
+
+  useEffect(() => {
+    setChartDataOptions([
+      {
+        name: 'Doanh thu',
+        type: 'column',
+        data: totalRevenue,
+      },
+      {
+        name: 'Lợi nhuận',
+        type: 'column',
+        data: totalProfit,
+      },
+    ]);
+  }, [totalRevenue, totalProfit]);
+
+  const chartOptions = merge(BaseOptionChart(), {
+    stroke: { width: [0, 2, 3] },
+    plotOptions: { bar: { columnWidth: '14%' } },
+    chart: {
+      foreColor: isLight ? '#000' : '#fff',
+    },
+    labels: labelDays,
+    yaxis: {
+      labels: {
+        formatter: (seriesName) => `${fNumber(seriesName)}`,
+        title: {
+          formatter: (seriesName) => `${seriesName}:`,
+        },
+      },
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (seriesName) => `${fNumber(seriesName)} VND`,
+        title: {
+          formatter: (seriesName) => `${seriesName}:`,
+        },
+      },
+    },
+  });
 
   const addWeek = () => {
     setCount(count + 1);
@@ -94,37 +123,18 @@ export default function AppSaleRevenueByWeekChartLine() {
     setCount(count - 1);
   };
 
-  useEffect(() => {
-    setStart(getDatesOfWeek(count, currentMonth, currentYear)[0]);
-    setEnd(getDatesOfWeek(count, currentMonth, currentYear)[6]);
-  }, [count, currentMonth, currentYear]);
-
   const handleFilter = (event) => {
     setFilterSales(event.target.value);
   };
 
-  const handleGetSaleId = (id, name) => {
+  const handleGetSaleId = (id) => {
     setSelectedSaleId(id);
-    setSelectedSaleFullName(name);
   };
 
   useEffect(() => {
-    setChartDataOptions([
-      {
-        name: 'Doanh thu',
-        data: chartData,
-      },
-    ]);
-  }, [chartData, selectedSaleFullName]);
-
-  const chartOptions = merge(BaseOptionChart(), {
-    chart: {
-      foreColor: isLight ? '#000' : '#fff',
-    },
-    xaxis: {
-      categories: labelDays,
-    },
-  });
+    setStart(getDatesOfWeek(count, currentMonth, currentYear)[0]);
+    setEnd(getDatesOfWeek(count, currentMonth, currentYear)[6]);
+  }, [count, currentMonth, currentYear]);
 
   return (
     <Card>
@@ -133,7 +143,7 @@ export default function AppSaleRevenueByWeekChartLine() {
         direction={{ xs: 'column', sm: 'row' }}
         sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
       >
-        <CardHeader title="Biều đồ doanh thu hàng tuần" sx={{ mt: -3 }} />
+        <CardHeader title="Biều đồ lợi nhuận hàng tuần" sx={{ mt: -3 }} />
 
         {(user.role === Role.admin || user.role === Role.director) && (
           <TextField
@@ -153,12 +163,12 @@ export default function AppSaleRevenueByWeekChartLine() {
               textTransform: 'capitalize',
             }}
           >
-            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null, null)} />
+            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
             {listSales?.map((option) => (
               <MenuItem
                 key={option.id}
                 value={option.fullName}
-                onClick={() => handleGetSaleId(option.id, option.fullName)}
+                onClick={() => handleGetSaleId(option.id)}
                 sx={{
                   mx: 1,
                   my: 0.5,
@@ -192,8 +202,8 @@ export default function AppSaleRevenueByWeekChartLine() {
         </Stack>
       </Stack>
 
-      <Box sx={{ mt: 3, mx: 3 }} dir="ltr">
-        <ReactApexChart type="area" series={chartDataOptions} options={chartOptions} height={364} />
+      <Box sx={{ pb: 1.25 }} dir="ltr">
+        <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
       </Box>
     </Card>
   );

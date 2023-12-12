@@ -102,7 +102,11 @@ export default function DeliveryOrderList() {
 
   const [selectedSaleId, setSelectedSaleId] = useState(null);
 
-  const { data: allDeliverOrder, fetchMore } = useQuery(LIST_DELIVER_ORDER, {
+  const {
+    data: allDeliverOrder,
+    refetch: refetchData,
+    fetchMore,
+  } = useQuery(LIST_DELIVER_ORDER, {
     variables: {
       input: {
         driverId: user?.role === Role.driver ? Number(user?.id) : null,
@@ -339,6 +343,7 @@ export default function DeliveryOrderList() {
                       onSelectRow={() => onSelectRow(row.id)}
                       onViewRow={() => handleViewRow(row.order.id)}
                       onDeleteRow={() => handleDeleteRow(row.id)}
+                      refetchData={refetchData}
                     />
                   ))}
 

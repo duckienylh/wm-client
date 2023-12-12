@@ -13,6 +13,7 @@ import CustomerInfoPopup from '../order/list/CustomerInfoPopup';
 import DriverListDialog from './DriverListDialog';
 import { formatStatus } from '../../../utils/getOrderFormat';
 import useAuth from '../../../hooks/useAuth';
+import EditStatusOrderDialog from '../order/new-edit-form/EditStatusOrderDialog';
 
 // ----------------------------------------------------------------------
 
@@ -21,9 +22,10 @@ DeliveryOrderTableRow.propTypes = {
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
+  refetchData: PropTypes.func,
 };
 
-export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onViewRow }) {
+export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onViewRow, refetchData }) {
   const theme = useTheme();
 
   const { user } = useAuth();
@@ -31,6 +33,8 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
 
   const { toggle: openDriverDialog, onOpen: onOpenDriverDialog, onClose: onCloseDriverDialog } = useToggle();
+
+  const { toggle: openEditOrderDialog, onOpen: onOpenEditOrderDialog, onClose: onCloseEditOrderDialog } = useToggle();
 
   const { order, customer, driver, deliveryDate, createdAt } = row;
 
@@ -139,6 +143,28 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
                 </MenuItem>
 
                 <MenuItem
+                  disabled={
+                    !(
+                      (user.role === Role.driver &&
+                        formatStatus(order?.status) !== OrderStatus.new &&
+                        formatStatus(order?.status) !== OrderStatus.newDeliverExport) ||
+                      (user.role === Role.accountant &&
+                        formatStatus(order?.status) !== OrderStatus.new &&
+                        formatStatus(order?.status) !== OrderStatus.newDeliverExport &&
+                        formatStatus(order?.status) !== OrderStatus.inProgress)
+                    )
+                  }
+                  onClick={() => {
+                    // onEditRow(row);
+                    onOpenEditOrderDialog();
+                    handleCloseMenu();
+                  }}
+                >
+                  <Iconify icon={'eva:edit-fill'} />
+                  Cập nhật
+                </MenuItem>
+
+                <MenuItem
                   onClick={() => {
                     onViewRow();
                     handleCloseMenu();
@@ -147,18 +173,6 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
                   <Iconify icon={'eva:eye-fill'} />
                   Xem chi tiết
                 </MenuItem>
-
-                {!driver?.id && (
-                  <MenuItem
-                    onClick={() => {
-                      onOpenDriverDialog();
-                      handleCloseMenu();
-                    }}
-                  >
-                    <Iconify icon={'eva:edit-fill'} />
-                    Chọn lái xe
-                  </MenuItem>
-                )}
               </>
             }
           />
@@ -171,6 +185,12 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
         selected={(selectedId) => driver?.id === selectedId}
         onSelect={(sale) => setChosenDriver(sale)}
         deliverOrder={row}
+      />
+      <EditStatusOrderDialog
+        open={openEditOrderDialog}
+        onClose={onCloseEditOrderDialog}
+        deliverOrder={row}
+        refetchData={refetchData}
       />
     </>
   );

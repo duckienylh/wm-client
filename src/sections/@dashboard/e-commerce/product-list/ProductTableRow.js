@@ -3,11 +3,13 @@ import { useState } from 'react';
 // @mui
 import { Checkbox, MenuItem, TableCell, TableRow, Typography } from '@mui/material';
 // utils
+import { useTheme } from '@mui/material/styles';
 import { fVietNamCurrency } from '../../../../utils/formatNumber';
 // components
 import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
+import Label from '../../../../components/Label';
 
 // ----------------------------------------------------------------------
 
@@ -20,8 +22,19 @@ ProductTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
 };
 
+const inventoryType = (inventory) => {
+  if (Number(inventory) < 100 && Number(inventory) > 0) return 'Sắp hết hàng';
+  switch (inventory) {
+    case 0:
+      return 'Hết hàng';
+    default:
+      return 'Còn hàng';
+  }
+};
+
 export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { name, code, height, image, inventory, width, price } = row;
+  const theme = useTheme();
+  const { name, code, image, inventory, price } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
 
@@ -48,22 +61,26 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
         </Typography>
       </TableCell>
 
-      {/* <TableCell align="center"> */}
-      {/*  <Label */}
-      {/*    variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'} */}
-      {/*    color={(inventoryType === 'Hết hàng' && 'error') || 'success'} */}
-      {/*    sx={{ textTransform: 'capitalize' }} */}
-      {/*  > */}
-      {/*    {inventoryType} */}
-      {/*  </Label> */}
-      {/* </TableCell> */}
-
       <TableCell align="left">{code}</TableCell>
-      <TableCell align="right">{fVietNamCurrency(height)}</TableCell>
-      <TableCell align="right">{fVietNamCurrency(width)}</TableCell>
+      {/* <TableCell align="right">{fVietNamCurrency(height)}</TableCell> */}
+      {/* <TableCell align="right">{fVietNamCurrency(width)}</TableCell> */}
       <TableCell align="right">{fVietNamCurrency(inventory)}</TableCell>
 
-      <TableCell align="right">{`${fVietNamCurrency(price)} VNĐ`}</TableCell>
+      <TableCell align="right">{`${fVietNamCurrency(price)}`}</TableCell>
+
+      <TableCell align="center">
+        <Label
+          variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+          color={
+            (inventoryType(inventory) === 'Hết hàng' && 'error') ||
+            (inventoryType(inventory) === 'Sắp hết hàng' && 'warning') ||
+            'success'
+          }
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {inventoryType(inventory)}
+        </Label>
+      </TableCell>
 
       <TableCell align="right">
         <TableMoreMenu

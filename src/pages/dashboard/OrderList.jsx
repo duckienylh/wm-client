@@ -273,7 +273,7 @@ export default function OrderList() {
     },
     {
       value: OrderStatus.paid,
-      label: 'Đã thanh toán',
+      label: 'Đang thanh toán',
       color: 'success',
       count: countOrder.paidOrderCounter,
     },
@@ -337,7 +337,7 @@ export default function OrderList() {
                 color={theme.palette.success.main}
               />
               <InvoiceAnalytic
-                title="Đã thanh toán"
+                title="Đang thanh toán"
                 total={countOrder.paidOrderCounter}
                 percent={getPercentByStatus(countOrder.paidOrderCounter)}
                 price={totalPaid}
