@@ -10,10 +10,12 @@ import { useQuery } from '@apollo/client';
 import { BaseOptionChart } from '../../../../components/chart';
 import useAuth from '../../../../hooks/useAuth';
 import { getDatesOfWeek } from '../../../../utils/utiltites';
-import { fDate, fDateToDay, fddMMYYYYWithSlash } from '../../../../utils/formatTime';
+import { addOneDay, convertDateFormat, fDate, fDateToDay, fddMMYYYYWithSlash } from '../../../../utils/formatTime';
 import { fNumber } from '../../../../utils/formatNumber';
 import useSettings from '../../../../hooks/useSettings';
 import { Role } from '../../../../constant';
+import OrderRevenueProfitDialog from './OrderRevenueProfitDialog';
+import useToggle from '../../../../hooks/useToggle';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_WEEK = loader('../../../../graphql/queries/user/salesReportRevenueByWeek.graphql');
@@ -49,6 +51,8 @@ export default function OrderProfitStatisticsByWeek() {
   const [filterSales, setFilterSales] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [chartDataOptions, setChartDataOptions] = useState([]);
+  const { toggle: openOrder, onOpen: onOpenOrder, onClose: onCloseOrder } = useToggle();
+  const [dateTimeOrder, setDateTimeOrder] = useState(null);
 
   useEffect(() => {
     if (getAllSales) {
@@ -94,6 +98,12 @@ export default function OrderProfitStatisticsByWeek() {
     plotOptions: { bar: { columnWidth: '14%' } },
     chart: {
       foreColor: isLight ? '#000' : '#fff',
+      events: {
+        dataPointSelection: (event, chartContext, config) => {
+          onOpenOrder();
+          setDateTimeOrder(`${labelDays[config.dataPointIndex]}`);
+        },
+      },
     },
     labels: labelDays,
     yaxis: {
@@ -137,74 +147,83 @@ export default function OrderProfitStatisticsByWeek() {
   }, [count, currentMonth, currentYear]);
 
   return (
-    <Card>
-      <Stack
-        spacing={2}
-        direction={{ xs: 'column', sm: 'row' }}
-        sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
-      >
-        <CardHeader title="Biều đồ lợi nhuận hàng tuần" sx={{ mt: -3 }} />
+    <>
+      <Card>
+        <Stack
+          spacing={2}
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
+        >
+          <CardHeader title="Biều đồ lợi nhuận hàng tuần" sx={{ mt: -3 }} />
 
-        {(user.role === Role.admin || user.role === Role.director) && (
-          <TextField
-            fullWidth
-            size="small"
-            label="NV bán hàng"
-            value={filterSales}
-            onChange={handleFilter}
-            select
-            SelectProps={{
-              MenuProps: {
-                sx: { '& .MuiPaper-root': { maxHeight: 260 } },
-              },
-            }}
-            sx={{
-              maxWidth: { sm: 240 },
-              textTransform: 'capitalize',
-            }}
-          >
-            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
-            {listSales?.map((option) => (
-              <MenuItem
-                key={option.id}
-                value={option.fullName}
-                onClick={() => handleGetSaleId(option.id)}
-                sx={{
-                  mx: 1,
-                  my: 0.5,
-                  borderRadius: 0.75,
-                  typography: 'body2',
-                  textTransform: 'capitalize',
-                }}
-              >
-                <>{option.fullName}</>
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
+          {(user.role === Role.admin || user.role === Role.director) && (
+            <TextField
+              fullWidth
+              size="small"
+              label="NV bán hàng"
+              value={filterSales}
+              onChange={handleFilter}
+              select
+              SelectProps={{
+                MenuProps: {
+                  sx: { '& .MuiPaper-root': { maxHeight: 260 } },
+                },
+              }}
+              sx={{
+                maxWidth: { sm: 240 },
+                textTransform: 'capitalize',
+              }}
+            >
+              <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
+              {listSales?.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  value={option.fullName}
+                  onClick={() => handleGetSaleId(option.id)}
+                  sx={{
+                    mx: 1,
+                    my: 0.5,
+                    borderRadius: 0.75,
+                    typography: 'body2',
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  <>{option.fullName}</>
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
 
-        <Stack direction="row" spacing={3}>
-          <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
-          <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
-            {`Từ Ngày ${fDateToDay(start)} - ${fddMMYYYYWithSlash(end)}`}
-          </Typography>
-          <Button
-            variant="text"
-            disabled={
-              getDatesOfWeek(count, currentMonth, currentYear)[0] >=
-                getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[0] ||
-              getDatesOfWeek(count, currentMonth, currentYear)[6] >=
-                getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[6]
-            }
-            onClick={addWeek}
-            endIcon={<Icon icon="carbon:next-filled" />}
-          />
+          <Stack direction="row" spacing={3}>
+            <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
+            <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
+              {`Từ Ngày ${fDateToDay(start)} - ${fddMMYYYYWithSlash(end)}`}
+            </Typography>
+            <Button
+              variant="text"
+              disabled={
+                getDatesOfWeek(count, currentMonth, currentYear)[0] >=
+                  getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[0] ||
+                getDatesOfWeek(count, currentMonth, currentYear)[6] >=
+                  getDatesOfWeek(currentWeekOfMonth, currentMonth, currentYear)[6]
+              }
+              onClick={addWeek}
+              endIcon={<Icon icon="carbon:next-filled" />}
+            />
+          </Stack>
         </Stack>
-      </Stack>
 
-      <Box sx={{ pb: 1.25 }} dir="ltr">
-        <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
-      </Box>
-    </Card>
+        <Box sx={{ pb: 1.25 }} dir="ltr">
+          <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
+        </Box>
+      </Card>
+
+      <OrderRevenueProfitDialog
+        open={openOrder}
+        onClose={onCloseOrder}
+        startTime={convertDateFormat(dateTimeOrder)}
+        endTime={addOneDay(convertDateFormat(dateTimeOrder))}
+      />
+    </>
   );
 }

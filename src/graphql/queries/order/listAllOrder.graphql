@@ -99,6 +99,7 @@ query ListAllOrder($input: ListAllOrderInput!) {
                             encoding
                         }
                     }
+                    profit
                     remainingPaymentMoney
                     freightPrice
                     deliverAddress

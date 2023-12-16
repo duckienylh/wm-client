@@ -46,8 +46,24 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
     setOpenMenuActions(null);
   };
 
+  const colorRowLight =
+    (inventoryType(inventory) === 'Hết hàng' && theme.palette.error.light) ||
+    (inventoryType(inventory) === 'Sắp hết hàng' && theme.palette.warning.light) ||
+    theme.palette.success.light;
+
+  const colorRowDark =
+    (inventoryType(inventory) === 'Hết hàng' && theme.palette.error.dark) ||
+    (inventoryType(inventory) === 'Sắp hết hàng' && theme.palette.warning.dark) ||
+    theme.palette.success.dark;
+
   return (
-    <TableRow hover selected={selected}>
+    <TableRow
+      hover
+      selected={selected}
+      sx={{
+        backgroundColor: theme.palette.mode === 'light' ? colorRowLight : colorRowDark,
+      }}
+    >
       <TableCell padding="checkbox">
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
@@ -62,8 +78,7 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
       </TableCell>
 
       <TableCell align="left">{code}</TableCell>
-      {/* <TableCell align="right">{fVietNamCurrency(height)}</TableCell> */}
-      {/* <TableCell align="right">{fVietNamCurrency(width)}</TableCell> */}
+
       <TableCell align="right">{fVietNamCurrency(inventory)}</TableCell>
 
       <TableCell align="right">{`${fVietNamCurrency(price)}`}</TableCell>

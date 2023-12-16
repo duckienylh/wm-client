@@ -1,6 +1,6 @@
 // noinspection JSCheckFunctionSignatures
 
-import { format, getTime, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, getTime } from 'date-fns';
 import vi from 'date-fns/locale/vi';
 
 // ----------------------------------------------------------------------
@@ -63,4 +63,24 @@ export function getDateNextNMonth(date, no) {
 
 export function fMonthYear(date) {
   return format(new Date(date), 'MM/yyyy');
+}
+
+export function convertDateFormat(inputDate) {
+  if (!inputDate) return null;
+  const parts = inputDate.split('/');
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+export function addOneMonth(inputDate) {
+  const newDate = new Date(inputDate || '');
+  newDate.setMonth(newDate.getMonth() + 1);
+
+  return newDate;
+}
+
+export function addOneDay(inputDate) {
+  const newDate = new Date(inputDate || '');
+  newDate.setDate(newDate.getDate() + 1);
+
+  return newDate;
 }
