@@ -40,7 +40,7 @@ export default function CategoryList() {
           justifyContent={user?.role === Role.admin || user?.role === Role.director ? 'space-between' : 'left'}
         >
           <Typography variant="h4" gutterBottom textAlign="center" textTransform="none">
-            Danh sách loại gỗ
+            Danh sách hạng mục
           </Typography>
 
           {(user?.role === Role.admin || user?.role === Role.director) && (

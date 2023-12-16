@@ -96,7 +96,7 @@ export default function OrderNewEditForm() {
             // saleId: 4,
             customerId: Number(customer.id),
             product: values.products?.map((pr) => ({
-              priceProduct: pr.price,
+              priceProduct: Number(pr.price),
               productId: Number(pr.id),
               quantity: parseInt(pr.quantity, 10),
               description: pr.description,
@@ -195,7 +195,6 @@ export default function OrderNewEditForm() {
                     <RHFTextField
                       name={`products[${index}].category.name`}
                       label="Danh mục"
-                      disable
                       onChange={() => console.log('Không được sửa')}
                       InputLabelProps={{ shrink: true }}
                     />

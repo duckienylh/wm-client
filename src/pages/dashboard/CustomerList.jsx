@@ -178,7 +178,7 @@ export default function CustomerList() {
         <HeaderBreadcrumbs
           heading="Khách hàng"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Khách hàng', href: PATH_DASHBOARD.customer.root },
             { name: 'Danh sách' },
           ]}

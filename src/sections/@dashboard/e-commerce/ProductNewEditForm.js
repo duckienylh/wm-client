@@ -209,7 +209,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               <Stack spacing={3}>
                 <RHFTextField name="code" label="Mã sản phẩm" />
 
-                <RHFSelect name="category" label="Loại">
+                <RHFSelect name="category" label="hạng mục">
                   <option value="" />
                   {categoryOption.map((category) => (
                     <option key={category.id} value={category.id}>

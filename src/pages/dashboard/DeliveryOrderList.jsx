@@ -243,7 +243,7 @@ export default function DeliveryOrderList() {
         <HeaderBreadcrumbs
           heading="Lệnh xuất hàng"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Lệnh xuất hàng', href: PATH_DASHBOARD.saleAndMarketing.root },
             { name: 'Danh sách' },
           ]}

@@ -1,19 +1,19 @@
 import { useLocation, useParams } from 'react-router-dom';
 import { Container } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
 import { loader } from 'graphql.macro';
+import { useQuery } from '@apollo/client';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useSettings from '../../hooks/useSettings';
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import DriverNewEditForm from '../../sections/@dashboard/driver/DriverNewEditForm';
+import VehicleNewEditForm from '../../sections/@dashboard/vehicle/VehicleNewEditForm';
 
 // ----------------------------------------------------------------------
-const GET_USER_BY_ID = loader('../../graphql/queries/user/getUserById.graphql');
+const LIST_VEHICLE = loader('../../graphql/queries/vehicle/listAllVehicle.graphql');
 // ----------------------------------------------------------------------
 
-export default function DriverCreate() {
+export default function VehicleCreate() {
   const { themeStretch } = useSettings();
 
   const { pathname } = useLocation();
@@ -22,33 +22,33 @@ export default function DriverCreate() {
 
   const isEdit = pathname.includes('cap-nhat');
 
-  const [currentUser, setCurrentUser] = useState({});
+  const [currentVehicle, setCurrentVehicle] = useState({});
 
-  const { data } = useQuery(GET_USER_BY_ID, {
+  const { data } = useQuery(LIST_VEHICLE, {
     variables: {
-      userId: isEdit ? parseInt(id.toString(), 10) : 0,
+      input: {},
     },
   });
 
   useEffect(() => {
     if (data) {
-      setCurrentUser(data?.getUserById);
+      setCurrentVehicle(data.listAllVehicle?.edges?.map((edge) => edge.node).filter((e) => e.id === Number(id))[0]);
     }
-  }, [data]);
+  }, [data, id]);
 
   return (
-    <Page title="Lái xe: Tạo lái xe mới">
+    <Page title="Xe-phương tiện: Tạo người dùng mới">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading={!isEdit ? 'Tạo lái xe mới' : 'Sửa thông tin lái xe'}
+          heading={!isEdit ? 'Tạo xe-phương tiện mới' : 'Sửa xe-phương tiện'}
           links={[
             { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
-            { name: 'Danh sách lái xe', href: PATH_DASHBOARD.driver.list },
-            { name: !isEdit ? 'Tạo lái xe mới' : 'Cập nhật lái xe' },
+            { name: 'Xe-phương tiện', href: PATH_DASHBOARD.vehicle.list },
+            { name: !isEdit ? 'Tạo xe-phương tiện mới' : 'Cập nhật xe-phương tiện' },
           ]}
         />
 
-        <DriverNewEditForm isEdit={isEdit} currentUser={currentUser} />
+        <VehicleNewEditForm isEdit={isEdit} currentVehicle={isEdit ? currentVehicle : null} />
       </Container>
     </Page>
   );

@@ -1,0 +1,56 @@
+query ListAllVehicle($input: ListAllVehicleInput!) {
+    listAllVehicle(input: $input) {
+        totalCount
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+        edges {
+            node {
+                id
+                driver {
+                    fullName
+                    id
+                    email
+                    userName
+                    avatarURL
+                }
+                typeVehicle
+                weight
+                licensePlates
+                renewRegisterDate
+                registerDate
+                vehicleImage {
+                    id
+                    file {
+                        id
+                        url
+                        keyPath
+                        fileName
+                    }
+                }
+                registrationImage {
+                    id
+                    file {
+                        id
+                        url
+                        keyPath
+                        fileName
+                    }
+                }
+                licenseImage {
+                    id
+                    file {
+                        id
+                        url
+                        keyPath
+                        fileName
+                    }
+                }
+                note
+                createdAt
+                updatedAt
+            }
+        }
+    }
+}

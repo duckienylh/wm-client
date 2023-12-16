@@ -71,7 +71,7 @@ export default function NewCategoryDialog({ open, onClose }) {
         ],
 
         onError(error) {
-          enqueueSnackbar(`Tạo loại sản phẩm không thành công. Nguyên nhân: ${error.message}`, {
+          enqueueSnackbar(`Tạo hạng mục sản phẩm không thành công. Nguyên nhân: ${error.message}`, {
             variant: 'warning',
           });
         },
@@ -79,7 +79,7 @@ export default function NewCategoryDialog({ open, onClose }) {
 
       reset();
       onClose();
-      enqueueSnackbar('Tạo loại sản phẩm mới thành công!');
+      enqueueSnackbar('Tạo hạng mục sản phẩm mới thành công!');
     } catch (error) {
       console.error(error);
     }
@@ -96,11 +96,11 @@ export default function NewCategoryDialog({ open, onClose }) {
       }}
     >
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle sx={{ p: (theme) => theme.spacing(3, 3, 2, 3) }}> Thêm khách hàng mới </DialogTitle>
+        <DialogTitle sx={{ p: (theme) => theme.spacing(3, 3, 2, 3) }}> Thêm hạng mục mới </DialogTitle>
 
         <DialogContent dividers sx={{ pt: 1, pb: 0, border: 'none' }}>
           <Stack spacing={1.5}>
-            <RHFTextField name="name" label="Tên loại gỗ" />
+            <RHFTextField name="name" label="Tên hạng mục" />
 
             <Stack alignItems="flex-end" sx={{ mt: 3, pb: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

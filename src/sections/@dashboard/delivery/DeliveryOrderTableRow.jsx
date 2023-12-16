@@ -145,12 +145,10 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
                 <MenuItem
                   disabled={
                     !(
-                      (user.role === Role.driver &&
-                        formatStatus(order?.status) !== OrderStatus.new &&
-                        formatStatus(order?.status) !== OrderStatus.newDeliverExport) ||
+                      (user.role === Role.driver && formatStatus(order?.status) !== OrderStatus.new) ||
                       (user.role === Role.accountant &&
                         formatStatus(order?.status) !== OrderStatus.new &&
-                        formatStatus(order?.status) !== OrderStatus.newDeliverExport &&
+                        // formatStatus(order?.status) !== OrderStatus.newDeliverExport &&
                         formatStatus(order?.status) !== OrderStatus.inProgress)
                     )
                   }

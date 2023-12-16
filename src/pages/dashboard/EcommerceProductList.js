@@ -219,7 +219,7 @@ export default function EcommerceProductList() {
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Danh sách sản phẩm"
-          links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Danh sách sản phẩm' }]}
+          links={[{ name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root }, { name: 'Danh sách sản phẩm' }]}
           action={
             <Button
               variant="contained"

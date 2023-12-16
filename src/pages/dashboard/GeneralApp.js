@@ -162,7 +162,7 @@ export default function GeneralApp() {
                   }
                   total={reportCurrentMonth}
                   chartColor={theme.palette.primary.main}
-                  chartData={[]}
+                  chartData={[8, 9, 31, 8, 16, 37, 8, 33, 46, 31]}
                 />
               </Grid>
 
@@ -194,13 +194,17 @@ export default function GeneralApp() {
             <AnalyticsCurrentVisits />
           </Grid>
 
-          <Grid item xs={12}>
-            <OrderProfitStatisticsByMonth />
-          </Grid>
+          {(user?.role === Role.admin || user?.role === Role.director) && (
+            <>
+              <Grid item xs={12}>
+                <OrderProfitStatisticsByMonth />
+              </Grid>
 
-          <Grid item xs={12}>
-            <OrderProfitStatisticsByWeek />
-          </Grid>
+              <Grid item xs={12}>
+                <OrderProfitStatisticsByWeek />
+              </Grid>
+            </>
+          )}
         </Grid>
       </Container>
     </Page>

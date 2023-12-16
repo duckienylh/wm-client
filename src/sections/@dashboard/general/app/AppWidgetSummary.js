@@ -64,7 +64,7 @@ export default function AppWidgetSummary({ title, percent, total, chartColor, ch
               }),
             }}
           >
-            <Iconify width={16} height={16} icon={percent >= 0 ? 'eva:trending-up-fill' : 'eva:trending-down-fill'} />
+            <Iconify width={16} height={16} icon={percent < 0 ? 'eva:trending-down-fill' : 'eva:trending-up-fill'} />
           </IconWrapperStyle>
           <Typography component="span" variant="subtitle2">
             {percent > 0 && '+'}

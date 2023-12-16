@@ -16,7 +16,7 @@ export default function OrderCreate() {
         <HeaderBreadcrumbs
           heading="Tạo đơn hàng mới"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Đơn hàng', href: PATH_DASHBOARD.saleAndMarketing.list },
             { name: 'Đơn hàng mới' },
           ]}

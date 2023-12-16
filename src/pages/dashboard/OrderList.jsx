@@ -297,7 +297,7 @@ export default function OrderList() {
         <HeaderBreadcrumbs
           heading="Danh sách đơn hàng"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Đơn hàng', href: PATH_DASHBOARD.saleAndMarketing.root },
             { name: 'Danh sách' },
           ]}

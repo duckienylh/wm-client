@@ -127,18 +127,15 @@ export default function Router() {
         },
 
         {
-          path: SINGLE_KEY_PATH.transportation,
+          path: SINGLE_KEY_PATH.vehicle,
           children: [
             {
-              element: (
-                <Navigate to={`/${SINGLE_KEY_PATH.dashboard}/${SINGLE_KEY_PATH.transportation}/danh-sach`} replace />
-              ),
+              element: <Navigate to={`/${SINGLE_KEY_PATH.dashboard}/${SINGLE_KEY_PATH.vehicle}/danh-sach`} replace />,
               index: true,
             },
-            { path: 'danh-sach', element: <ComingSoon /> },
-            { path: 'tao-moi', element: <ComingSoon /> },
-            { path: ':id', element: <ComingSoon /> },
-            { path: ':id/cap-nhat', element: <ComingSoon /> },
+            { path: 'danh-sach', element: <VehicleList /> },
+            { path: 'tao-moi', element: <VehicleCreate /> },
+            { path: ':id/cap-nhat', element: <VehicleCreate /> },
           ],
         },
 
@@ -253,6 +250,10 @@ const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')))
 // CUSTOMER
 const CustomerList = Loadable(lazy(() => import('../pages/dashboard/CustomerList')));
 const CustomerCreate = Loadable(lazy(() => import('../pages/dashboard/CustomerCreate')));
+
+// VEHICLE
+const VehicleList = Loadable(lazy(() => import('../pages/dashboard/VehicleList')));
+const VehicleCreate = Loadable(lazy(() => import('../pages/dashboard/VehicleCreate')));
 
 // APP
 const Calendar = Loadable(lazy(() => import('../pages/dashboard/Calendar')));

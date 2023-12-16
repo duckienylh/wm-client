@@ -98,12 +98,11 @@ export const adminNavConfig = [
       },
       {
         title: 'Xe, Phương tiện',
-        path: PATH_DASHBOARD.transportation.root,
+        path: PATH_DASHBOARD.vehicle.root,
         icon: ICONS.cart,
         children: [
-          { title: 'Danh sách', path: PATH_DASHBOARD.transportation.list },
-          { title: 'Tạo mới', path: PATH_DASHBOARD.transportation.new },
-          { title: 'Cập nhật', path: PATH_DASHBOARD.transportation.demoEdit },
+          { title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list },
+          { title: 'Tạo mới', path: PATH_DASHBOARD.vehicle.new },
         ],
       },
       {
@@ -209,9 +208,9 @@ export const adminNavConfig = [
 //       },
 //       {
 //         title: 'Xe, Phương tiện',
-//         path: PATH_DASHBOARD.transportation.root,
+//         path: PATH_DASHBOARD.vehicle.root,
 //         icon: ICONS.cart,
-//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.transportation.list }],
+//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list }],
 //       },
 //       {
 //         title: 'Lái xe, phụ xe',

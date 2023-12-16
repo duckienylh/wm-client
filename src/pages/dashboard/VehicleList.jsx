@@ -1,70 +1,68 @@
-import { useEffect, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-// @mui
 import {
   Box,
   Button,
   Card,
   Container,
-  Divider,
   FormControlLabel,
   IconButton,
   Switch,
-  Tab,
   Table,
   TableBody,
   TableContainer,
   TablePagination,
-  Tabs,
   Tooltip,
 } from '@mui/material';
-// routes
-import { loader } from 'graphql.macro';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
+import { loader } from 'graphql.macro';
 import { useSnackbar } from 'notistack';
-import { PATH_DASHBOARD } from '../../routes/paths';
-// hooks
-import useTabs from '../../hooks/useTabs';
-import useSettings from '../../hooks/useSettings';
-import useTable from '../../hooks/useTable';
-// _mock_
-// components
 import Page from '../../components/Page';
-import Iconify from '../../components/Iconify';
-import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
+import { PATH_DASHBOARD } from '../../routes/paths';
+import Iconify from '../../components/Iconify';
+import useSettings from '../../hooks/useSettings';
+import Scrollbar from '../../components/Scrollbar';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
-// sections
-import { DriverTableRow, DriverTableToolbar } from '../../sections/@dashboard/driver/list';
-// constant
+import useTable from '../../hooks/useTable';
+import VehicleTableRow from '../../sections/@dashboard/vehicle/VehicleTableRow';
+import useAuth from '../../hooks/useAuth';
 import { Role } from '../../constant';
 
 // ----------------------------------------------------------------------
-const LIST_USERS = loader('../../graphql/queries/user/users.graphql');
-const DELETE_USER = loader('../../graphql/mutations/user/deleteUser.graphql');
+const LIST_VEHICLE = loader('../../graphql/queries/vehicle/listAllVehicle.graphql');
+const DELETE_VEHICLE = loader('../../graphql/mutations/vehicle/deleteVehicles.graphql');
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
-
+const TABLE_HEAD_ADMIN = [
+  { id: 'idx', label: 'STT', align: 'left' },
+  { id: 'name', label: 'Tên người lái', align: 'left' },
+  { id: 'type', label: 'Loại xe', align: 'left' },
+  { id: 'weight', label: 'Tải trọng', align: 'left' },
+  { id: 'licensePlates', label: 'Biển số xe', align: 'left' },
+  { id: 'registerDate', label: 'Ngày đăng kí', align: 'left' },
+  { id: 'renewRegisterDate', label: 'Ngày đăng kiểm', align: 'left' },
+  { id: 'vehicleImageUrl', label: 'Ảnh phương tiện', align: 'left' },
+  { id: '', width: 80 },
+];
 const TABLE_HEAD = [
-  { id: 'STT', label: 'STT', align: 'center' },
-  { id: 'name', label: 'Tên người dùng', align: 'left' },
-  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
-  { id: 'role', label: 'Chức vụ', align: 'left' },
-  { id: 'status', label: 'Trạng thái', align: 'left' },
-  { id: '' },
+  { id: 'idx', label: 'STT', align: 'left' },
+  { id: 'name', label: 'Tên người lái', align: 'left' },
+  { id: 'type', label: 'Loại xe', align: 'left' },
+  { id: 'weight', label: 'Tải trọng', align: 'left' },
+  { id: 'licensePlates', label: 'Biển số xe', align: 'left' },
+  { id: 'registerDate', label: 'Ngày đăng kí', align: 'left' },
+  { id: 'renewRegisterDate', label: 'Ngày đăng kiểm', align: 'left' },
+  { id: 'vehicleImageUrl', label: 'Ảnh phương tiện', align: 'left' },
 ];
 
-// ----------------------------------------------------------------------
-
-export default function DriverList() {
+export default function VehicleList() {
   const {
     dense,
     page,
     order,
     orderBy,
     rowsPerPage,
-    setPage,
     //
     selected,
     setSelected,
@@ -77,30 +75,39 @@ export default function DriverList() {
     onChangeRowsPerPage,
   } = useTable();
 
+  const { user } = useAuth();
+
+  const { enqueueSnackbar } = useSnackbar();
+
   const { themeStretch } = useSettings();
 
   const navigate = useNavigate();
 
   const [tableData, setTableData] = useState([]);
 
-  const [filterName, setFilterName] = useState('');
-
-  const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('Tất cả');
-
-  const { enqueueSnackbar } = useSnackbar();
-
   const [totalCount, setTotalCount] = useState(0);
 
+  const [deleteVehicleFn] = useMutation(DELETE_VEHICLE, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa xe-phương tiện thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa xe-phương tiện không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
+
   const {
-    data: allDriver,
+    data: allVehicle,
     refetch,
     fetchMore,
-  } = useQuery(LIST_USERS, {
+  } = useQuery(LIST_VEHICLE, {
     variables: {
       input: {
-        role: Role.driver,
-        isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
-        searchQuery: filterName,
         args: {
           first: rowsPerPage,
           after: 0,
@@ -109,33 +116,30 @@ export default function DriverList() {
     },
   });
 
+  useEffect(() => {
+    if (allVehicle) {
+      setTableData(allVehicle?.listAllVehicle?.edges.map((edge) => edge.node));
+      setTotalCount(allVehicle?.listAllVehicle?.totalCount);
+    }
+  }, [allVehicle]);
+
   const updateQuery = (previousResult, { fetchMoreResult }) => {
     if (!fetchMoreResult) return previousResult;
     return {
       ...previousResult,
-      users: {
-        ...previousResult.users,
-        edges: [...fetchMoreResult.users.edges],
-        pageInfo: fetchMoreResult.users.pageInfo,
-        totalCount: fetchMoreResult.users.totalCount,
+      listAllVehicle: {
+        ...previousResult.listAllVehicle,
+        edges: [...fetchMoreResult.listAllVehicle.edges],
+        pageInfo: fetchMoreResult.listAllVehicle.pageInfo,
+        totalCount: fetchMoreResult.listAllVehicle.totalCount,
       },
     };
   };
 
   useEffect(() => {
-    if (allDriver?.users) {
-      setTableData(allDriver?.users.edges.map((edge) => edge.node));
-      setTotalCount(allDriver?.users.totalCount);
-    }
-  }, [allDriver]);
-
-  useEffect(() => {
     fetchMore({
       variables: {
         input: {
-          role: Role.driver,
-          isActive: filterStatus === 'Tất cả' ? null : Boolean(filterStatus === 'Đang hoạt động'),
-          searchQuery: filterName,
           args: {
             first: rowsPerPage,
             after: page * rowsPerPage,
@@ -144,53 +148,36 @@ export default function DriverList() {
       },
       updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
     }).then((res) => res);
-  }, [refetch, rowsPerPage, page, fetchMore, filterStatus, filterName]);
-
-  const [deleteUser] = useMutation(DELETE_USER, {
-    onCompleted: () => {
-      enqueueSnackbar('Xóa người dùng thành công', {
-        variant: 'success',
-      });
-    },
-
-    onError: (error) => {
-      enqueueSnackbar(`Xóa người dùng không thành công. Nguyên nhân: ${error.message}`, {
-        variant: 'error',
-      });
-    },
-  });
-
-  const handleFilterName = (filterName) => {
-    setFilterName(filterName);
-    setPage(0);
-  };
+  }, [refetch, rowsPerPage, page, fetchMore]);
 
   const handleDeleteRow = async (id) => {
-    await deleteUser({
+    await deleteVehicleFn({
       variables: {
         input: {
           ids: id,
+          deleteBy: Number(user?.id),
         },
       },
     });
-    setSelected([]);
     await refetch();
+    setSelected([]);
   };
 
   const handleDeleteRows = async (selected) => {
-    await deleteUser({
+    await deleteVehicleFn({
       variables: {
         input: {
           ids: selected,
+          deletedBy: Number(user?.id),
         },
       },
     });
-    setSelected([]);
     await refetch();
+    setSelected([]);
   };
 
   const handleEditRow = (id) => {
-    navigate(PATH_DASHBOARD.driver.edit(id));
+    navigate(PATH_DASHBOARD.vehicle.edit(id));
   };
 
   const denseHeight = dense ? 52 : 72;
@@ -198,48 +185,28 @@ export default function DriverList() {
   const isNotFound = !tableData.length;
 
   return (
-    <Page title="Lái xe: Danh sách Lái xe">
+    <Page title="Người dùng: Danh sách người dùng">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Danh sách Lái-phụ xe"
+          heading="Danh sách xe-phương tiện"
           links={[
             { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
-            { name: 'Lái xe', href: PATH_DASHBOARD.driver.root },
+            { name: 'Xe-phương tiện', href: PATH_DASHBOARD.vehicle.root },
             { name: 'Danh sách' },
           ]}
           action={
             <Button
               variant="contained"
               component={RouterLink}
-              to={PATH_DASHBOARD.driver.new}
+              to={PATH_DASHBOARD.vehicle.new}
               startIcon={<Iconify icon={'eva:plus-fill'} />}
             >
-              Thêm lái-phụ xe
+              Thêm xe-phương tiện
             </Button>
           }
         />
 
         <Card>
-          <Tabs
-            allowScrollButtonsMobile
-            variant="scrollable"
-            scrollButtons="auto"
-            value={filterStatus}
-            onChange={(event, value) => {
-              setPage(0);
-              onChangeFilterStatus(event, value);
-            }}
-            sx={{ px: 2, bgcolor: 'background.neutral' }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab disableRipple key={tab} label={tab} value={tab} />
-            ))}
-          </Tabs>
-
-          <Divider />
-
-          <DriverTableToolbar filterName={filterName} onFilterName={handleFilterName} />
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
               {selected.length > 0 && (
@@ -255,7 +222,7 @@ export default function DriverList() {
                   }
                   actions={
                     <Tooltip title="Delete">
-                      <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
+                      <IconButton color="error" onClick={() => handleDeleteRows(selected)}>
                         <Iconify icon={'eva:trash-2-outline'} />
                       </IconButton>
                     </Tooltip>
@@ -264,27 +231,39 @@ export default function DriverList() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={null}
+                  />
+                )}
 
                 <TableBody>
                   {tableData.map((row, idx) => (
-                    <DriverTableRow
+                    <VehicleTableRow
                       key={idx}
-                      idx={idx + 1}
                       row={row}
+                      idx={idx + 1}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}
                       onDeleteRow={() => handleDeleteRow(row.id)}
@@ -313,9 +292,6 @@ export default function DriverList() {
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
               labelRowsPerPage="Số lượng trên trang"
-              labelDisplayedRows={(from = page) =>
-                `${from.from}-${from.to === -1 ? from.count : from.to}/${from.count}`
-              }
             />
 
             <FormControlLabel
@@ -330,7 +306,6 @@ export default function DriverList() {
   );
 }
 
-// ----------------------------------------------------------------------
 function tableEmptyRows(page, rowsPerPage, arrayLength) {
   return page > 0 ? Math.max(0, rowsPerPage - arrayLength) : 0;
 }
