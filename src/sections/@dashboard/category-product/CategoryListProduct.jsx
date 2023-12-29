@@ -23,6 +23,7 @@ import { loader } from 'graphql.macro';
 // import XlsxPopulate from 'xlsx-populate';
 // import { saveAs } from 'file-saver';
 import * as xlsx from 'xlsx';
+import { useTheme } from '@mui/material/styles';
 import useTable from '../../../hooks/useTable';
 import useSettings from '../../../hooks/useSettings';
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -84,6 +85,8 @@ export default function CategoryListProduct() {
   } = useTable();
 
   const { user } = useAuth();
+
+  const theme = useTheme();
 
   const { themeStretch } = useSettings();
 
@@ -490,6 +493,38 @@ export default function CategoryListProduct() {
             </Button>
           </Stack>
         </Stack>
+
+        {theme.palette.mode === 'light' ? (
+          <Stack direction="row">
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Còn hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#C6F3A8" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Sắp hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#fff3cd" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#f8d7da" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+          </Stack>
+        ) : (
+          <Stack direction="row">
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Còn hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.success.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Sắp hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.warning.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.error.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+          </Stack>
+        )}
 
         <Card>
           <ProductTableToolbar filterName={filterName} onFilterName={handleFilterName} categories={null} />

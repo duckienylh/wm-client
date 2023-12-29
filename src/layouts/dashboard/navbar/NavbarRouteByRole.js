@@ -2,6 +2,7 @@
 
 import { PATH_DASHBOARD } from '../../../routes/paths';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import SvgColor from '../../../components/svg-color/SvgColor';
 
 export const getIcon = (name) => <SvgIconStyle src={`/icons/${name}.svg`} sx={{ width: 1, height: 1 }} />;
 
@@ -20,9 +21,14 @@ export const ICONS = {
   analytics: getIcon('ic_analytics'),
   dashboard: getIcon('ic_dashboard'),
   salary: getIcon('ic_ecommerce'),
-  customer: getIcon('ic_customer'),
+  // customer: getIcon('ic_customer'),
   saleAndMarketing: getIcon('ic_kanban'),
   detail: getIcon('ic_booking'),
+  customer: <SvgColor src={`/icons/customer-feedback.png`} sx={{ width: 1, height: 1 }} />,
+  fastDelivery: <SvgColor src={`/icons/fast-delivery.png`} sx={{ width: 1, height: 1 }} />,
+  driver: <SvgColor src={`/icons/driving-license.png`} sx={{ width: 1, height: 1 }} />,
+  forklift: <SvgColor src={`/icons/forklift.png`} sx={{ width: 1, height: 1 }} />,
+  inventory: <SvgColor src={`/icons/inventory.png`} sx={{ width: 1, height: 1 }} />,
 };
 
 export const adminNavConfig = [
@@ -75,7 +81,7 @@ export const adminNavConfig = [
       {
         title: 'Sản phẩm',
         path: PATH_DASHBOARD.categoryList.root,
-        icon: ICONS.cart,
+        icon: ICONS.inventory,
       },
     ],
   },
@@ -94,12 +100,12 @@ export const adminNavConfig = [
       {
         title: 'Lệnh xuất hàng',
         path: PATH_DASHBOARD.deliveryOrder.root,
-        icon: ICONS.cart,
+        icon: ICONS.fastDelivery,
       },
       {
         title: 'Xe, Phương tiện',
         path: PATH_DASHBOARD.vehicle.root,
-        icon: ICONS.cart,
+        icon: ICONS.forklift,
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.vehicle.new },
@@ -108,13 +114,13 @@ export const adminNavConfig = [
       {
         title: 'Lái xe, phụ xe',
         path: PATH_DASHBOARD.driver.root,
-        icon: ICONS.customer,
+        icon: ICONS.driver,
         children: [
           { title: 'Danh sách', path: PATH_DASHBOARD.driver.list },
           { title: 'Tạo mới', path: PATH_DASHBOARD.driver.new },
         ],
       },
-      { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
+      // { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
     ],
   },
   // APP

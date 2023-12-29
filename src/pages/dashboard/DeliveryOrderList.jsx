@@ -20,7 +20,8 @@ import {
   Tooltip,
 } from '@mui/material';
 import { loader } from 'graphql.macro';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { useSnackbar } from 'notistack';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
@@ -35,12 +36,15 @@ import { AllLabel, OrderStatus, Role } from '../../constant';
 import useAuth from '../../hooks/useAuth';
 import { DeliveryOrderTableRow } from '../../sections/@dashboard/delivery';
 import DeliverOrderTableToolbar from '../../sections/@dashboard/delivery/DeliveryOrderToolbar';
+import { formatStatus } from '../../utils/getOrderFormat';
 
 // ----------------------------------------------------------------------
 const LIST_DELIVER_ORDER = loader('../../graphql/queries/deliverOrder/listAllDeliverOrder.graphql');
+const DELETE_DELIVER_ORDER = loader('../../graphql/mutations/deliverOrder/deleteDeliverOrders.graphql');
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: 'STT', label: 'STT', align: 'center' },
   { id: 'invoiceNumber', label: 'Mã đơn hàng', align: 'left' },
   { id: 'customer', label: 'Khách hàng', align: 'left' },
   { id: 'driver', label: 'Lái xe', align: 'left' },
@@ -102,6 +106,8 @@ export default function DeliveryOrderList() {
 
   const [selectedSaleId, setSelectedSaleId] = useState(null);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const {
     data: allDeliverOrder,
     refetch: refetchData,
@@ -125,6 +131,20 @@ export default function DeliveryOrderList() {
           after: 0,
         },
       },
+    },
+  });
+
+  const [deleteDeliverOrder] = useMutation(DELETE_DELIVER_ORDER, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa lệnh xuất hàng thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa lệnh xuất hàng không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
     },
   });
 
@@ -189,14 +209,30 @@ export default function DeliveryOrderList() {
     setPage(0);
   };
 
-  const handleDeleteRow = (id) => {
-    console.log('id', id);
+  const handleDeleteRow = async (id) => {
+    await deleteDeliverOrder({
+      variables: {
+        input: {
+          ids: id,
+          deleteBy: Number(user?.id),
+        },
+      },
+    });
     setSelected([]);
+    await refetchData();
   };
 
-  const handleDeleteRows = (selected) => {
-    console.log('selected', selected);
+  const handleDeleteRows = async (selected) => {
+    await deleteDeliverOrder({
+      variables: {
+        input: {
+          ids: selected,
+          deleteBy: Number(user?.id),
+        },
+      },
+    });
     setSelected([]);
+    await refetchData();
   };
 
   const handleViewRow = (id) => {
@@ -319,25 +355,38 @@ export default function DeliveryOrderList() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={deliverOrder.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      deliverOrder.map((row) => row.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={deliverOrder.filter((e) => formatStatus(e.order?.status) !== OrderStatus.done).length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) => {
+                      onSelectAllRows(
+                        checked,
+                        deliverOrder
+                          .filter((e) => formatStatus(e.order?.status) !== OrderStatus.done)
+                          .map((row) => row.id)
+                      );
+                    }}
+                  />
+                ) : (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={deliverOrder.length}
+                    onSort={onSort}
+                  />
+                )}
 
                 <TableBody>
                   {deliverOrder.map((row, idx) => (
                     <DeliveryOrderTableRow
                       key={idx}
+                      idx={idx + 1}
                       row={row}
                       selected={selected.includes(row.id)}
                       onSelectRow={() => onSelectRow(row.id)}

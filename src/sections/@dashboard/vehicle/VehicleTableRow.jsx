@@ -50,9 +50,11 @@ export default function VehicleTableRow({ idx, row, selected, onEditRow, onSelec
 
   return (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+      {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+        <TableCell padding="checkbox">
+          <Checkbox checked={selected} onClick={onSelectRow} />
+        </TableCell>
+      )}
 
       <TableCell align="center">{idx}</TableCell>
 

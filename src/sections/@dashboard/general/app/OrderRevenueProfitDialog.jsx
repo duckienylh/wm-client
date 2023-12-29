@@ -69,7 +69,7 @@ export default function OrderRevenueProfitDialog({ open, onClose, startTime, end
       listAllOrder: {
         ...previousResult.listAllOrder,
         orders: {
-          ...previousResult.listAllOrder.orders,
+          ...previousResult.listAllOrder?.orders,
           edges: [...fetchMoreResult.listAllOrder.orders.edges],
           pageInfo: fetchMoreResult.listAllOrder.orders.pageInfo,
           totalCount: fetchMoreResult.listAllOrder.orders.totalCount,

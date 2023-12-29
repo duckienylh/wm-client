@@ -148,7 +148,8 @@ export default function GeneralApp() {
                   }
                   total={reportCurrentWeek}
                   chartColor={theme.palette.primary.main}
-                  chartData={chartDataCurrentWeek}
+                  // chartData={chartDataCurrentWeek}
+                  chartData={[8, 9, 31, 8, 16, 37, 8, 33, 46, 31]}
                 />
               </Grid>
 

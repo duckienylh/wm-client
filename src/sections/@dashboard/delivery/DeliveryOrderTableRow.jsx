@@ -18,14 +18,24 @@ import EditStatusOrderDialog from '../order/new-edit-form/EditStatusOrderDialog'
 // ----------------------------------------------------------------------
 
 DeliveryOrderTableRow.propTypes = {
+  idx: PropTypes.number,
   row: PropTypes.object,
   selected: PropTypes.bool,
   onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
   refetchData: PropTypes.func,
 };
 
-export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onViewRow, refetchData }) {
+export default function DeliveryOrderTableRow({
+  idx,
+  row,
+  selected,
+  onSelectRow,
+  onViewRow,
+  onDeleteRow,
+  refetchData,
+}) {
   const theme = useTheme();
 
   const { user } = useAuth();
@@ -53,9 +63,17 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              disabled={!(formatStatus(order?.status) !== OrderStatus.done)}
+              checked={selected}
+              onClick={onSelectRow}
+            />
+          </TableCell>
+        )}
+
+        <TableCell align="center">{idx}</TableCell>
 
         <TableCell align="left">
           <Typography variant="subtitle2" sx={{ cursor: 'pointer' }} noWrap onClick={onViewRow}>
@@ -145,10 +163,12 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
                 <MenuItem
                   disabled={
                     !(
-                      (user.role === Role.driver && formatStatus(order?.status) !== OrderStatus.new) ||
+                      (user.role === Role.driver &&
+                        formatStatus(order?.status) !== OrderStatus.new &&
+                        formatStatus(order?.status) !== OrderStatus.deliverSuccess) ||
                       (user.role === Role.accountant &&
                         formatStatus(order?.status) !== OrderStatus.new &&
-                        // formatStatus(order?.status) !== OrderStatus.newDeliverExport &&
+                        formatStatus(order?.status) !== OrderStatus.done &&
                         formatStatus(order?.status) !== OrderStatus.inProgress)
                     )
                   }
@@ -161,6 +181,20 @@ export default function DeliveryOrderTableRow({ row, selected, onSelectRow, onVi
                   <Iconify icon={'eva:edit-fill'} />
                   Cập nhật
                 </MenuItem>
+
+                {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+                  <MenuItem
+                    disabled={!(formatStatus(order?.status) !== OrderStatus.done)}
+                    sx={{ color: 'error.main' }}
+                    onClick={() => {
+                      onDeleteRow();
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:trash-2-outline'} />
+                    Xóa
+                  </MenuItem>
+                )}
 
                 <MenuItem
                   onClick={() => {
