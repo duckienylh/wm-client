@@ -27,12 +27,14 @@ import Iconify from '../../components/Iconify';
 import useTable from '../../hooks/useTable';
 import CustomerTableToolbar from '../../sections/@dashboard/customer/list/CustomerTableToolbar';
 import CustomerTableRow from '../../sections/@dashboard/customer/list/CustomerTableRow';
+import { Role } from '../../constant';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 const LIST_CUSTOMER = loader('../../graphql/queries/customer/listAllCustomer.graphql');
 const DELETE_CUSTOMER = loader('../../graphql/mutations/customer/deleteCustomer.graphql');
 // ----------------------------------------------------------------------
-const TABLE_HEAD = [
+const TABLE_HEAD_FOR_ADMIN = [
   { id: 'STT', label: 'STT', align: 'center' },
   { id: 'name', label: 'Khách hàng', align: 'center' },
   { id: 'email', label: 'email', align: 'center' },
@@ -41,9 +43,19 @@ const TABLE_HEAD = [
   { id: 'address', label: 'Đia chỉ', align: 'center' },
   { id: '' },
 ];
+
+const TABLE_HEAD = [
+  { id: 'STT', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Khách hàng', align: 'center' },
+  { id: 'email', label: 'email', align: 'center' },
+  { id: 'company', label: 'Tên công ty', align: 'center' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
+  { id: 'address', label: 'Đia chỉ', align: 'center' },
+];
 // ----------------------------------------------------------------------
 
 export default function CustomerList() {
+  const { user } = useAuth();
   const { themeStretch } = useSettings();
   const navigate = useNavigate();
   const [filterName, setFilterName] = useState('');
@@ -183,14 +195,16 @@ export default function CustomerList() {
             { name: 'Danh sách' },
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.customer.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              Thêm khách hàng
-            </Button>
+            (user.role === Role.admin || user.role === Role.director || user.role === Role.sales) && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.customer.new}
+                startIcon={<Iconify icon={'eva:plus-fill'} />}
+              >
+                Thêm khách hàng
+              </Button>
+            )
           }
         />
 
@@ -220,20 +234,24 @@ export default function CustomerList() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.node.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.sales ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_FOR_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.node.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
+                )}
 
                 <TableBody>
                   {tableData.map((row, idx) => (

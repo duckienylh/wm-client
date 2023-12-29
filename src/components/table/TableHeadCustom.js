@@ -39,9 +39,6 @@ export default function TableHeadCustom({
   onSelectAllRows,
   sx,
 }) {
-  console.log('numSelected', numSelected);
-  console.log('rowCount', rowCount);
-
   return (
     <TableHead sx={sx}>
       <TableRow>

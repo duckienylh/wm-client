@@ -38,6 +38,7 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 import { DriverTableRow, DriverTableToolbar } from '../../sections/@dashboard/driver/list';
 // constant
 import { Role } from '../../constant';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 const LIST_USERS = loader('../../graphql/queries/user/users.graphql');
@@ -45,6 +46,15 @@ const DELETE_USER = loader('../../graphql/mutations/user/deleteUser.graphql');
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
+
+const TABLE_HEAD_FOR_ADMIN = [
+  { id: 'STT', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Tên người dùng', align: 'left' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
+  { id: 'role', label: 'Chức vụ', align: 'left' },
+  { id: 'status', label: 'Trạng thái', align: 'left' },
+  { id: '' },
+];
 
 const TABLE_HEAD = [
   { id: 'STT', label: 'STT', align: 'center' },
@@ -76,6 +86,8 @@ export default function DriverList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const { user } = useAuth();
 
   const { themeStretch } = useSettings();
 
@@ -208,14 +220,16 @@ export default function DriverList() {
             { name: 'Danh sách' },
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.driver.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              Thêm lái-phụ xe
-            </Button>
+            (user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.driver.new}
+                startIcon={<Iconify icon={'eva:plus-fill'} />}
+              >
+                Thêm lái-phụ xe
+              </Button>
+            )
           }
         />
 
@@ -264,20 +278,24 @@ export default function DriverList() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_FOR_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
+                )}
 
                 <TableBody>
                   {tableData.map((row, idx) => (

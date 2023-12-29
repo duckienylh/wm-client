@@ -10,7 +10,6 @@ import {
   Container,
   Divider,
   FormControlLabel,
-  IconButton,
   Stack,
   Switch,
   Tab,
@@ -19,7 +18,6 @@ import {
   TableContainer,
   TablePagination,
   Tabs,
-  Tooltip,
 } from '@mui/material';
 import { loader } from 'graphql.macro';
 import { useQuery } from '@apollo/client';
@@ -32,7 +30,7 @@ import Label from '../../components/Label';
 import Iconify from '../../components/Iconify';
 import Scrollbar from '../../components/Scrollbar';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../components/table';
+import { TableEmptyRows, TableHeadCustom, TableNoData } from '../../components/table';
 import InvoiceAnalytic from '../../sections/@dashboard/order/InvoiceAnalytic';
 import { OrderTableRow, OrderTableToolbar } from '../../sections/@dashboard/order/list';
 import { AllLabel, OrderStatus, Role } from '../../constant';
@@ -71,11 +69,6 @@ export default function OrderList() {
     orderBy,
     rowsPerPage,
     setPage,
-    //
-    selected,
-    setSelected,
-    onSelectRow,
-    onSelectAllRows,
     //
     onSort,
     onChangeDense,
@@ -212,18 +205,6 @@ export default function OrderList() {
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
-  };
-
-  const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
-  };
-
-  const handleDeleteRows = (selected) => {
-    const deleteRows = tableData.filter((row) => !selected.includes(row.id));
-    setSelected([]);
-    setTableData(deleteRows);
   };
 
   const handleEditRow = (id) => {
@@ -399,50 +380,8 @@ export default function OrderList() {
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
-              {selected.length > 0 && (
-                <TableSelectedActions
-                  dense={dense}
-                  numSelected={selected.length}
-                  rowCount={tableData.length}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                  actions={
-                    <Stack spacing={1} direction="row">
-                      <Tooltip title="Tải về máy">
-                        <IconButton color="primary">
-                          <Iconify icon={'eva:download-outline'} />
-                        </IconButton>
-                      </Tooltip>
-
-                      <Tooltip title="Xóa">
-                        <IconButton color="primary" onClick={() => handleDeleteRows(selected)}>
-                          <Iconify icon={'eva:trash-2-outline'} />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  }
-                />
-              )}
-
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
+                <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
 
                 <TableBody>
                   {tableData.map((row, idx) => (
@@ -450,11 +389,8 @@ export default function OrderList() {
                       key={row.id}
                       idx={idx + 1}
                       row={row}
-                      selected={selected.includes(row.id)}
-                      onSelectRow={() => onSelectRow(row.id)}
                       onViewRow={() => handleViewRow(row.id)}
                       onEditRow={() => handleEditRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}
 

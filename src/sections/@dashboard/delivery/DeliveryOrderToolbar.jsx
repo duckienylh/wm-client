@@ -6,6 +6,7 @@ import { useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import Iconify from '../../../components/Iconify';
 import { Role } from '../../../constant';
+import useAuth from '../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 const SALES = loader('../../../graphql/queries/user/users.graphql');
@@ -38,7 +39,10 @@ export default function DeliverOrderTableToolbar({
   onFilterSales,
   customSearchStr = '',
 }) {
+  const { user } = useAuth();
+
   const [arrSale, setArrSale] = useState([]);
+
   const { data: sales } = useQuery(SALES, {
     variables: {
       input: {
@@ -82,42 +86,27 @@ export default function DeliverOrderTableToolbar({
           />
         )}
       />
-
-      <TextField
-        fullWidth
-        label="NV bán hàng"
-        value={filterSales}
-        onChange={onFilterSales}
-        select
-        SelectProps={{
-          MenuProps: {
-            sx: { '& .MuiPaper-root': { maxHeight: 260 } },
-          },
-        }}
-        sx={{
-          maxWidth: { sm: 240 },
-          textTransform: 'capitalize',
-        }}
-      >
-        <MenuItem
-          value="Tất cả"
-          defaultValue
-          onClick={() => handleGetSaleId(null)}
+      {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+        <TextField
+          fullWidth
+          label="NV bán hàng"
+          value={filterSales}
+          onChange={onFilterSales}
+          select
+          SelectProps={{
+            MenuProps: {
+              sx: { '& .MuiPaper-root': { maxHeight: 260 } },
+            },
+          }}
           sx={{
-            mx: 1,
-            my: 0.5,
-            borderRadius: 0.75,
-            typography: 'body2',
+            maxWidth: { sm: 240 },
             textTransform: 'capitalize',
           }}
         >
-          Tất cả
-        </MenuItem>
-        {arrSale?.map((option) => (
           <MenuItem
-            key={option.id}
-            value={option.fullName}
-            onClick={() => handleGetSaleId(option.id)}
+            value="Tất cả"
+            defaultValue
+            onClick={() => handleGetSaleId(null)}
             sx={{
               mx: 1,
               my: 0.5,
@@ -126,10 +115,26 @@ export default function DeliverOrderTableToolbar({
               textTransform: 'capitalize',
             }}
           >
-            <>{option.fullName}</>
+            Tất cả
           </MenuItem>
-        ))}
-      </TextField>
+          {arrSale?.map((option) => (
+            <MenuItem
+              key={option.id}
+              value={option.fullName}
+              onClick={() => handleGetSaleId(option.id)}
+              sx={{
+                mx: 1,
+                my: 0.5,
+                borderRadius: 0.75,
+                typography: 'body2',
+                textTransform: 'capitalize',
+              }}
+            >
+              <>{option.fullName}</>
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
 
       <TextField
         fullWidth

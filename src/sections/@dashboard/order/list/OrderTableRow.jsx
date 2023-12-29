@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Checkbox, Link, MenuItem, Stack, TableCell, TableRow, Typography } from '@mui/material';
+import { Link, MenuItem, Stack, TableCell, TableRow, Typography } from '@mui/material';
 import { fddMMYYYYWithSlash } from '../../../../utils/formatTime';
 import { fVietNamCurrency } from '../../../../utils/formatNumber';
 import Label from '../../../../components/Label';
@@ -17,14 +17,11 @@ import { formatStatus } from '../../../../utils/getOrderFormat';
 OrderTableRow.propTypes = {
   idx: PropTypes.number,
   row: PropTypes.object,
-  selected: PropTypes.bool,
-  onSelectRow: PropTypes.func,
   onViewRow: PropTypes.func,
   onEditRow: PropTypes.func,
-  onDeleteRow: PropTypes.func,
 };
 
-export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewRow, onEditRow, onDeleteRow }) {
+export default function OrderTableRow({ idx, row, onViewRow, onEditRow }) {
   const theme = useTheme();
 
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
@@ -43,11 +40,7 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
+      <TableRow hover>
         <TableCell align="right">{idx}</TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
@@ -132,17 +125,6 @@ export default function OrderTableRow({ idx, row, selected, onSelectRow, onViewR
                 >
                   <Iconify icon={'eva:edit-fill'} />
                   Chỉnh sửa
-                </MenuItem>
-
-                <MenuItem
-                  onClick={() => {
-                    onDeleteRow();
-                    handleCloseMenu();
-                  }}
-                  sx={{ color: 'error.main' }}
-                >
-                  <Iconify icon={'eva:trash-2-outline'} />
-                  Xóa
                 </MenuItem>
               </>
             }

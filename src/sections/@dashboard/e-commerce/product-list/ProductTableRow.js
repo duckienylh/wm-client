@@ -10,6 +10,8 @@ import Image from '../../../../components/Image';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 import Label from '../../../../components/Label';
+import { Role } from '../../../../constant';
+import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -33,6 +35,7 @@ const inventoryType = (inventory) => {
 };
 
 export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { user } = useAuth();
   const theme = useTheme();
   const { name, code, image, inventory, price } = row;
 
@@ -66,11 +69,13 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
           borderBottom: (theme) => `solid 1px ${theme.palette.text.primary}`,
         }}
       >
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+          <TableCell padding="checkbox">
+            <Checkbox checked={selected} onClick={onSelectRow} />
+          </TableCell>
+        )}
 
-        <TableCell align="right">{idx}</TableCell>
+        <TableCell align="center">{idx}</TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           <Image disabledEffect alt={name} src={image} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
@@ -99,36 +104,38 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
           </Label>
         </TableCell>
 
-        <TableCell align="right">
-          <TableMoreMenu
-            open={openMenu}
-            onOpen={handleOpenMenu}
-            onClose={handleCloseMenu}
-            actions={
-              <>
-                <MenuItem
-                  onClick={() => {
-                    onDeleteRow();
-                    handleCloseMenu();
-                  }}
-                  sx={{ color: 'error.main' }}
-                >
-                  <Iconify icon={'eva:trash-2-outline'} />
-                  Xóa
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    onEditRow();
-                    handleCloseMenu();
-                  }}
-                >
-                  <Iconify icon={'eva:edit-fill'} />
-                  Sửa
-                </MenuItem>
-              </>
-            }
-          />
-        </TableCell>
+        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+          <TableCell align="right">
+            <TableMoreMenu
+              open={openMenu}
+              onOpen={handleOpenMenu}
+              onClose={handleCloseMenu}
+              actions={
+                <>
+                  <MenuItem
+                    onClick={() => {
+                      onDeleteRow();
+                      handleCloseMenu();
+                    }}
+                    sx={{ color: 'error.main' }}
+                  >
+                    <Iconify icon={'eva:trash-2-outline'} />
+                    Xóa
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      onEditRow();
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:edit-fill'} />
+                    Sửa
+                  </MenuItem>
+                </>
+              }
+            />
+          </TableCell>
+        )}
       </TableRow>
     </>
   );

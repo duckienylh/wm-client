@@ -52,14 +52,23 @@ const IMPORT_EXCEL_PRODUCT = loader('../../../graphql/mutations/product/importEx
 const UPDATE_CATEGORY = loader('../../../graphql/mutations/category/updateCategory.graphql');
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'stt', label: 'STT', align: 'right' },
+const TABLE_HEAD_FOR_ADMIN = [
+  { id: 'stt', label: 'STT', align: 'center' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
   { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
   { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
+];
+
+const TABLE_HEAD = [
+  { id: 'stt', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Sản phẩm', align: 'left' },
+  { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
+  { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
+  { id: 'price', label: 'Giá', align: 'right' },
+  { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
 ];
 
 // ----------------------------------------------------------------------
@@ -427,71 +436,74 @@ export default function CategoryListProduct() {
               { name: category?.name ? category?.name : '' },
             ]}
           />
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="subtitle1" sx={{ textAlign: 'center', marginRight: 2, color: 'text.primary' }}>
-              {excelFile?.name}
-            </Typography>
-            <Input
-              inputComponent="input"
-              type={'file'}
-              onChange={importExcel}
-              inputRef={inputRef}
-              inputProps={{ accept: '.xlsx,.csv' }}
-              sx={{ display: 'none' }}
-            />
 
-            <Button
-              sx={{
-                maxHeight: 50,
-                alignSelf: 'center',
-                marginRight: 1,
-              }}
-              disabled={!excelFile}
-              variant="contained"
-              onClick={handleConfirmFile}
-              startIcon={<Iconify icon="mingcute:file-import-fill" />}
-            >
-              Import sản phẩm
-            </Button>
+          {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="subtitle1" sx={{ textAlign: 'center', marginRight: 2, color: 'text.primary' }}>
+                {excelFile?.name}
+              </Typography>
+              <Input
+                inputComponent="input"
+                type={'file'}
+                onChange={importExcel}
+                inputRef={inputRef}
+                inputProps={{ accept: '.xlsx,.csv' }}
+                sx={{ display: 'none' }}
+              />
 
-            <Button
-              sx={{
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              onClick={handleClick}
-              startIcon={<Iconify icon="mdi:file-find-outline" />}
-            >
-              Chọn file
-            </Button>
-            <Button
-              sx={{
-                ml: 1,
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              onClick={handleSaveAsExcel}
-              startIcon={<Iconify icon={'material-symbols:download-rounded'} />}
-            >
-              Tải file
-            </Button>
+              <Button
+                sx={{
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                  marginRight: 1,
+                }}
+                disabled={!excelFile}
+                variant="contained"
+                onClick={handleConfirmFile}
+                startIcon={<Iconify icon="mingcute:file-import-fill" />}
+              >
+                Import sản phẩm
+              </Button>
 
-            <Button
-              sx={{
-                ml: 1,
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              component={RouterLink}
-              to={PATH_DASHBOARD.product.new}
-            >
-              Thêm Sản phẩm mới
-            </Button>
-          </Stack>
+              <Button
+                sx={{
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                onClick={handleClick}
+                startIcon={<Iconify icon="mdi:file-find-outline" />}
+              >
+                Chọn file
+              </Button>
+              <Button
+                sx={{
+                  ml: 1,
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                onClick={handleSaveAsExcel}
+                startIcon={<Iconify icon={'material-symbols:download-rounded'} />}
+              >
+                Tải file
+              </Button>
+
+              <Button
+                sx={{
+                  ml: 1,
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                startIcon={<Iconify icon="eva:plus-fill" />}
+                component={RouterLink}
+                to={PATH_DASHBOARD.product.new}
+              >
+                Thêm Sản phẩm mới
+              </Button>
+            </Stack>
+          )}
         </Stack>
 
         {theme.palette.mode === 'light' ? (
@@ -553,20 +565,24 @@ export default function CategoryListProduct() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.node.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_FOR_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.node.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
+                )}
 
                 <TableBody>
                   {tableData.map((row, index) =>

@@ -195,14 +195,16 @@ export default function VehicleList() {
             { name: 'Danh sách' },
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.vehicle.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              Thêm xe-phương tiện
-            </Button>
+            (user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.vehicle.new}
+                startIcon={<Iconify icon={'eva:plus-fill'} />}
+              >
+                Thêm xe-phương tiện
+              </Button>
+            )
           }
         />
 

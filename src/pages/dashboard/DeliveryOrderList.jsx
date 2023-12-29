@@ -335,13 +335,15 @@ export default function DeliveryOrderList() {
                 <TableSelectedActions
                   dense={dense}
                   numSelected={selected.length}
-                  rowCount={deliverOrder.length}
-                  onSelectAllRows={(checked) =>
+                  rowCount={deliverOrder.filter((e) => formatStatus(e.order?.status) !== OrderStatus.done).length}
+                  onSelectAllRows={(checked) => {
                     onSelectAllRows(
                       checked,
-                      deliverOrder.map((row) => row.id)
-                    )
-                  }
+                      deliverOrder
+                        .filter((e) => formatStatus(e.order?.status) !== OrderStatus.done)
+                        .map((row) => row.id)
+                    );
+                  }}
                   actions={
                     <Stack spacing={1} direction="row">
                       <Tooltip title="Xóa">
