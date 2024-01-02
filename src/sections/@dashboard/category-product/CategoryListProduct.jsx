@@ -23,6 +23,7 @@ import { loader } from 'graphql.macro';
 // import XlsxPopulate from 'xlsx-populate';
 // import { saveAs } from 'file-saver';
 import * as xlsx from 'xlsx';
+import { useTheme } from '@mui/material/styles';
 import useTable from '../../../hooks/useTable';
 import useSettings from '../../../hooks/useSettings';
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -51,14 +52,23 @@ const IMPORT_EXCEL_PRODUCT = loader('../../../graphql/mutations/product/importEx
 const UPDATE_CATEGORY = loader('../../../graphql/mutations/category/updateCategory.graphql');
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'stt', label: 'STT', align: 'right' },
+const TABLE_HEAD_FOR_ADMIN = [
+  { id: 'stt', label: 'STT', align: 'center' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
   { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
   { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
+];
+
+const TABLE_HEAD = [
+  { id: 'stt', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Sản phẩm', align: 'left' },
+  { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
+  { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
+  { id: 'price', label: 'Giá', align: 'right' },
+  { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
 ];
 
 // ----------------------------------------------------------------------
@@ -84,6 +94,8 @@ export default function CategoryListProduct() {
   } = useTable();
 
   const { user } = useAuth();
+
+  const theme = useTheme();
 
   const { themeStretch } = useSettings();
 
@@ -419,77 +431,112 @@ export default function CategoryListProduct() {
               </Stack>
             }
             links={[
-              { name: 'Dashboard', href: PATH_DASHBOARD.root },
+              { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
               { name: 'Danh sách sản phẩm', href: PATH_DASHBOARD.categoryList.root },
               { name: category?.name ? category?.name : '' },
             ]}
           />
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="subtitle1" sx={{ textAlign: 'center', marginRight: 2, color: 'text.primary' }}>
-              {excelFile?.name}
-            </Typography>
-            <Input
-              inputComponent="input"
-              type={'file'}
-              onChange={importExcel}
-              inputRef={inputRef}
-              inputProps={{ accept: '.xlsx,.csv' }}
-              sx={{ display: 'none' }}
-            />
 
-            <Button
-              sx={{
-                maxHeight: 50,
-                alignSelf: 'center',
-                marginRight: 1,
-              }}
-              disabled={!excelFile}
-              variant="contained"
-              onClick={handleConfirmFile}
-              startIcon={<Iconify icon="mingcute:file-import-fill" />}
-            >
-              Import sản phẩm
-            </Button>
+          {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Typography variant="subtitle1" sx={{ textAlign: 'center', marginRight: 2, color: 'text.primary' }}>
+                {excelFile?.name}
+              </Typography>
+              <Input
+                inputComponent="input"
+                type={'file'}
+                onChange={importExcel}
+                inputRef={inputRef}
+                inputProps={{ accept: '.xlsx,.csv' }}
+                sx={{ display: 'none' }}
+              />
 
-            <Button
-              sx={{
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              onClick={handleClick}
-              startIcon={<Iconify icon="mdi:file-find-outline" />}
-            >
-              Chọn file
-            </Button>
-            <Button
-              sx={{
-                ml: 1,
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              onClick={handleSaveAsExcel}
-              startIcon={<Iconify icon={'material-symbols:download-rounded'} />}
-            >
-              Tải file
-            </Button>
+              <Button
+                sx={{
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                  marginRight: 1,
+                }}
+                disabled={!excelFile}
+                variant="contained"
+                onClick={handleConfirmFile}
+                startIcon={<Iconify icon="mingcute:file-import-fill" />}
+              >
+                Import sản phẩm
+              </Button>
 
-            <Button
-              sx={{
-                ml: 1,
-                maxHeight: 50,
-                alignSelf: 'center',
-              }}
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              component={RouterLink}
-              to={PATH_DASHBOARD.product.new}
-            >
-              Thêm Sản phẩm mới
-            </Button>
-          </Stack>
+              <Button
+                sx={{
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                onClick={handleClick}
+                startIcon={<Iconify icon="mdi:file-find-outline" />}
+              >
+                Chọn file
+              </Button>
+              <Button
+                sx={{
+                  ml: 1,
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                onClick={handleSaveAsExcel}
+                startIcon={<Iconify icon={'material-symbols:download-rounded'} />}
+              >
+                Tải file
+              </Button>
+
+              <Button
+                sx={{
+                  ml: 1,
+                  maxHeight: 50,
+                  alignSelf: 'center',
+                }}
+                variant="contained"
+                startIcon={<Iconify icon="eva:plus-fill" />}
+                component={RouterLink}
+                to={PATH_DASHBOARD.product.new}
+              >
+                Thêm Sản phẩm mới
+              </Button>
+            </Stack>
+          )}
         </Stack>
+
+        {theme.palette.mode === 'light' ? (
+          <Stack direction="row">
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Còn hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#C6F3A8" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Sắp hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#fff3cd" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color="#f8d7da" width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+          </Stack>
+        ) : (
+          <Stack direction="row">
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Còn hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.success.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Sắp hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.warning.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+            <Stack direction="row" sx={{ mr: 2 }}>
+              <Typography>Hết hàng: </Typography>
+              <Iconify icon={'mdi:ellipse'} color={theme.palette.error.dark} width={24} height={24} sx={{ ml: 1 }} />
+            </Stack>
+          </Stack>
+        )}
 
         <Card>
           <ProductTableToolbar filterName={filterName} onFilterName={handleFilterName} categories={null} />
@@ -518,20 +565,24 @@ export default function CategoryListProduct() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.node.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_FOR_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.node.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
+                )}
 
                 <TableBody>
                   {tableData.map((row, index) =>

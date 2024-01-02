@@ -1,8 +1,8 @@
 // noinspection JSValidateTypes
 
 import { useNavigate } from 'react-router-dom';
-import { PDFViewer } from '@react-pdf/renderer';
-import { Box, Dialog, DialogActions, IconButton, Stack, Tooltip } from '@mui/material';
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+import { Box, CircularProgress, Dialog, DialogActions, IconButton, Stack, Tooltip } from '@mui/material';
 import PropTypes from 'prop-types';
 import useToggle from '../../../../hooks/useToggle';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
@@ -47,19 +47,19 @@ export default function InvoiceToolbar({ invoice, onPay }) {
             </IconButton>
           </Tooltip>
 
-          {/* <PDFDownloadLink */}
-          {/*  document={<InvoicePDF invoice={invoice} />} */}
-          {/*  fileName={invoice.invoiceNumber} */}
-          {/*  style={{ textDecoration: 'none' }} */}
-          {/* > */}
-          {/*  {({ loading }) => ( */}
-          {/*    <Tooltip title="Tải báo giá"> */}
-          {/*      <IconButton> */}
-          {/*        {loading ? <CircularProgress size={24} color="inherit" /> : <Iconify icon={'eva:download-fill'} />} */}
-          {/*      </IconButton> */}
-          {/*    </Tooltip> */}
-          {/*  )} */}
-          {/* </PDFDownloadLink> */}
+          <PDFDownloadLink
+            document={invoice.invoiceNo ? <InvoicePDF invoice={invoice} /> : <></>}
+            fileName={invoice?.invoiceNo}
+            style={{ textDecoration: 'none' }}
+          >
+            {({ loading }) => (
+              <Tooltip title="Tải báo giá">
+                <IconButton>
+                  {loading ? <CircularProgress size={24} color="inherit" /> : <Iconify icon={'eva:download-fill'} />}
+                </IconButton>
+              </Tooltip>
+            )}
+          </PDFDownloadLink>
 
           <Tooltip title="Thêm thanh toán">
             <IconButton onClick={onPay}>

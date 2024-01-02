@@ -7,7 +7,8 @@ import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mu
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-import { roleTypeToVietnameseRoleName } from '../../../../constant';
+import { Role, roleTypeToVietnameseRoleName } from '../../../../constant';
+import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +22,8 @@ UserTableRow.propTypes = {
 };
 
 export default function UserTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { user } = useAuth();
+
   const theme = useTheme();
 
   const { fullName, avatarURL, role, isActive, phoneNumber } = row;
@@ -37,9 +40,11 @@ export default function UserTableRow({ idx, row, selected, onEditRow, onSelectRo
 
   return (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+      {(user.role === Role.admin || user.role === Role.director) && (
+        <TableCell padding="checkbox">
+          <Checkbox checked={selected} onClick={onSelectRow} />
+        </TableCell>
+      )}
 
       <TableCell align="center">{idx}</TableCell>
 
@@ -66,36 +71,38 @@ export default function UserTableRow({ idx, row, selected, onEditRow, onSelectRo
         </Label>
       </TableCell>
 
-      <TableCell align="right">
-        <TableMoreMenu
-          open={openMenu}
-          onOpen={handleOpenMenu}
-          onClose={handleCloseMenu}
-          actions={
-            <>
-              <MenuItem
-                onClick={() => {
-                  onDeleteRow();
-                  handleCloseMenu();
-                }}
-                sx={{ color: 'error.main' }}
-              >
-                <Iconify icon={'eva:trash-2-outline'} />
-                Xóa
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  onEditRow();
-                  handleCloseMenu();
-                }}
-              >
-                <Iconify icon={'eva:edit-fill'} />
-                Sửa thông tin
-              </MenuItem>
-            </>
-          }
-        />
-      </TableCell>
+      {(user.role === Role.admin || user.role === Role.director) && (
+        <TableCell align="right">
+          <TableMoreMenu
+            open={openMenu}
+            onOpen={handleOpenMenu}
+            onClose={handleCloseMenu}
+            actions={
+              <>
+                <MenuItem
+                  onClick={() => {
+                    onDeleteRow();
+                    handleCloseMenu();
+                  }}
+                  sx={{ color: 'error.main' }}
+                >
+                  <Iconify icon={'eva:trash-2-outline'} />
+                  Xóa
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    onEditRow();
+                    handleCloseMenu();
+                  }}
+                >
+                  <Iconify icon={'eva:edit-fill'} />
+                  Sửa thông tin
+                </MenuItem>
+              </>
+            }
+          />
+        </TableCell>
+      )}
     </TableRow>
   );
 }

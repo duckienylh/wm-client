@@ -42,7 +42,7 @@ export default function DriverCreate() {
         <HeaderBreadcrumbs
           heading={!isEdit ? 'Tạo lái xe mới' : 'Sửa thông tin lái xe'}
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Danh sách lái xe', href: PATH_DASHBOARD.driver.list },
             { name: !isEdit ? 'Tạo lái xe mới' : 'Cập nhật lái xe' },
           ]}

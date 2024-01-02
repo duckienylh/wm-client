@@ -1,0 +1,17 @@
+query ListDriverUnselectedVehicle {
+    listDriverUnselectedVehicle {
+        id
+        email
+        userName
+        phoneNumber
+        firstName
+        lastName
+        fullName
+        address
+        avatarURL
+        isActive
+        role
+        createdAt
+        updatedAt
+    }
+}

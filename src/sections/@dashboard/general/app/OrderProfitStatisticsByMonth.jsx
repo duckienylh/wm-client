@@ -12,6 +12,9 @@ import useAuth from '../../../../hooks/useAuth';
 import useSettings from '../../../../hooks/useSettings';
 import { fNumber } from '../../../../utils/formatNumber';
 import { Role } from '../../../../constant';
+import OrderRevenueProfitDialog from './OrderRevenueProfitDialog';
+import useToggle from '../../../../hooks/useToggle';
+import { addOneDay, convertDateFormat } from '../../../../utils/formatTime';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_MONTH = loader('../../../../graphql/queries/user/salesReportRevenueByMonth.graphql');
@@ -32,6 +35,8 @@ export default function OrderProfitStatisticsByMonth() {
 
   const [totalProfit, setTotalProfit] = useState([]);
 
+  const { toggle: openOrder, onOpen: onOpenOrder, onClose: onCloseOrder } = useToggle();
+
   const { data: getAllSales } = useQuery(GET_ALL_SALE, {
     variables: {
       input: {
@@ -44,6 +49,8 @@ export default function OrderProfitStatisticsByMonth() {
   const [filterSales, setFilterSales] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [chartDataOptions, setChartDataOptions] = useState([]);
+
+  const [dateTimeOrder, setDateTimeOrder] = useState(null);
 
   useEffect(() => {
     if (getAllSales) {
@@ -91,6 +98,12 @@ export default function OrderProfitStatisticsByMonth() {
     },
     chart: {
       foreColor: isLight ? '#000' : '#fff',
+      events: {
+        dataPointSelection: (event, chartContext, config) => {
+          onOpenOrder();
+          setDateTimeOrder(`1/${labelYears[config.dataPointIndex]}`);
+        },
+      },
     },
     yaxis: {
       labels: {
@@ -128,67 +141,76 @@ export default function OrderProfitStatisticsByMonth() {
   };
 
   return (
-    <Card>
-      <Stack
-        spacing={2}
-        direction={{ xs: 'column', sm: 'row' }}
-        sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
-      >
-        <CardHeader title="Biều đồ lợi nhuận hàng tháng" sx={{ mt: -3 }} />
-        {(user.role === Role.admin || user.role === Role.director) && (
-          <TextField
-            fullWidth
-            size="small"
-            label="NV bán hàng"
-            value={filterSales}
-            onChange={handleFilter}
-            select
-            SelectProps={{
-              MenuProps: {
-                sx: { '& .MuiPaper-root': { maxHeight: 260 } },
-              },
-            }}
-            sx={{
-              maxWidth: { sm: 240 },
-              textTransform: 'capitalize',
-            }}
-          >
-            <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
-            {listSales?.map((option) => (
-              <MenuItem
-                key={option.id}
-                value={option.fullName}
-                onClick={() => handleGetSaleId(option.id)}
-                sx={{
-                  mx: 1,
-                  my: 0.5,
-                  borderRadius: 0.75,
-                  typography: 'body2',
-                  textTransform: 'capitalize',
-                }}
-              >
-                <>{option.fullName}</>
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-        <Stack direction="row" spacing={3}>
-          <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
-          <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
-            {`Năm ${year}`}
-          </Typography>
-          <Button
-            variant="text"
-            disabled={year >= currentYear}
-            onClick={addWeek}
-            startIcon={<Icon icon="carbon:next-filled" />}
-          />
+    <>
+      <Card>
+        <Stack
+          spacing={2}
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{ py: 2.5, px: 1.5, justifyContent: 'space-between' }}
+        >
+          <CardHeader title="Biều đồ lợi nhuận hàng tháng" sx={{ mt: -3 }} />
+          {(user.role === Role.admin || user.role === Role.director) && (
+            <TextField
+              fullWidth
+              size="small"
+              label="NV bán hàng"
+              value={filterSales}
+              onChange={handleFilter}
+              select
+              SelectProps={{
+                MenuProps: {
+                  sx: { '& .MuiPaper-root': { maxHeight: 260 } },
+                },
+              }}
+              sx={{
+                maxWidth: { sm: 240 },
+                textTransform: 'capitalize',
+              }}
+            >
+              <MenuItem value="" defaultValue onClick={() => handleGetSaleId(null)} />
+              {listSales?.map((option) => (
+                <MenuItem
+                  key={option.id}
+                  value={option.fullName}
+                  onClick={() => handleGetSaleId(option.id)}
+                  sx={{
+                    mx: 1,
+                    my: 0.5,
+                    borderRadius: 0.75,
+                    typography: 'body2',
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  <>{option.fullName}</>
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          <Stack direction="row" spacing={3}>
+            <Button variant="text" onClick={subWeek} startIcon={<Icon icon="carbon:previous-filled" />} />
+            <Typography justifyContent="center" alignSelf="center" alignItems="center" variant="h6">
+              {`Năm ${year}`}
+            </Typography>
+            <Button
+              variant="text"
+              disabled={year >= currentYear}
+              onClick={addWeek}
+              startIcon={<Icon icon="carbon:next-filled" />}
+            />
+          </Stack>
         </Stack>
-      </Stack>
 
-      <Box sx={{ p: 3, pb: 1 }} dir="ltr">
-        <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
-      </Box>
-    </Card>
+        <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+          <ReactApexChart type="line" series={chartDataOptions} options={chartOptions} height={364} />
+        </Box>
+      </Card>
+
+      <OrderRevenueProfitDialog
+        open={openOrder}
+        onClose={onCloseOrder}
+        startTime={convertDateFormat(dateTimeOrder)}
+        endTime={addOneDay(convertDateFormat(dateTimeOrder))}
+      />
+    </>
   );
 }

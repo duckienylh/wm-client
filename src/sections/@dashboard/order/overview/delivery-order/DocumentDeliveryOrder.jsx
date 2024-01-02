@@ -35,8 +35,8 @@ export default function DocumentDeliveryOrder({ currentOrder, deliverOrder }) {
   const defaultValues = useMemo(
     () => ({
       deliveryPayable: currentOrder?.freightPrice || '',
-      deliveryDate: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.deliveryDate : new Date(),
-      receivingNote: currentOrder?.deliverOrderList ? currentOrder?.deliverOrderList[0]?.receivingNote : '',
+      deliveryDate: currentOrder?.deliverOrderList[0]?.deliveryDate || null,
+      receivingNote: currentOrder?.deliverOrderList[0]?.receivingNote || '',
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentOrder]

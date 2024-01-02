@@ -35,8 +35,8 @@ export default function OrderTimeline() {
       <CardHeader title="Thông tin quy trình đơn hàng" />
       <CardContent>
         <Timeline>
-          {timeLineOrderLst.map((item, index) => (
-            <OrderTimelineItem key={item.id} item={item} isLast={index === 5} />
+          {timeLineOrderLst.map((item) => (
+            <OrderTimelineItem key={item.id} item={item} />
           ))}
         </Timeline>
       </CardContent>
@@ -48,10 +48,9 @@ export default function OrderTimeline() {
 
 OrderTimelineItem.propTypes = {
   item: PropTypes.object,
-  isLast: PropTypes.bool,
 };
 
-function OrderTimelineItem({ item, isLast }) {
+function OrderTimelineItem({ item }) {
   const { description, createdAt, toStatus } = item;
 
   return (
@@ -61,13 +60,14 @@ function OrderTimelineItem({ item, isLast }) {
           color={
             (toStatus === 'Tạo mới' && 'primary') ||
             (toStatus === 'Đang giao hàng' && 'warning') ||
+            (toStatus === 'Chốt đơn - Tạo lệnh xuất hàng' && 'info') ||
             (toStatus === 'Giao hàng thành công' && 'success') ||
-            (toStatus === 'Đang thanh toán' && 'info') ||
+            (toStatus === 'Đang thanh toán' && 'warning') ||
             (toStatus === 'Xác nhận thanh toán và hồ sơ' && 'info') ||
             'success'
           }
         />
-        {isLast ? null : <TimelineConnector />}
+        {toStatus === 'Đơn hàng hoàn thành' ? null : <TimelineConnector />}
       </TimelineSeparator>
       <TimelineContent>
         <Typography variant="subtitle2">{description}</Typography>

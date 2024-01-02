@@ -104,6 +104,8 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentProduct]);
 
+  console.log('values.images[0]', values.images[0], isString(values.images[0]));
+
   const onSubmit = async () => {
     try {
       if (!isEdit) {
@@ -138,7 +140,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               inventory: values.inventory === currentProduct?.inventory ? null : Number(values.inventory),
               age: values.age === currentProduct?.age ? null : Number(values.age),
               description: values.description === currentProduct?.description ? null : values.description,
-              image: isString(values.images[0]) ? values.images[0] : null,
+              image: !isString(values.images[0]) ? values.images[0] : null,
             },
           },
         });
@@ -209,7 +211,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               <Stack spacing={3}>
                 <RHFTextField name="code" label="Mã sản phẩm" />
 
-                <RHFSelect name="category" label="Loại">
+                <RHFSelect name="category" label="hạng mục">
                   <option value="" />
                   {categoryOption.map((category) => (
                     <option key={category.id} value={category.id}>

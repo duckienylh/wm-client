@@ -119,6 +119,7 @@ type Mutation {
     createUser(input: CreateUserInput!): User!
     createVehicle(input: CreateVehicleInput!): Vehicle!
     deleteCustomer(input: DeleteCustomerInput!): SuccessResponse!
+    deleteDeliverOrders(input: DeleteDeliverOrdersInput!): SuccessResponse!
     deletePaymentInfo(input: DeletePaymentInfoInput!): SuccessResponse!
     deleteProduct(input: DeleteProductInput!): SuccessResponse!
     deleteUser(input: DeleteUserInput!): SuccessResponse!
@@ -499,6 +500,11 @@ input CreateVehicleInput {
 }
 
 input DeleteCustomerInput {
+    ids: [Int!]!
+}
+
+input DeleteDeliverOrdersInput {
+    deleteBy: Int!
     ids: [Int!]!
 }
 

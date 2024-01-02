@@ -48,20 +48,20 @@ export default function InvoicePDF({ invoice }) {
 
         <View style={[styles.gridContainer, styles.mb4]}>
           <View style={styles.col6}>
-            <Text style={[styles.overline, styles.mb6]}>Trân trọng báo cho: Mr/Ms.{invoice.customer.name}</Text>
-            <Text style={[styles.overline, styles.mb6]}>Đơn vị: {invoice.customer.companyName}</Text>
-            <Text style={[styles.overline, styles.mb6]}>Địa chỉ: {invoice.customer.address}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Trân trọng báo cho: Mr/Ms.{invoice?.customer?.name}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Đơn vị: {invoice?.customer?.companyName}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Địa chỉ: {invoice?.customer?.address}</Text>
           </View>
 
           <View style={styles.col6FlexEnd}>
-            <Text style={[styles.overline, styles.mb6]}>Điện thoại: {invoice.customer.phoneNumber}</Text>
+            <Text style={[styles.overline, styles.mb6]}>Điện thoại: {invoice?.customer?.phoneNumber}</Text>
           </View>
         </View>
 
         <View style={[styles.gridContainer, styles.mb4]}>
           <Text style={styles.body2}>
-            Công ty chúng tôi trân trọng gửi tới quý khách Mr/Ms.{invoice.customer.name} báo giá các sản phẩm gỗ và các
-            sản phẩm ngành gỗ như sau
+            Công ty chúng tôi trân trọng gửi tới quý khách Mr/Ms.{invoice?.customer?.name} báo giá các sản phẩm gỗ và
+            các sản phẩm ngành gỗ như sau
           </Text>
         </View>
 
@@ -213,7 +213,7 @@ export default function InvoicePDF({ invoice }) {
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
-                <Text>{fVietNamCurrency(invoice.freightPrice)}</Text>
+                <Text>{fVietNamCurrency(invoice?.freightPrice)}</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
@@ -243,7 +243,7 @@ export default function InvoicePDF({ invoice }) {
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.bodyCell8WithBorder]}>
-                <Text style={styles.borderBody2}>{fVietNamCurrency(invoice.totalMoney)}</Text>
+                <Text style={styles.borderBody2}>{fVietNamCurrency(invoice?.totalMoney)}</Text>
               </View>
 
               <View style={[styles.tableCellWithBorderBase, styles.lastCellWithBorderBase]}>
@@ -258,16 +258,16 @@ export default function InvoicePDF({ invoice }) {
             <Text style={[styles.h3, styles.mb6]}>Báo giá trên:</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Đã bao gồm 10% thuế VAT</Text>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Báo giá có hiệu lực 3 ngày</Text>
-            <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Thời gian thực hiện: 1-2 ngày</Text>
-            <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>
-              - Thanh toán 100% đơn hàng ngay khi đặt hàng
-            </Text>
+            {/* <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>- Thời gian thực hiện: 1-2 ngày</Text> */}
+            {/* <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}> */}
+            {/*  - Thanh toán 100% đơn hàng ngay khi đặt hàng */}
+            {/* </Text> */}
           </View>
 
           <View style={[styles.col35FlexEnd, { paddingTop: 10 }]}>
             <Text style={[styles.overline, styles.fontWeight400, styles.mb4]}>
-              Hà Nội, ngày {fDateToDay(invoice.updatedAt)} tháng {fDateToMonth(invoice.updatedAt)} năm{' '}
-              {fDateToYear(invoice.updatedAt)}
+              Hà Nội, ngày {fDateToDay(invoice?.updatedAt || new Date())} tháng{' '}
+              {fDateToMonth(invoice?.updatedAt || new Date())} năm {fDateToYear(invoice?.updatedAt || new Date())}
             </Text>
             <Text
               style={[
@@ -286,7 +286,7 @@ export default function InvoicePDF({ invoice }) {
                 { textAlign: 'center', alignSelf: 'center', alignItems: 'center', paddingTop: 10 },
               ]}
             >
-              {invoice.sale.fullName} - {formatPhoneNumber(invoice.sale.phoneNumber)}
+              {invoice?.sale?.fullName} - {formatPhoneNumber(invoice?.sale?.phoneNumber)}
             </Text>
           </View>
         </View>

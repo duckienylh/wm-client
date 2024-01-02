@@ -37,12 +37,22 @@ import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } fr
 // sections
 import { UserTableRow, UserTableToolbar } from '../../sections/@dashboard/user/list';
 // constant
-import { RoleArr } from '../../constant';
+import { Role, RoleArr } from '../../constant';
 import { formatRoleInput } from '../../utils/formatRole';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = ['Tất cả', 'Đang hoạt động', 'Ngừng hoạt động'];
+
+const TABLE_HEAD_ADMIN = [
+  { id: 'STT', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Tên người dùng', align: 'left' },
+  { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
+  { id: 'role', label: 'Chức vụ', align: 'left' },
+  { id: 'status', label: 'Trạng thái', align: 'left' },
+  { id: '' },
+];
 
 const TABLE_HEAD = [
   { id: 'STT', label: 'STT', align: 'center' },
@@ -50,7 +60,6 @@ const TABLE_HEAD = [
   { id: 'numberPhone', label: 'Số điện thoại', align: 'center' },
   { id: 'role', label: 'Chức vụ', align: 'left' },
   { id: 'status', label: 'Trạng thái', align: 'left' },
-  { id: '' },
 ];
 
 // ----------------------------------------------------------------------
@@ -77,6 +86,8 @@ export default function UserList() {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable();
+
+  const { user } = useAuth();
 
   const { themeStretch } = useSettings();
 
@@ -216,14 +227,16 @@ export default function UserList() {
             { name: 'Danh sách' },
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.user.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              Thêm người dùng
-            </Button>
+            (user.role === Role.admin || user.role === Role.director) && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.user.new}
+                startIcon={<Iconify icon={'eva:plus-fill'} />}
+              >
+                Thêm người dùng
+              </Button>
+            )
           }
         />
 
@@ -278,20 +291,24 @@ export default function UserList() {
               )}
 
               <Table size={dense ? 'small' : 'medium'}>
-                <TableHeadCustom
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={selected.length}
-                  onSort={onSort}
-                  onSelectAllRows={(checked) =>
-                    onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.node.id)
-                    )
-                  }
-                />
+                {user.role === Role.admin || user.role === Role.director ? (
+                  <TableHeadCustom
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD_ADMIN}
+                    rowCount={tableData.length}
+                    numSelected={selected.length}
+                    onSort={onSort}
+                    onSelectAllRows={(checked) =>
+                      onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.node.id)
+                      )
+                    }
+                  />
+                ) : (
+                  <TableHeadCustom order={order} orderBy={orderBy} headLabel={TABLE_HEAD} onSort={onSort} />
+                )}
 
                 <TableBody>
                   {tableData.map((row, idx) => (

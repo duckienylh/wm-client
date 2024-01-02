@@ -31,6 +31,7 @@ export default function DriverListDialog({ open, selected, onClose, onSelect, de
     variables: {
       input: {
         role: Role.driver,
+        isActive: true,
       },
     },
   });
