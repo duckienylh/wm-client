@@ -120,7 +120,6 @@ export const adminNavConfig = [
           { title: 'Tạo mới', path: PATH_DASHBOARD.driver.new },
         ],
       },
-      // { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
     ],
   },
   // APP
@@ -143,216 +142,109 @@ export const adminNavConfig = [
   // },
 ];
 
-// export const directorNavConfig = [
-//   // Chung
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chung',
-//     items: [
-//       { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-//       { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
-//     ],
-//   },
-//   // MANAGEMENT
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Quản lý',
-//     items: [
-//       // USER
-//       {
-//         title: 'Người dùng, nhân viên',
-//         path: PATH_DASHBOARD.user.root,
-//         icon: ICONS.user,
-//         children: [
-//           { title: 'Danh sách', path: PATH_DASHBOARD.user.list },
-//           { title: 'Tạo mới', path: PATH_DASHBOARD.user.new },
-//         ],
-//       },
-//       // Khách hàng
-//       {
-//         title: 'Khách hàng',
-//         path: PATH_DASHBOARD.customer.root,
-//         icon: ICONS.customer,
-//         children: [
-//           { title: 'Danh sách', path: PATH_DASHBOARD.customer.list },
-//           { title: 'Tạo mới', path: PATH_DASHBOARD.customer.new },
-//         ],
-//       },
-//       // product
-//       // {
-//       //   title: 'Sản phẩm',
-//       //   path: PATH_DASHBOARD.product.root,
-//       //   icon: ICONS.cart,
-//       //   children: [
-//       //     { title: 'shop', path: PATH_DASHBOARD.product.shop },
-//       //     { title: 'Chi tiết', path: PATH_DASHBOARD.product.demoView },
-//       //     { title: 'list', path: PATH_DASHBOARD.product.list },
-//       //     { title: 'create', path: PATH_DASHBOARD.product.new },
-//       //     { title: 'edit', path: PATH_DASHBOARD.product.demoEdit },
-//       //     { title: 'checkout', path: PATH_DASHBOARD.product.checkout },
-//       //   ],
-//       // },
-//     ],
-//   },
-//   // {
-//   //   subheader: 'Kinh doanh',
-//   //   items: [
-//   //     { title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice },
-//   //     { title: 'Chi tiết', path: PATH_DASHBOARD.saleAndMarketing.demoView, icon: ICONS.detail },
-//   //   ],
-//   // },
-//   // Vận tải
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Vận tải',
-//     items: [
-//       {
-//         title: 'Lệnh xuất hàng',
-//         path: PATH_DASHBOARD.deliveryOrder.root,
-//         icon: ICONS.cart,
-//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.deliveryOrder.list }],
-//       },
-//       {
-//         title: 'Xe, Phương tiện',
-//         path: PATH_DASHBOARD.vehicle.root,
-//         icon: ICONS.cart,
-//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list }],
-//       },
-//       {
-//         title: 'Lái xe, phụ xe',
-//         path: PATH_DASHBOARD.driver.root,
-//         icon: ICONS.customer,
-//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.driver.list }],
-//       },
-//       { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
-//     ],
-//   },
-//   // APP
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chức năng',
-//     items: [
-//       {
-//         title: 'Forum',
-//         path: PATH_DASHBOARD.blog.root,
-//         icon: ICONS.blog,
-//         children: [
-//           { title: 'Tin tức', path: PATH_DASHBOARD.blog.posts },
-//           { title: 'Chi tiết', path: PATH_DASHBOARD.blog.demoView },
-//           { title: 'Tạo mới', path: PATH_DASHBOARD.blog.new },
-//         ],
-//       },
-//     ],
-//   },
-// ];
-//
-// export const salesNavConfig = [
-//   // Chung
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chung',
-//     items: [
-//       { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-//       { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
-//       { title: 'Lương theo doanh thu', path: PATH_DASHBOARD.general.salaryBySale, icon: ICONS.salary },
-//     ],
-//   },
-//   // MANAGEMENT
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Quản lý',
-//     items: [
-//       // Khách hàng
-//       {
-//         title: 'Khách hàng',
-//         path: PATH_DASHBOARD.customer.root,
-//         icon: ICONS.customer,
-//         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.customer.list }],
-//       },
-//       // product
-//       {
-//         title: 'Sản phẩm',
-//         path: PATH_DASHBOARD.product.root,
-//         icon: ICONS.cart,
-//         children: [
-//           { title: 'Danh sách dạng lưới', path: PATH_DASHBOARD.product.shop },
-//           { title: 'Danh sách', path: PATH_DASHBOARD.product.list },
-//           { title: 'Chi tiết', path: PATH_DASHBOARD.product.demoView },
-//         ],
-//       },
-//     ],
-//   },
-//   {
-//     subheader: 'Kinh doanh',
-//     items: [
-//       { title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice },
-//       { title: 'Chi tiết', path: PATH_DASHBOARD.saleAndMarketing.demoView, icon: ICONS.detail },
-//     ],
-//   },
-//   // APP
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chức năng',
-//     items: [
-//       {
-//         title: 'Forum',
-//         path: PATH_DASHBOARD.blog.root,
-//         icon: ICONS.blog,
-//         children: [
-//           { title: 'Tin tức', path: PATH_DASHBOARD.blog.posts },
-//           { title: 'Chi tiết', path: PATH_DASHBOARD.blog.demoView },
-//           { title: 'Tạo mới', path: PATH_DASHBOARD.blog.new },
-//         ],
-//       },
-//       { title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-//     ],
-//   },
-// ];
-//
-// export const driverNavConfig = [
-//   // Chung
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chung',
-//     items: [
-//       { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
-//       { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
-//       { title: 'Bảng lương', path: PATH_DASHBOARD.general.salaryBySale, icon: ICONS.salary },
-//     ],
-//   },
-//   // Vận tải
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Vận tải',
-//     items: [
-//       {
-//         title: 'Lệnh xuất hàng',
-//         path: PATH_DASHBOARD.deliveryOrder.root,
-//         icon: ICONS.cart,
-//         children: [
-//           { title: 'Danh sách', path: PATH_DASHBOARD.deliveryOrder.list },
-//           { title: 'Cập nhật', path: PATH_DASHBOARD.deliveryOrder.demoEdit },
-//         ],
-//       },
-//       { title: 'Tổng hợp hàng tháng', path: '#', icon: ICONS.analytics },
-//     ],
-//   },
-//   // APP
-//   // ----------------------------------------------------------------------
-//   {
-//     subheader: 'Chức năng',
-//     items: [
-//       {
-//         title: 'Forum',
-//         path: PATH_DASHBOARD.blog.root,
-//         icon: ICONS.blog,
-//         children: [
-//           { title: 'Tin tức', path: PATH_DASHBOARD.blog.posts },
-//           { title: 'Chi tiết', path: PATH_DASHBOARD.blog.demoView },
-//           { title: 'Tạo mới', path: PATH_DASHBOARD.blog.new },
-//         ],
-//       },
-//       { title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-//     ],
-//   },
-// ];
+export const salesNavConfig = [
+  // Chung
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Chung',
+    items: [
+      { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
+      { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
+    ],
+  },
+  // MANAGEMENT
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Quản lý',
+    items: [
+      // USER
+      {
+        title: 'Người dùng, nhân viên',
+        path: PATH_DASHBOARD.user.root,
+        icon: ICONS.user,
+        children: [{ title: 'Danh sách', path: PATH_DASHBOARD.user.list }],
+      },
+      // Khách hàng
+      {
+        title: 'Khách hàng',
+        path: PATH_DASHBOARD.customer.root,
+        icon: ICONS.customer,
+        children: [
+          { title: 'Danh sách', path: PATH_DASHBOARD.customer.list },
+          { title: 'Tạo mới', path: PATH_DASHBOARD.customer.new },
+        ],
+      },
+      // product
+      {
+        title: 'Sản phẩm',
+        path: PATH_DASHBOARD.categoryList.root,
+        icon: ICONS.inventory,
+      },
+    ],
+  },
+  {
+    subheader: 'Kinh doanh',
+    items: [
+      { title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice },
+      { title: 'Tạo đơn hàng mới', path: PATH_DASHBOARD.saleAndMarketing.new, icon: ICONS.saleAndMarketing },
+    ],
+  },
+  {
+    subheader: 'Vận tải',
+    items: [
+      {
+        title: 'Lệnh xuất hàng',
+        path: PATH_DASHBOARD.deliveryOrder.root,
+        icon: ICONS.fastDelivery,
+      },
+    ],
+  },
+  // APP
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Chức năng',
+    items: [{ title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar }],
+  },
+];
+
+export const driverNavConfig = [
+  // Chung
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Chung',
+    items: [
+      { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
+      { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
+    ],
+  },
+  // Vận tải
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Vận tải',
+    items: [
+      {
+        title: 'Lệnh xuất hàng',
+        path: PATH_DASHBOARD.deliveryOrder.root,
+        icon: ICONS.fastDelivery,
+      },
+      {
+        title: 'Xe, Phương tiện',
+        path: PATH_DASHBOARD.vehicle.root,
+        icon: ICONS.forklift,
+        children: [{ title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list }],
+      },
+      {
+        title: 'Lái xe, phụ xe',
+        path: PATH_DASHBOARD.driver.root,
+        icon: ICONS.driver,
+        children: [{ title: 'Danh sách', path: PATH_DASHBOARD.driver.list }],
+      },
+    ],
+  },
+  // APP
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Chức năng',
+    items: [{ title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar }],
+  },
+];

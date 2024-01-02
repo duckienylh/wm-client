@@ -70,10 +70,33 @@ query ListArrayUserNotification($input: ListArrayUserNotificationInput!) {
                     order{
                         id
                     }
+                    driver {
+                        phoneNumber
+                        fullName
+                        avatarURL
+                        email
+                        address
+                    }
                     deliveryDate
                     receivingNote
                     description
                 }
+                paymentList {
+                    id
+                    money
+                    customer {
+                        name
+                        companyName
+                        address
+                        email
+                        phoneNumber
+                    }
+                    description
+                    createdAt
+                    updatedAt
+                }
+                freightPrice
+                remainingPaymentMoney
                 invoiceNo
                 VAT
                 totalMoney
