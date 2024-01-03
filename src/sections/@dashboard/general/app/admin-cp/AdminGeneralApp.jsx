@@ -15,6 +15,7 @@ import { AnalyticsCurrentVisits } from '../../analytics';
 import OrderProfitStatisticsByMonth from '../OrderProfitStatisticsByMonth';
 import OrderProfitStatisticsByWeek from '../OrderProfitStatisticsByWeek';
 import { Role } from '../../../../../constant';
+import Top5LatestOrder from '../Top5LatestOrder';
 
 // ----------------------------------------------------------------------
 const REPORT_REVENUE_BY_MONTH = loader('../../../../../graphql/queries/user/salesReportRevenueByMonth.graphql');
@@ -184,20 +185,31 @@ export default function AdminGeneralApp() {
             </>
           )}
 
+          {user?.role === Role.sales && (
+            <Grid item xs={12}>
+              <Top5LatestOrder />
+            </Grid>
+          )}
+
           <Grid item xs={12}>
             <AppAreaInstalled />
           </Grid>
-
-          <Grid item xs={12} lg={8}>
-            <AppSaleRevenueByWeekChartLine />
-          </Grid>
-
-          <Grid item xs={12} lg={4}>
-            <AnalyticsCurrentVisits />
-          </Grid>
+          {user?.role === Role.sales && (
+            <Grid item xs={12}>
+              <AppSaleRevenueByWeekChartLine />
+            </Grid>
+          )}
 
           {(user?.role === Role.admin || user?.role === Role.director) && (
             <>
+              <Grid item xs={12} lg={8}>
+                <AppSaleRevenueByWeekChartLine />
+              </Grid>
+
+              <Grid item xs={12} lg={4}>
+                <AnalyticsCurrentVisits />
+              </Grid>
+
               <Grid item xs={12}>
                 <OrderProfitStatisticsByMonth />
               </Grid>
