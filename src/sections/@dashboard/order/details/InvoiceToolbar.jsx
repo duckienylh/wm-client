@@ -8,6 +8,8 @@ import useToggle from '../../../../hooks/useToggle';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
 import Iconify from '../../../../components/Iconify';
 import InvoicePDF from './InvoicePDF';
+import useAuth from '../../../../hooks/useAuth';
+import { Role } from '../../../../constant';
 
 // ----------------------------------------------------------------------
 
@@ -17,6 +19,8 @@ InvoiceToolbar.propTypes = {
 };
 
 export default function InvoiceToolbar({ invoice, onPay }) {
+  const { user } = useAuth();
+
   const navigate = useNavigate();
 
   const { toggle: open, onOpen, onClose } = useToggle();
@@ -35,11 +39,13 @@ export default function InvoiceToolbar({ invoice, onPay }) {
         sx={{ mb: 3 }}
       >
         <Stack direction="row" spacing={1} sx={{ alignSelf: 'flex-end' }}>
-          <Tooltip title="Chỉnh sửa">
-            <IconButton onClick={handleEdit}>
-              <Iconify icon={'eva:edit-fill'} />
-            </IconButton>
-          </Tooltip>
+          {user?.role === Role.sales && (
+            <Tooltip title="Chỉnh sửa">
+              <IconButton onClick={handleEdit}>
+                <Iconify icon={'eva:edit-fill'} />
+              </IconButton>
+            </Tooltip>
+          )}
 
           <Tooltip title="Xem file PDF báo giá">
             <IconButton onClick={onOpen}>
@@ -61,11 +67,13 @@ export default function InvoiceToolbar({ invoice, onPay }) {
             )}
           </PDFDownloadLink>
 
-          <Tooltip title="Thêm thanh toán">
-            <IconButton onClick={onPay}>
-              <Iconify icon={'tdesign:money'} />
-            </IconButton>
-          </Tooltip>
+          {(user?.role === Role.sales || user?.role === Role.accountant) && (
+            <Tooltip title="Thêm thanh toán">
+              <IconButton onClick={onPay}>
+                <Iconify icon={'tdesign:money'} />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
       </Stack>
 

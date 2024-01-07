@@ -155,7 +155,7 @@ export default function AccountGeneral() {
               <RHFTextField name="lastName" label="Họ người dùng" />
               <RHFTextField name="firstName" label="Tên người dùng" />
 
-              <RHFTextField name="email" label="Địa chỉ Email" disabled />
+              <RHFTextField name="email" label="Địa chỉ Email" />
 
               <RHFTextField name="phoneNumber" label="Số điện thoại" disabled />
               <RHFTextField name="address" label="Địa chỉ" />
