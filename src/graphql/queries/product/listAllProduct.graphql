@@ -18,6 +18,14 @@ query ListAllProduct($input: ListAllProductInput!) {
                 width
                 weight
                 image
+                imagesOfProduct {
+                    id
+                    fileName
+                    keyPath
+                    url
+                    createdAt
+                    updatedAt
+                }
                 description
                 createdAt
                 updatedAt

@@ -57,7 +57,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     () => ({
       name: currentProduct?.name || '',
       description: currentProduct?.description || '',
-      images: currentProduct?.image ? [currentProduct?.image] : [],
+      images: currentProduct?.imagesOfProduct ? currentProduct?.imagesOfProduct.map((e) => e?.url) : [],
       code: currentProduct?.code || '',
       price: currentProduct?.price || 0,
       category: currentProduct?.category?.id || '',
@@ -104,8 +104,6 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, currentProduct]);
 
-  console.log('values.images[0]', values.images[0], isString(values.images[0]));
-
   const onSubmit = async () => {
     try {
       if (!isEdit) {
@@ -122,6 +120,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               age: Number(values.age),
               description: values.description,
               image: values.images[0],
+              imagesOfProduct: values.images,
             },
           },
         });
@@ -141,13 +140,14 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
               age: values.age === currentProduct?.age ? null : Number(values.age),
               description: values.description === currentProduct?.description ? null : values.description,
               image: !isString(values.images[0]) ? values.images[0] : null,
+              imagesOfProduct: !isString(values.images[0]) ? values.images : null,
             },
           },
         });
       }
       reset();
       enqueueSnackbar(!isEdit ? 'Thêm thành công!' : 'Sửa thành công!');
-      navigate(PATH_DASHBOARD.product.list);
+      navigate(PATH_DASHBOARD.categoryList.categoryListProduct(values.category));
     } catch (error) {
       console.error(error);
     }

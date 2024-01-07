@@ -191,7 +191,7 @@ export default function CategoryListProduct() {
   };
 
   useEffect(() => {
-    refetchProduct({
+    fetchMore({
       variables: {
         input: {
           stringQuery: filterName,
@@ -204,7 +204,7 @@ export default function CategoryListProduct() {
       },
       updateQuery: (previousResult, { fetchMoreResult }) => updateQuery(previousResult, { fetchMoreResult }),
     }).then((res) => res);
-  }, [refetchProduct, rowsPerPage, page, fetchMore, filterName, id]);
+  }, [rowsPerPage, page, fetchMore, filterName, id]);
 
   const [importProduct] = useMutation(IMPORT_EXCEL_PRODUCT);
 

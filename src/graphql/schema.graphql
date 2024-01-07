@@ -76,6 +76,19 @@ type File {
     url: String!
 }
 
+type ImageOfProduct {
+    createdAt: Date
+    encoding: String
+    fileName: String!
+    id: Int!
+    keyPath: String!
+    mineType: String
+    product: Product!
+    updatedAt: Date
+    uploadBy: User
+    url: String!
+}
+
 type ImageOfVehicle {
     createdAt: Date
     file: File!
@@ -238,6 +251,7 @@ type Product {
     height: Float
     id: Int!
     image: String
+    imagesOfProduct: [ImageOfProduct]
     inventory: Float
     name: String!
     price: Float!
@@ -262,6 +276,7 @@ type Query {
     adminReportRevenueByMonth(input: AdminReportRevenueByMonthInput!): [AdminReportRevenueByMonthResponse]!
     getCategoryById(id: Int!): Category!
     getCustomerById(CustomerId: Int!): Customer!
+    getLatest5Orders(input: getLatest5OrdersInput!): [Order]!
     getOrderById(orderId: Int!): Order!
     getProductById(productId: Int!): Product!
     getUserById(userId: Int!): User!
@@ -465,6 +480,7 @@ input CreateProductInput {
     description: String
     height: Float
     image: Upload
+    imagesOfProduct: [Upload]
     inventory: Float
     name: String!
     price: Float!
@@ -542,6 +558,7 @@ input ListAllDeliverOrderInput {
     queryString: String
     saleId: Int
     status: String
+    theNext7Days: Boolean
 }
 
 input ListAllOrderInput {
@@ -655,6 +672,7 @@ input UpdateProductInput {
     height: Float
     id: Int!
     image: Upload
+    imagesOfProduct: [Upload]
     inventory: Float
     name: String
     price: Float
@@ -732,6 +750,10 @@ input UsersInput {
 input filterDate {
     endAt: Date!
     startAt: Date!
+}
+
+input getLatest5OrdersInput {
+    saleId: Int!
 }
 
 input productInput {
