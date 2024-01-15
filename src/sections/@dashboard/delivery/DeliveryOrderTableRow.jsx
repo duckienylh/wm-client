@@ -168,7 +168,7 @@ export default function DeliveryOrderTableRow({
                         formatStatus(order?.status) !== OrderStatus.deliverSuccess) ||
                       (user.role === Role.accountant &&
                         formatStatus(order?.status) !== OrderStatus.new &&
-                        formatStatus(order?.status) !== OrderStatus.done &&
+                        // formatStatus(order?.status) !== OrderStatus.done &&
                         formatStatus(order?.status) !== OrderStatus.inProgress)
                     )
                   }

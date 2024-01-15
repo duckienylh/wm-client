@@ -10,6 +10,7 @@ import Iconify from '../../../../components/Iconify';
 import InvoicePDF from './InvoicePDF';
 import useAuth from '../../../../hooks/useAuth';
 import { Role } from '../../../../constant';
+import { formatStatus } from '../../../../utils/getOrderFormat';
 
 // ----------------------------------------------------------------------
 
@@ -67,13 +68,14 @@ export default function InvoiceToolbar({ invoice, onPay }) {
             )}
           </PDFDownloadLink>
 
-          {(user?.role === Role.sales || user?.role === Role.accountant) && (
-            <Tooltip title="Thêm thanh toán">
-              <IconButton onClick={onPay}>
-                <Iconify icon={'tdesign:money'} />
-              </IconButton>
-            </Tooltip>
-          )}
+          {(user?.role === Role.sales || user?.role === Role.accountant) &&
+            formatStatus(invoice?.status) !== 'Đơn hàng hoàn thành' && (
+              <Tooltip title="Thêm thanh toán">
+                <IconButton onClick={onPay}>
+                  <Iconify icon={'tdesign:money'} />
+                </IconButton>
+              </Tooltip>
+            )}
         </Stack>
       </Stack>
 

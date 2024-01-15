@@ -17,6 +17,7 @@ import { Role } from '../../../../constant';
 import { FormProvider, RHFUploadMultiFile } from '../../../../components/hook-form';
 import { filterImgData } from '../../../../utils/utiltites';
 import Image from '../../../../components/Image';
+import CommonBackdrop from '../../../../components/CommonBackdrop';
 
 // -----------------------------------------------------------------
 const UPDATE_STATUS_ORDER = loader('../../../../graphql/mutations/order/updateStatusOrder.graphql');
@@ -98,7 +99,7 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
 
   const values = watch();
 
-  const [updateStatusOrder] = useMutation(UPDATE_STATUS_ORDER, {
+  const [updateStatusOrder, { loading: loadingUpdateStatus }] = useMutation(UPDATE_STATUS_ORDER, {
     onCompleted: async (res) => {
       if (res) {
         enqueueSnackbar('Cập nhật đơn hàng thành công', {
@@ -238,6 +239,113 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
     },
     [deleteArr, deliverOrder?.order?.orderDocumentList, newArrFile, setValue, values?.uploadFile]
   );
+
+  // useEffect(() => {
+  //   if (formatStatus(deliverOrder?.order?.status) === 'Chốt đơn - Tạo lệnh xuất hàng') {
+  //     console.log('1');
+  //     OrderStatusDriverArr[0].disable = false;
+  //     OrderStatusDriverArr[1].disable = true;
+  //     OrderStatusAccountantArr[0].disable = false;
+  //     OrderStatusAccountantArr[1].disable = false;
+  //     OrderStatusAccountantArr[2].disable = true;
+  //   }
+  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[0].status) {
+  //     console.log('2');
+  //     OrderStatusDriverArr[0].disable = true;
+  //     OrderStatusDriverArr[1].disable = false;
+  //     OrderStatusAccountantArr[0].disable = true;
+  //     OrderStatusAccountantArr[1].disable = true;
+  //     OrderStatusAccountantArr[2].disable = true;
+  //   }
+  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[1].status) {
+  //     console.log('3');
+  //     OrderStatusDriverArr[0].disable = true;
+  //     OrderStatusDriverArr[1].disable = true;
+  //     OrderStatusAccountantArr[0].disable = false;
+  //     OrderStatusAccountantArr[1].disable = false;
+  //     OrderStatusAccountantArr[2].disable = false;
+  //   }
+  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[1].status) {
+  //     console.log('5');
+  //     OrderStatusDriverArr[0].disable = false;
+  //     OrderStatusDriverArr[1].disable = false;
+  //     OrderStatusAccountantArr[0].disable = true;
+  //     OrderStatusAccountantArr[1].disable = true;
+  //     OrderStatusAccountantArr[2].disable = false;
+  //   }
+  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[0].status) {
+  //     console.log('6');
+  //     OrderStatusDriverArr[0].disable = false;
+  //     OrderStatusDriverArr[1].disable = true;
+  //     OrderStatusAccountantArr[0].disable = true;
+  //     OrderStatusAccountantArr[1].disable = false;
+  //     OrderStatusAccountantArr[2].disable = false;
+  //   }
+  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[2].status) {
+  //     console.log('8');
+  //     OrderStatusDriverArr[0].disable = true;
+  //     OrderStatusDriverArr[1].disable = true;
+  //     OrderStatusAccountantArr[0].disable = true;
+  //     OrderStatusAccountantArr[1].disable = true;
+  //     OrderStatusAccountantArr[2].disable = true;
+  //   }
+  // }, [deliverOrder?.order?.status, open]);
+  console.log(deliverOrder?.order?.status);
+
+  useEffect(() => {
+    const status = formatStatus(deliverOrder?.order?.status);
+    console.log('........');
+    if (status) {
+      if (formatStatus(deliverOrder?.order?.status) === 'Chốt đơn - Tạo lệnh xuất hàng') {
+        console.log('1');
+        OrderStatusDriverArr[0].disable = false;
+        OrderStatusDriverArr[1].disable = true;
+        OrderStatusAccountantArr[0].disable = false;
+        OrderStatusAccountantArr[1].disable = false;
+        OrderStatusAccountantArr[2].disable = true;
+      }
+      if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[0].status) {
+        console.log('2');
+        OrderStatusDriverArr[0].disable = true;
+        OrderStatusDriverArr[1].disable = false;
+        OrderStatusAccountantArr[0].disable = true;
+        OrderStatusAccountantArr[1].disable = true;
+        OrderStatusAccountantArr[2].disable = true;
+      }
+      if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[1].status) {
+        console.log('3');
+        OrderStatusDriverArr[0].disable = true;
+        OrderStatusDriverArr[1].disable = true;
+        OrderStatusAccountantArr[0].disable = false;
+        OrderStatusAccountantArr[1].disable = false;
+        OrderStatusAccountantArr[2].disable = false;
+      }
+      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[1].status) {
+        console.log('5');
+        OrderStatusDriverArr[0].disable = false;
+        OrderStatusDriverArr[1].disable = false;
+        OrderStatusAccountantArr[0].disable = true;
+        OrderStatusAccountantArr[1].disable = true;
+        OrderStatusAccountantArr[2].disable = false;
+      }
+      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[0].status) {
+        console.log('6');
+        OrderStatusDriverArr[0].disable = false;
+        OrderStatusDriverArr[1].disable = true;
+        OrderStatusAccountantArr[0].disable = true;
+        OrderStatusAccountantArr[1].disable = false;
+        OrderStatusAccountantArr[2].disable = false;
+      }
+      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[2].status) {
+        console.log('8');
+        OrderStatusDriverArr[0].disable = true;
+        OrderStatusDriverArr[1].disable = true;
+        OrderStatusAccountantArr[0].disable = true;
+        OrderStatusAccountantArr[1].disable = true;
+        OrderStatusAccountantArr[2].disable = true;
+      }
+    }
+  }, [deliverOrder]);
 
   return (
     <Dialog fullWidth maxWidth={'xl'} open={open} onClose={handleClose} TransitionComponent={Transition}>
@@ -398,6 +506,7 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
             </Grid>
           </Stack>
         </DialogContent>
+        <CommonBackdrop loading={loadingUpdateStatus || isSubmitting} />
       </FormProvider>
     </Dialog>
   );

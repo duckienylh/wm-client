@@ -33,6 +33,8 @@ import {
 } from '../../../../components/table';
 import { ProductTableRow } from '../../e-commerce/product-list';
 import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { Role } from '../../../../constant';
+import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 const LIST_PRODUCT = loader('../../../../graphql/queries/product/listAllProduct.graphql');
@@ -40,14 +42,23 @@ const LIST_CATEGORY_PRODUCT = loader('../../../../graphql/queries/category/listA
 const DELETE_PRODUCT = loader('../../../../graphql/mutations/product/deleteProduct.graphql');
 
 // ----------------------------------------------------------------------
-const TABLE_HEAD = [
-  { id: 'stt', label: 'STT', align: 'right' },
+const TABLE_HEAD_FOR_ADMIN = [
+  { id: 'stt', label: 'STT', align: 'center' },
   { id: 'name', label: 'Sản phẩm', align: 'left' },
   { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
   { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
   { id: 'price', label: 'Giá', align: 'right' },
   { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
   { id: '' },
+];
+
+const TABLE_HEAD = [
+  { id: 'stt', label: 'STT', align: 'center' },
+  { id: 'name', label: 'Sản phẩm', align: 'left' },
+  { id: 'code', label: 'Mã Sản phẩm', align: 'left' },
+  { id: 'weight', label: 'Tồn kho (Kg)', align: 'right' },
+  { id: 'price', label: 'Giá', align: 'right' },
+  { id: 'inventoryType', label: 'Trạng thái', align: 'center', width: 180 },
 ];
 // ----------------------------------------------------------------------
 ProductListDialog.propTypes = {
@@ -75,6 +86,8 @@ export default function ProductListDialog({ open, onClose, onSelect }) {
     onChangePage,
     onChangeRowsPerPage,
   } = useTable({});
+
+  const { user } = useAuth();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -247,20 +260,37 @@ export default function ProductListDialog({ open, onClose, onSelect }) {
             )}
 
             <Table size={dense ? 'small' : 'medium'}>
-              <TableHeadCustom
-                order={order}
-                orderBy={orderBy}
-                headLabel={TABLE_HEAD}
-                rowCount={tableData.length}
-                numSelected={selected.length}
-                onSort={onSort}
-                onSelectAllRows={(checked) =>
-                  onSelectAllRows(
-                    checked,
-                    tableData.map((row) => row.id)
-                  )
-                }
-              />
+              {user.role === Role.admin || user.role === Role.director || user.role === Role.manager ? (
+                <TableHeadCustom
+                  order={order}
+                  orderBy={orderBy}
+                  headLabel={TABLE_HEAD_FOR_ADMIN}
+                  rowCount={tableData.length}
+                  numSelected={selected.length}
+                  onSort={onSort}
+                  onSelectAllRows={(checked) =>
+                    onSelectAllRows(
+                      checked,
+                      tableData.map((row) => row.id)
+                    )
+                  }
+                />
+              ) : (
+                <TableHeadCustom
+                  order={order}
+                  orderBy={orderBy}
+                  headLabel={TABLE_HEAD}
+                  rowCount={tableData.length}
+                  numSelected={selected.length}
+                  onSort={onSort}
+                  onSelectAllRows={(checked) =>
+                    onSelectAllRows(
+                      checked,
+                      tableData.map((row) => row.id)
+                    )
+                  }
+                />
+              )}
 
               <TableBody>
                 {tableData.map((row, index) =>

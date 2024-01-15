@@ -82,7 +82,10 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
           borderBottom: (theme) => `solid 1px ${theme.palette.text.primary}`,
         }}
       >
-        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+        {(user.role === Role.admin ||
+          user.role === Role.director ||
+          user.role === Role.manager ||
+          user.role === Role.sales) && (
           <TableCell padding="checkbox">
             <Checkbox checked={selected} onClick={onSelectRow} />
           </TableCell>
