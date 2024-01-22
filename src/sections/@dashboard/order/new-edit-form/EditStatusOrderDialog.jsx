@@ -36,6 +36,86 @@ const OrderStatusAccountantArr = [
   { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
 ];
 
+const OrderStatusDriverChange = (oDS) => {
+  switch (oDS) {
+    case 'Chốt đơn - Tạo lệnh xuất hàng':
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[0].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: false, color: 'success' },
+      ];
+    case OrderStatusDriverArr[1].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[0].status:
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[1].status:
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[2].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    default:
+      return OrderStatusDriverArr;
+  }
+};
+
+const OrderStatusAccountantChange = (oDS) => {
+  switch (oDS) {
+    case 'Chốt đơn - Tạo lệnh xuất hàng':
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: false, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[0].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[1].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: false, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[0].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[1].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[2].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    default:
+      return OrderStatusAccountantArr;
+  }
+};
+
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
   color: theme.palette.text.secondary,
@@ -240,113 +320,6 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
     [deleteArr, deliverOrder?.order?.orderDocumentList, newArrFile, setValue, values?.uploadFile]
   );
 
-  // useEffect(() => {
-  //   if (formatStatus(deliverOrder?.order?.status) === 'Chốt đơn - Tạo lệnh xuất hàng') {
-  //     console.log('1');
-  //     OrderStatusDriverArr[0].disable = false;
-  //     OrderStatusDriverArr[1].disable = true;
-  //     OrderStatusAccountantArr[0].disable = false;
-  //     OrderStatusAccountantArr[1].disable = false;
-  //     OrderStatusAccountantArr[2].disable = true;
-  //   }
-  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[0].status) {
-  //     console.log('2');
-  //     OrderStatusDriverArr[0].disable = true;
-  //     OrderStatusDriverArr[1].disable = false;
-  //     OrderStatusAccountantArr[0].disable = true;
-  //     OrderStatusAccountantArr[1].disable = true;
-  //     OrderStatusAccountantArr[2].disable = true;
-  //   }
-  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[1].status) {
-  //     console.log('3');
-  //     OrderStatusDriverArr[0].disable = true;
-  //     OrderStatusDriverArr[1].disable = true;
-  //     OrderStatusAccountantArr[0].disable = false;
-  //     OrderStatusAccountantArr[1].disable = false;
-  //     OrderStatusAccountantArr[2].disable = false;
-  //   }
-  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[1].status) {
-  //     console.log('5');
-  //     OrderStatusDriverArr[0].disable = false;
-  //     OrderStatusDriverArr[1].disable = false;
-  //     OrderStatusAccountantArr[0].disable = true;
-  //     OrderStatusAccountantArr[1].disable = true;
-  //     OrderStatusAccountantArr[2].disable = false;
-  //   }
-  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[0].status) {
-  //     console.log('6');
-  //     OrderStatusDriverArr[0].disable = false;
-  //     OrderStatusDriverArr[1].disable = true;
-  //     OrderStatusAccountantArr[0].disable = true;
-  //     OrderStatusAccountantArr[1].disable = false;
-  //     OrderStatusAccountantArr[2].disable = false;
-  //   }
-  //   if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[2].status) {
-  //     console.log('8');
-  //     OrderStatusDriverArr[0].disable = true;
-  //     OrderStatusDriverArr[1].disable = true;
-  //     OrderStatusAccountantArr[0].disable = true;
-  //     OrderStatusAccountantArr[1].disable = true;
-  //     OrderStatusAccountantArr[2].disable = true;
-  //   }
-  // }, [deliverOrder?.order?.status, open]);
-  console.log(deliverOrder?.order?.status);
-
-  useEffect(() => {
-    const status = formatStatus(deliverOrder?.order?.status);
-    console.log('........');
-    if (status) {
-      if (formatStatus(deliverOrder?.order?.status) === 'Chốt đơn - Tạo lệnh xuất hàng') {
-        console.log('1');
-        OrderStatusDriverArr[0].disable = false;
-        OrderStatusDriverArr[1].disable = true;
-        OrderStatusAccountantArr[0].disable = false;
-        OrderStatusAccountantArr[1].disable = false;
-        OrderStatusAccountantArr[2].disable = true;
-      }
-      if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[0].status) {
-        console.log('2');
-        OrderStatusDriverArr[0].disable = true;
-        OrderStatusDriverArr[1].disable = false;
-        OrderStatusAccountantArr[0].disable = true;
-        OrderStatusAccountantArr[1].disable = true;
-        OrderStatusAccountantArr[2].disable = true;
-      }
-      if (formatStatus(deliverOrder?.order?.status) === OrderStatusDriverArr[1].status) {
-        console.log('3');
-        OrderStatusDriverArr[0].disable = true;
-        OrderStatusDriverArr[1].disable = true;
-        OrderStatusAccountantArr[0].disable = false;
-        OrderStatusAccountantArr[1].disable = false;
-        OrderStatusAccountantArr[2].disable = false;
-      }
-      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[1].status) {
-        console.log('5');
-        OrderStatusDriverArr[0].disable = false;
-        OrderStatusDriverArr[1].disable = false;
-        OrderStatusAccountantArr[0].disable = true;
-        OrderStatusAccountantArr[1].disable = true;
-        OrderStatusAccountantArr[2].disable = false;
-      }
-      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[0].status) {
-        console.log('6');
-        OrderStatusDriverArr[0].disable = false;
-        OrderStatusDriverArr[1].disable = true;
-        OrderStatusAccountantArr[0].disable = true;
-        OrderStatusAccountantArr[1].disable = false;
-        OrderStatusAccountantArr[2].disable = false;
-      }
-      if (formatStatus(deliverOrder?.order?.status) === OrderStatusAccountantArr[2].status) {
-        console.log('8');
-        OrderStatusDriverArr[0].disable = true;
-        OrderStatusDriverArr[1].disable = true;
-        OrderStatusAccountantArr[0].disable = true;
-        OrderStatusAccountantArr[1].disable = true;
-        OrderStatusAccountantArr[2].disable = true;
-      }
-    }
-  }, [deliverOrder]);
-
   return (
     <Dialog fullWidth maxWidth={'xl'} open={open} onClose={handleClose} TransitionComponent={Transition}>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -411,7 +384,10 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
             )}
 
             <Stack spacing={1} direction="row">
-              {(user.role === Role.driver ? OrderStatusDriverArr : OrderStatusAccountantArr).map((option, idx) => (
+              {(user.role === Role.driver
+                ? OrderStatusDriverChange(formatStatus(deliverOrder?.order?.status))
+                : OrderStatusAccountantChange(formatStatus(deliverOrder?.order?.status))
+              ).map((option, idx) => (
                 <Button
                   key={idx}
                   size="small"
