@@ -17,6 +17,7 @@ import { Role } from '../../../../constant';
 import { FormProvider, RHFUploadMultiFile } from '../../../../components/hook-form';
 import { filterImgData } from '../../../../utils/utiltites';
 import Image from '../../../../components/Image';
+import CommonBackdrop from '../../../../components/CommonBackdrop';
 
 // -----------------------------------------------------------------
 const UPDATE_STATUS_ORDER = loader('../../../../graphql/mutations/order/updateStatusOrder.graphql');
@@ -34,6 +35,86 @@ const OrderStatusAccountantArr = [
   { status: 'Đang thanh toán', disable: false, color: 'warning' },
   { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
 ];
+
+const OrderStatusDriverChange = (oDS) => {
+  switch (oDS) {
+    case 'Chốt đơn - Tạo lệnh xuất hàng':
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[0].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: false, color: 'success' },
+      ];
+    case OrderStatusDriverArr[1].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[0].status:
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[1].status:
+      return [
+        { status: 'Đang giao hàng', disable: false, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[2].status:
+      return [
+        { status: 'Đang giao hàng', disable: true, color: 'warning' },
+        { status: 'Giao hàng thành công', disable: true, color: 'success' },
+      ];
+    default:
+      return OrderStatusDriverArr;
+  }
+};
+
+const OrderStatusAccountantChange = (oDS) => {
+  switch (oDS) {
+    case 'Chốt đơn - Tạo lệnh xuất hàng':
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: false, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[0].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    case OrderStatusDriverArr[1].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: false, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[0].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: false, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[1].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: false, color: 'success' },
+      ];
+    case OrderStatusAccountantArr[2].status:
+      return [
+        { status: 'Xác nhận thanh toán và hồ sơ', disable: true, color: 'info' },
+        { status: 'Đang thanh toán', disable: true, color: 'warning' },
+        { status: 'Đơn hàng hoàn thành', disable: true, color: 'success' },
+      ];
+    default:
+      return OrderStatusAccountantArr;
+  }
+};
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
   ...theme.typography.subtitle2,
@@ -98,7 +179,7 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
 
   const values = watch();
 
-  const [updateStatusOrder] = useMutation(UPDATE_STATUS_ORDER, {
+  const [updateStatusOrder, { loading: loadingUpdateStatus }] = useMutation(UPDATE_STATUS_ORDER, {
     onCompleted: async (res) => {
       if (res) {
         enqueueSnackbar('Cập nhật đơn hàng thành công', {
@@ -303,7 +384,10 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
             )}
 
             <Stack spacing={1} direction="row">
-              {(user.role === Role.driver ? OrderStatusDriverArr : OrderStatusAccountantArr).map((option, idx) => (
+              {(user.role === Role.driver
+                ? OrderStatusDriverChange(formatStatus(deliverOrder?.order?.status))
+                : OrderStatusAccountantChange(formatStatus(deliverOrder?.order?.status))
+              ).map((option, idx) => (
                 <Button
                   key={idx}
                   size="small"
@@ -398,6 +482,7 @@ export default function EditStatusOrderDialog({ open, onClose, deliverOrder, ref
             </Grid>
           </Stack>
         </DialogContent>
+        <CommonBackdrop loading={loadingUpdateStatus || isSubmitting} />
       </FormProvider>
     </Dialog>
   );

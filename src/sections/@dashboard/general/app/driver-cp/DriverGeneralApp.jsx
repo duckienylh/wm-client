@@ -34,6 +34,7 @@ export default function DriverGeneralApp() {
     variables: {
       input: {
         driverId: user.role === Role.driver ? Number(user.id) : null,
+        theNext7Days: true,
       },
     },
   });

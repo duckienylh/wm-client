@@ -199,12 +199,6 @@ export const salesNavConfig = [
       },
     ],
   },
-  // APP
-  // ----------------------------------------------------------------------
-  {
-    subheader: 'Chức năng',
-    items: [{ title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar }],
-  },
 ];
 
 export const driverNavConfig = [
@@ -240,11 +234,5 @@ export const driverNavConfig = [
         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.driver.list }],
       },
     ],
-  },
-  // APP
-  // ----------------------------------------------------------------------
-  {
-    subheader: 'Chức năng',
-    items: [{ title: 'Lịch làm việc', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar }],
   },
 ];

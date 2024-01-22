@@ -88,12 +88,7 @@ export default function OrdersToBeProcessed() {
 }
 
 CustomerItem.propTypes = {
-  row: PropTypes.shape({
-    orderId: PropTypes.number,
-    invoiceNo: PropTypes.string,
-    customer: PropTypes.object,
-    status: PropTypes.string,
-  }),
+  row: PropTypes.object,
   handleLink: PropTypes.func,
   handleLinkToDeliverList: PropTypes.func,
 };

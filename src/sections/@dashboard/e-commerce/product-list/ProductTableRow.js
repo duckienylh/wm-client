@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // @mui
-import { Checkbox, MenuItem, TableCell, TableRow, Typography } from '@mui/material';
+import { Button, Checkbox, MenuItem, TableCell, TableRow, Typography } from '@mui/material';
 // utils
 import { useTheme } from '@mui/material/styles';
 import { fVietNamCurrency } from '../../../../utils/formatNumber';
@@ -12,6 +12,7 @@ import { TableMoreMenu } from '../../../../components/table';
 import Label from '../../../../components/Label';
 import { Role } from '../../../../constant';
 import useAuth from '../../../../hooks/useAuth';
+import LightboxModal from '../../../../components/LightboxModal';
 
 // ----------------------------------------------------------------------
 
@@ -37,9 +38,21 @@ const inventoryType = (inventory) => {
 export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { user } = useAuth();
   const theme = useTheme();
-  const { name, code, image, inventory, price } = row;
+  const { name, code, image, inventory, price, imagesOfProduct } = row;
 
   const [openMenu, setOpenMenuActions] = useState(null);
+
+  const [urlProducts, setUrlProducts] = useState([]);
+
+  const [openLightbox, setOpenLightbox] = useState(false);
+
+  const [selectedImage, setSelectedImage] = useState(0);
+
+  useEffect(() => {
+    if (imagesOfProduct) {
+      setUrlProducts(imagesOfProduct.map((data) => data?.url));
+    }
+  }, [imagesOfProduct]);
 
   const handleOpenMenu = (event) => {
     setOpenMenuActions(event.currentTarget);
@@ -69,7 +82,10 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
           borderBottom: (theme) => `solid 1px ${theme.palette.text.primary}`,
         }}
       >
-        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+        {(user.role === Role.admin ||
+          user.role === Role.director ||
+          user.role === Role.manager ||
+          user.role === Role.sales) && (
           <TableCell padding="checkbox">
             <Checkbox checked={selected} onClick={onSelectRow} />
           </TableCell>
@@ -78,7 +94,10 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
         <TableCell align="center">{idx}</TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Image disabledEffect alt={name} src={image} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
+          <Button onClick={() => setOpenLightbox(true)}>
+            <Image disabledEffect alt={name} src={image} sx={{ borderRadius: 1.5, width: 48, height: 48, mr: 2 }} />
+          </Button>
+
           <Typography variant="subtitle2" noWrap>
             {name}
           </Typography>
@@ -136,6 +155,14 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
             />
           </TableCell>
         )}
+        <LightboxModal
+          images={urlProducts}
+          mainSrc={urlProducts[selectedImage]}
+          photoIndex={selectedImage}
+          setPhotoIndex={setSelectedImage}
+          isOpen={openLightbox}
+          onCloseRequest={() => setOpenLightbox(false)}
+        />
       </TableRow>
     </>
   );
