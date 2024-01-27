@@ -213,7 +213,7 @@ export default function DriverList() {
     <Page title="Lái xe: Danh sách Lái xe">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Danh sách Lái-phụ xe"
+          heading="Danh sách lái xe"
           links={[
             { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
             { name: 'Lái xe', href: PATH_DASHBOARD.driver.root },
@@ -227,7 +227,7 @@ export default function DriverList() {
                 to={PATH_DASHBOARD.driver.new}
                 startIcon={<Iconify icon={'eva:plus-fill'} />}
               >
-                Thêm lái-phụ xe
+                Thêm lái xe
               </Button>
             )
           }

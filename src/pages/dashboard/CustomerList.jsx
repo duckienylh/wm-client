@@ -185,7 +185,7 @@ export default function CustomerList() {
   const isNotFound = !tableData.length;
 
   return (
-    <Page title="Khách hàng">
+    <Page title="Danh sách khách hàng">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Khách hàng"
@@ -195,7 +195,10 @@ export default function CustomerList() {
             { name: 'Danh sách' },
           ]}
           action={
-            (user.role === Role.admin || user.role === Role.director || user.role === Role.sales) && (
+            (user.role === Role.admin ||
+              user.role === Role.director ||
+              user.role === Role.sales ||
+              user.role === Role.manager) && (
               <Button
                 variant="contained"
                 component={RouterLink}

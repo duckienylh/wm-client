@@ -379,7 +379,7 @@ export default function VehicleNewEditForm({ isEdit, currentVehicle }) {
         >
           <RHFSelect
             name="driverId"
-            label="Tên Lái-Phụ Xe"
+            label="Tên Lái Xe"
             onChange={(event) => {
               setValue('driverId', event.target.value, { shouldValidate: true });
             }}

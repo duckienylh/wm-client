@@ -303,6 +303,7 @@ export default function ProductListDialog({ open, onClose, onSelect }) {
                       onSelectRow={() => onSelectRow(row.id)}
                       onDeleteRow={() => handleDeleteRow(row.id)}
                       onEditRow={() => handleEditRow(row.id)}
+                      isAddProduct
                     />
                   ) : (
                     !isNotFound && <TableSkeleton key={index} sx={{ height: denseHeight }} />

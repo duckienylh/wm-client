@@ -65,7 +65,7 @@ export default function OrderQuotationDetails({ order, isPay, closePayment, refe
 
   const NewPaymentInformation = Yup.object().shape({
     description: Yup.string().required('Nhập nội dung thanh toán'),
-    money: Yup.string().required('Nhập tiền thanh toán thanh toán'),
+    money: Yup.number().moreThan(0, 'Nhập tiền thanh toán thanh toán'),
   });
 
   const defaultValues = useMemo(

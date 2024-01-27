@@ -8,12 +8,8 @@ export const formatRole = (role) => {
       return 'Kế toán';
     case 'Sales':
       return 'Bán hàng';
-    case 'TransporterManager':
-      return 'Quản lý phương tiện';
     case 'Driver':
       return 'Lái xe';
-    case 'AssistantDriver':
-      return 'Phụ xe';
     case 'Manager':
       return 'Quản lý';
     default:

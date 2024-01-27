@@ -23,6 +23,7 @@ ProductTableRow.propTypes = {
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
+  isAddProduct: PropTypes.bool,
 };
 
 const inventoryType = (inventory) => {
@@ -35,7 +36,7 @@ const inventoryType = (inventory) => {
   }
 };
 
-export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function ProductTableRow({ idx, row, selected, onEditRow, onSelectRow, onDeleteRow, isAddProduct }) {
   const { user } = useAuth();
   const theme = useTheme();
   const { name, code, image, inventory, price, imagesOfProduct } = row;
@@ -82,10 +83,13 @@ export default function ProductTableRow({ idx, row, selected, onEditRow, onSelec
           borderBottom: (theme) => `solid 1px ${theme.palette.text.primary}`,
         }}
       >
-        {(user.role === Role.admin ||
-          user.role === Role.director ||
-          user.role === Role.manager ||
-          user.role === Role.sales) && (
+        {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) && (
+          <TableCell padding="checkbox">
+            <Checkbox checked={selected} onClick={onSelectRow} />
+          </TableCell>
+        )}
+
+        {user.role === Role.sales && isAddProduct && (
           <TableCell padding="checkbox">
             <Checkbox checked={selected} onClick={onSelectRow} />
           </TableCell>

@@ -51,6 +51,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
     code: Yup.string().required('Mã sản phẩm cần được nhập'),
     price: Yup.number().moreThan(0, 'Giá không được là 0.00 VNĐ'),
     inventory: Yup.number().moreThan(0, 'Khối lượng không được là 0.00 Kg'),
+    category: Yup.string().required('Hãy chọn danh mục'),
   });
 
   const defaultValues = useMemo(
@@ -226,7 +227,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
                   placeholder="0.00"
                   value={fVietNamCurrency(values.height)}
                   InputProps={{
-                    endAdornment: <InputAdornment position="start">m</InputAdornment>,
+                    endAdornment: <InputAdornment position="start">cm</InputAdornment>,
                   }}
                   setValue={setValue}
                   InputLabelProps={{ shrink: true }}
@@ -238,7 +239,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }) {
                   placeholder="0.00"
                   value={fVietNamCurrency(values.width)}
                   InputProps={{
-                    endAdornment: <InputAdornment position="start">m</InputAdornment>,
+                    endAdornment: <InputAdornment position="start">cm</InputAdornment>,
                   }}
                   setValue={setValue}
                   InputLabelProps={{ shrink: true }}

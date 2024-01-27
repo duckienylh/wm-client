@@ -185,7 +185,7 @@ export default function VehicleList() {
   const isNotFound = !tableData.length;
 
   return (
-    <Page title="Người dùng: Danh sách người dùng">
+    <Page title="Người dùng: Danh sách phương tiện">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
           heading="Danh sách xe-phương tiện"

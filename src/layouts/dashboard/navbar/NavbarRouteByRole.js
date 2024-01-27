@@ -89,7 +89,7 @@ export const adminNavConfig = [
     subheader: 'Kinh doanh',
     items: [
       { title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice },
-      { title: 'Tạo đơn hàng mới', path: PATH_DASHBOARD.saleAndMarketing.new, icon: ICONS.saleAndMarketing },
+      // { title: 'Tạo đơn hàng mới', path: PATH_DASHBOARD.saleAndMarketing.new, icon: ICONS.saleAndMarketing },
     ],
   },
   // Vận tải
@@ -112,7 +112,7 @@ export const adminNavConfig = [
         ],
       },
       {
-        title: 'Lái xe, phụ xe',
+        title: 'Lái xe',
         path: PATH_DASHBOARD.driver.root,
         icon: ICONS.driver,
         children: [
@@ -201,6 +201,62 @@ export const salesNavConfig = [
   },
 ];
 
+export const accountantNavConfig = [
+  // Chung
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Chung',
+    items: [
+      { title: 'Thông tin tổng hợp', path: PATH_DASHBOARD.general.app, icon: ICONS.dashboard },
+      { title: 'Tài khoản', path: PATH_DASHBOARD.userAccount, icon: ICONS.user },
+    ],
+  },
+  // MANAGEMENT
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Quản lý',
+    items: [
+      // USER
+      {
+        title: 'Người dùng, nhân viên',
+        path: PATH_DASHBOARD.user.root,
+        icon: ICONS.user,
+        children: [{ title: 'Danh sách', path: PATH_DASHBOARD.user.list }],
+      },
+      // Khách hàng
+      {
+        title: 'Khách hàng',
+        path: PATH_DASHBOARD.customer.root,
+        icon: ICONS.customer,
+        children: [
+          { title: 'Danh sách', path: PATH_DASHBOARD.customer.list },
+          { title: 'Tạo mới', path: PATH_DASHBOARD.customer.new },
+        ],
+      },
+      // product
+      {
+        title: 'Sản phẩm',
+        path: PATH_DASHBOARD.categoryList.root,
+        icon: ICONS.inventory,
+      },
+    ],
+  },
+  {
+    subheader: 'Kinh doanh',
+    items: [{ title: 'Danh sách đơn hàng', path: PATH_DASHBOARD.saleAndMarketing.list, icon: ICONS.invoice }],
+  },
+  {
+    subheader: 'Vận tải',
+    items: [
+      {
+        title: 'Lệnh xuất hàng',
+        path: PATH_DASHBOARD.deliveryOrder.root,
+        icon: ICONS.fastDelivery,
+      },
+    ],
+  },
+];
+
 export const driverNavConfig = [
   // Chung
   // ----------------------------------------------------------------------
@@ -228,7 +284,7 @@ export const driverNavConfig = [
         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.vehicle.list }],
       },
       {
-        title: 'Lái xe, phụ xe',
+        title: 'Lái xe',
         path: PATH_DASHBOARD.driver.root,
         icon: ICONS.driver,
         children: [{ title: 'Danh sách', path: PATH_DASHBOARD.driver.list }],

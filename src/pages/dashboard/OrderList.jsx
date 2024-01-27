@@ -283,14 +283,16 @@ export default function OrderList() {
             { name: 'Danh sách' },
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.saleAndMarketing.new}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
-            >
-              Đơn hàng mới
-            </Button>
+            user.role === Role.sales && (
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={PATH_DASHBOARD.saleAndMarketing.new}
+                startIcon={<Iconify icon={'eva:plus-fill'} />}
+              >
+                Đơn hàng mới
+              </Button>
+            )
           }
         />
 

@@ -7,10 +7,11 @@ import { fVietNamCurrency } from '../../../../utils/formatNumber';
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
-import { OrderStatus } from '../../../../constant';
+import { OrderStatus, Role } from '../../../../constant';
 import CustomerInfoPopup from './CustomerInfoPopup';
 import useToggle from '../../../../hooks/useToggle';
 import { formatStatus } from '../../../../utils/getOrderFormat';
+import useAuth from '../../../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -23,6 +24,8 @@ OrderTableRow.propTypes = {
 
 export default function OrderTableRow({ idx, row, onViewRow, onEditRow }) {
   const theme = useTheme();
+
+  const { user } = useAuth();
 
   const { toggle: isOpenCustomerPopup, onOpen: onOpenCustomerPopup, onClose: onCloseCustomerPopup } = useToggle();
 
@@ -117,15 +120,17 @@ export default function OrderTableRow({ idx, row, onViewRow, onEditRow }) {
                   Xem chi tiết
                 </MenuItem>
 
-                <MenuItem
-                  onClick={() => {
-                    onEditRow();
-                    handleCloseMenu();
-                  }}
-                >
-                  <Iconify icon={'eva:edit-fill'} />
-                  Chỉnh sửa
-                </MenuItem>
+                {user.role === Role.sales && (
+                  <MenuItem
+                    onClick={() => {
+                      onEditRow();
+                      handleCloseMenu();
+                    }}
+                  >
+                    <Iconify icon={'eva:edit-fill'} />
+                    Chỉnh sửa
+                  </MenuItem>
+                )}
               </>
             }
           />

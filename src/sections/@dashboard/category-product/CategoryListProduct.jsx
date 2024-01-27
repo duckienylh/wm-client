@@ -432,7 +432,7 @@ export default function CategoryListProduct() {
             }
             links={[
               { name: 'Thông tin tổng hợp', href: PATH_DASHBOARD.root },
-              { name: 'Danh sách sản phẩm', href: PATH_DASHBOARD.categoryList.root },
+              { name: 'Danh sách', href: PATH_DASHBOARD.categoryList.root },
               { name: category?.name ? category?.name : '' },
             ]}
           />
