@@ -20,9 +20,10 @@ OrderTableRow.propTypes = {
   row: PropTypes.object,
   onViewRow: PropTypes.func,
   onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };
 
-export default function OrderTableRow({ idx, row, onViewRow, onEditRow }) {
+export default function OrderTableRow({ idx, row, onViewRow, onEditRow, onDeleteRow }) {
   const theme = useTheme();
 
   const { user } = useAuth();
@@ -131,6 +132,20 @@ export default function OrderTableRow({ idx, row, onViewRow, onEditRow }) {
                     Chỉnh sửa
                   </MenuItem>
                 )}
+
+                {(user.role === Role.admin || user.role === Role.director || user.role === Role.manager) &&
+                  formatStatus(status) === OrderStatus.new && (
+                    <MenuItem
+                      onClick={() => {
+                        onDeleteRow();
+                        handleCloseMenu();
+                      }}
+                      sx={{ color: 'error.main' }}
+                    >
+                      <Iconify icon={'eva:trash-2-outline'} />
+                      Xóa
+                    </MenuItem>
+                  )}
               </>
             }
           />

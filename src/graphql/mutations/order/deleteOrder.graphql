@@ -1,0 +1,3 @@
+mutation DeleteOder($input: DeleteOrderInput!) {
+    deleteOrder(input: $input)
+}

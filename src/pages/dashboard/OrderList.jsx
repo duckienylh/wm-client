@@ -20,7 +20,8 @@ import {
   Tabs,
 } from '@mui/material';
 import { loader } from 'graphql.macro';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { useSnackbar } from 'notistack';
 import { PATH_DASHBOARD } from '../../routes/paths';
 import useTabs from '../../hooks/useTabs';
 import useSettings from '../../hooks/useSettings';
@@ -39,6 +40,7 @@ import { reformatStatus } from '../../utils/getOrderFormat';
 
 // ----------------------------------------------------------------------
 const LIST_ORDERS = loader('../../graphql/queries/order/listAllOrder.graphql');
+const DELETE_ORDER = loader('../../graphql/mutations/order/deleteOrder.graphql');
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -57,6 +59,8 @@ export default function OrderList() {
   const { user } = useAuth();
 
   const theme = useTheme();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const { themeStretch } = useSettings();
 
@@ -107,7 +111,11 @@ export default function OrderList() {
 
   const [totalCount, setTotalCount] = useState(0);
 
-  const { data: allOrder, fetchMore: fetchMoreOrder } = useQuery(LIST_ORDERS, {
+  const {
+    data: allOrder,
+    refetch: refetchOrder,
+    fetchMore: fetchMoreOrder,
+  } = useQuery(LIST_ORDERS, {
     variables: {
       input: {
         queryString: filterName,
@@ -213,6 +221,31 @@ export default function OrderList() {
 
   const handleViewRow = (id) => {
     navigate(PATH_DASHBOARD.saleAndMarketing.view(id));
+  };
+
+  const [deleteOrder] = useMutation(DELETE_ORDER, {
+    onCompleted: () => {
+      enqueueSnackbar('Xóa đơn hàng thành công', {
+        variant: 'success',
+      });
+    },
+
+    onError: (error) => {
+      enqueueSnackbar(`Xóa đơn hàng không thành công. Nguyên nhân: ${error.message}`, {
+        variant: 'error',
+      });
+    },
+  });
+
+  const handleDeleteRow = async (id) => {
+    await deleteOrder({
+      variables: {
+        input: {
+          orderId: Number(id),
+        },
+      },
+    });
+    await refetchOrder();
   };
 
   const denseHeight = dense ? 56 : 76;
@@ -393,6 +426,7 @@ export default function OrderList() {
                       row={row}
                       onViewRow={() => handleViewRow(row.id)}
                       onEditRow={() => handleEditRow(row.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
                     />
                   ))}
 

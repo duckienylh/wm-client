@@ -343,8 +343,8 @@ export default function OrderQuotationDetails({ order, isPay, closePayment, refe
                         <TableCell align="center">
                           <Typography variant="subtitle2">
                             {remainingPaymentMoney > 0
-                              ? fVietNamCurrency(remainingPaymentMoney)
-                              : fVietNamCurrency(-remainingPaymentMoney)}
+                              ? fVietNamCurrency(remainingPaymentMoney.toFixed(2))
+                              : fVietNamCurrency(-remainingPaymentMoney.toFixed(2))}
                           </Typography>
                         </TableCell>
                         <TableCell align="right" />

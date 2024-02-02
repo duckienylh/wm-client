@@ -84,8 +84,8 @@ export default function OrderMoneyCard({ moneyOrder, sx, ...other }) {
           <Stack spacing={0.75} direction="row" alignItems="center" sx={{ typography: 'caption', mt: 0.5 }}>
             <Typography variant="subtitle2" noWrap>
               {remainingPaymentMoney < 0
-                ? `Tiền thừa của KH:  ${fVietNamCurrency(Math.abs(remainingPaymentMoney)) ?? ''}`
-                : `Số tiền còn lại: ${fVietNamCurrency(Number(remainingPaymentMoney)) ?? ''}`}
+                ? `Tiền thừa của KH:  ${fVietNamCurrency(Math.abs(remainingPaymentMoney.toFixed(2))) ?? ''}`
+                : `Số tiền còn lại: ${fVietNamCurrency(Number(remainingPaymentMoney.toFixed(2))) ?? ''}`}
             </Typography>
           </Stack>
 

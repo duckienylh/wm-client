@@ -136,8 +136,8 @@ export default function OrderDetailsDrawer({
                     label={remainingPaymentMoney < 0 ? 'Thừa của KH' : 'Còn lại'}
                     value={
                       remainingPaymentMoney < 0
-                        ? fVietNamCurrency(Math.abs(remainingPaymentMoney))
-                        : fVietNamCurrency(Number(remainingPaymentMoney))
+                        ? fVietNamCurrency(Math.abs(remainingPaymentMoney.toFixed(2)))
+                        : fVietNamCurrency(Number(remainingPaymentMoney.toFixed(2)))
                     }
                   />
                 </Stack>
